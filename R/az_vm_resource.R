@@ -68,7 +68,13 @@ public=list(
 
     add_extension=function(...) { },
 
-    run_script=function(...) { }
+    run_command=function(command=NULL, parameters=NULL, script=NULL)
+    {
+        if(is_empty(command))
+            stop("Must supply a command to run", call.=FALSE)
+        body <- list(commandId=command, parameters=parameters, script=script)
+        self$do_operation(http_verb="POST", "runCommand", body=body, encode="json")
+    }
 ),
 
 private=list(

@@ -70,9 +70,8 @@ AzureRMR::az_subscription$set("public", "list_vms", function()
         cont <- call_azure_url(self$token, cont$nextLink)
         lst <- lapply(cont$value,
             function(parms) az_vm_resource$new(self$token, self$id, deployed_properties=parms))
-            }
+    }
     named_list(lst)
-
 })
 
 

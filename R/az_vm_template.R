@@ -4,14 +4,18 @@ az_vm_template <- R6::R6Class("az_vm_template", inherit=AzureRMR::az_template,
 public=list(
     disks=NULL,
     status=NULL,
+    ip_address=NULL,
+    dns_name=NULL,
 
     initialize=function(token, subscription, resource_group, name=NULL, location, os=c("Windows", "Ubuntu"),
                         size="Standard_DS2_v2", username=NULL, passkey=NULL, userauth_type=c("password", "key"),
                         template, parameters, ..., exclusive_group=FALSE, wait=TRUE)
     {
-        # if no parameters were supplied, we want to retrieve an existing template
-        if(!(missing(location) && missing(size) && missing(os) &&
-             missing(username) && missing(userauth_type) && missing(passkey)))
+        # if no parameters were supplied, we want to retrieve an existing VM
+        args_missing <- missing(location) && missing(size) && missing(os) &&
+                        missing(username) && missing(userauth_type) && missing(passkey)
+
+        if(!args_missing)
         {
             os <- match.arg(os)
             userauth_type <- match.arg(userauth_type)
@@ -31,9 +35,21 @@ public=list(
         }
 
         super$initialize(token, subscription, resource_group, name, template, parameters, ..., wait=wait)
+        if(!wait && !(args_missing && missing(template) && missing(parameters)))
+        {
+            message("Deployment started. Run the sync_vm_status() method when deployment is complete to initialise the VM")
+            return(NULL)
+        }
 
         private$vm <- az_vm_resource$new(self$token, self$subscription, self$resource_group,
             type="Microsoft.Compute/virtualMachines", name=self$name)
+
+        # get the hostname/IP address for the VM
+        outputs <- unlist(self$properties$outputResources)
+        ip <- az_resource$new(self$token, self$subscription,
+                              id=grep("publicIPAddresses/.+$", outputs, ignore.case=TRUE, value=TRUE))$properties
+        self$ip_address <- ip$ipAddress
+        self$dns_name <- ip$dnsSettings$fqdn
 
         private$exclusive_group <- exclusive_group
         NULL
@@ -41,6 +57,16 @@ public=list(
 
     sync_vm_status=function()
     {
+        if(is_empty(private$vm) || is_empty(self$status) || tolower(self$status[1]) != "succeeded")
+        {
+            res <- try(self$initialize(self$token, self$subscription, self$resource_group, self$name), silent=TRUE)
+            if(inherits(res, "try-error"))
+            {
+                message("VM deployment in progress")
+                return(invisible(NULL))
+            }
+        }
+
         private$vm$sync_vm_status()
         self$disks <- private$vm$disks
         self$status <- private$vm$status
@@ -49,13 +75,13 @@ public=list(
 
     start=function(wait=TRUE)
     {
-        private$vm$start(wait=wait)
+        private$get_vm()$start(wait=wait)
         self$sync_vm_status()
     },
 
     stop=function(deallocate=TRUE, wait=TRUE)
     {
-        private$vm$stop(deallocate=deallocate, wait=wait)
+        private$get_vm()$stop(deallocate=deallocate, wait=wait)
         self$sync_vm_status()
     },
 
@@ -77,18 +103,25 @@ public=list(
 
     add_extension=function(...)
     {
-        private$vm$add_extension(...)
+        private$get_vm()$add_extension(...)
     },
 
-    run_script=function(...)
+    run_command=function(...)
     {
-        private$vm$run_script(...)
+        private$get_vm()$run_command(...)
     }
 ),
 
 private=list(
     exclusive_group=NULL,
     vm=NULL,
+
+    get_vm=function()
+    {
+        if(is_empty(private$vm))
+            stop("VM deployment in progress", call.=FALSE)
+        private$vm
+    },
 
     get_template=function(os, userauth_type)
     {
