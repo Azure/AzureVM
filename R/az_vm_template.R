@@ -21,16 +21,17 @@ public=list(
 
             # find template given input args
             if(missing(template))
-                template <- get_template(os, userauth_type)
+                template <- private$get_template(os, userauth_type)
 
             # convert input args into parameter list for template
             if(missing(parameters))
-                parameters <- make_param_list(username, userauth_type, passkey, size, template)
+                parameters <- private$make_param_list(name, username, userauth_type, passkey, size, template)
 
             template <- system.file("templates", paste0(template, ".json"), package="AzureVM")
         }
 
         super$initialize(token, subscription, resource_group, name, template, parameters, ..., wait=wait)
+
         private$vm <- az_vm_resource$new(self$token, self$subscription, self$resource_group,
             type="Microsoft.Compute/virtualMachines", name=self$name)
 
@@ -41,8 +42,8 @@ public=list(
     sync_vm_status=function()
     {
         private$vm$sync_vm_status()
-        self$disks <- vm$disks
-        self$status <- vm$status
+        self$disks <- private$vm$disks
+        self$status <- private$vm$status
         invisible(NULL)
     },
 
@@ -56,6 +57,22 @@ public=list(
     {
         private$vm$stop(deallocate=deallocate, wait=wait)
         self$sync_vm_status()
+    },
+
+    delete=function(confirm=TRUE, free_resources=TRUE)
+    {
+        if(private$exclusive_group)
+        {
+            if(confirm && interactive())
+            {
+                msg <- paste0("Do you really want to delete VM and resource group '", self$name, "'? (y/N) ")
+                yn <- readline(msg)
+                if(tolower(substr(yn, 1, 1)) != "y")
+                    return(invisible(NULL))
+            }
+            az_resource_group$new(self$token, self$subscription, self$resource_group)$delete(confirm=FALSE)
+        }
+        else super$delete(confirm=confirm, free_resources=free_resources)
     },
 
     add_extension=function(...)
@@ -75,7 +92,7 @@ private=list(
 
     get_template=function(os, userauth_type)
     {
-        if(os == "ubuntu")
+        if(os == "Ubuntu")
         {
             if(userauth_type == "password")
                 "ubuntu_dsvm"
@@ -101,12 +118,3 @@ is_vm <- function(object)
 {
     R6::is.R6(object) && inherits(object, "az_vm_template")
 }
-
-
-#' @export
-is_raw_vm <- function(object)
-{
-    R6::is.R6(object) && inherits(object, "az_vm_resource")
-}
-
-

@@ -10,7 +10,7 @@ AzureRMR::az_subscription$set("public", "list_vm_sizes", function(location, all_
 
     if(all_info)
         do.call(rbind, lapply(res$value, data.frame, stringsAsFactors=FALSE))
-    else lapply(res$value, `[[`, "name")
+    else sapply(res$value, `[[`, "name")
 })
 
 
@@ -63,7 +63,7 @@ AzureRMR::az_resource_group$set("public", "create_vm", function(name, location, 
 
 AzureRMR::az_resource_group$set("public", "get_vm", function(name)
 {
-    az_vm_template$new(self$token, self$id, name)
+    az_vm_template$new(self$token, self$subscription, self$name, name)
 })
 
 
@@ -72,9 +72,3 @@ AzureRMR::az_resource_group$set("public", "delete_vm", function(name, confirm=TR
     self$get_vm(name)$delete(confirm=confirm, free_resources=free_resources)
 })
 
-
-#' @export
-list_vm_sizes <- function(token, subscription, location, all_info=TRUE)
-{
-    AzureRMR::az_subscription$new(token, subscription)$list_vm_sizes(location, all_info)
-}
