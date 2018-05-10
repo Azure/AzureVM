@@ -71,7 +71,9 @@ AzureRMR::az_subscription$set("public", "list_vms", function()
         lst <- lapply(cont$value,
             function(parms) az_vm_resource$new(self$token, self$id, deployed_properties=parms))
     }
-    named_list(lst)
+
+    # get templates corresponding to raw VMs (if possible)
+    lapply(named_list(lst), convert_to_vm_template)
 })
 
 
@@ -116,5 +118,29 @@ AzureRMR::az_resource_group$set("public", "list_vms", function()
         lst <- lapply(cont$value,
             function(parms) az_vm_resource$new(self$token, self$subscription, deployed_properties=parms))
     }
-    named_list(lst)
+
+    # get templates corresponding to raw VMs (if possible)
+    lapply(named_list(lst), convert_to_vm_template)
 })
+
+
+convert_to_vm_template <- function(vm_resource)
+{
+    token <- vm_resource$token
+    subscription <- vm_resource$subscription
+    resource_group <- vm_resource$resource_group
+    name <- vm_resource$name
+
+    tpl <- try(az_vm_template$new(token, subscription, resource_group, name), silent=TRUE)
+    if(!inherits(tpl, "try-error") &&
+       !is_empty(tpl$properties$outputResources) &&
+       grepl(sprintf("providers/Microsoft.Compute/virtualMachines/%s$", name),
+             tpl$properties$outputResources[[1]]$id, ignore.case=TRUE))
+        tpl
+    else
+    {
+        warning("No deployment template found for VM '", name, "'", call.=FALSE)
+        vm_resource
+    }
+}
+
