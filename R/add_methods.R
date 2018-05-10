@@ -29,8 +29,10 @@ AzureRMR::az_subscription$set("public", "create_vm", function(name, location, ..
     {
         message("Creating resource group '", resource_group, "'")
         self$create_resource_group(resource_group, location=location)
+        mode <- "Complete"
     }
-    az_vm_template$new(self$token, self$id, resource_group, name, location, ..., exclusive_group=exclusive_group)
+    else mode <- "Incremental"
+    az_vm_template$new(self$token, self$id, resource_group, name, location, ..., mode=mode)
 })
 
 
