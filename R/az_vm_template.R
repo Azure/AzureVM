@@ -90,6 +90,12 @@ public=list(
         self$sync_vm_status()
     },
 
+    restart=function(wait=TRUE)
+    {
+        private$get_vm()$restart(wait=wait)
+        self$sync_vm_status()
+    },
+
     delete=function(confirm=TRUE, free_resources=TRUE)
     {
         if(private$exclusive_group)
