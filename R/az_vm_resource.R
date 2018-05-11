@@ -92,6 +92,18 @@ public=list(
             stop("Must supply a command to run", call.=FALSE)
         body <- list(commandId=command, parameters=parameters, script=script)
         self$do_operation(http_verb="POST", "runCommand", body=body, encode="json")
+    },
+
+    run_script=function(parameters=NULL, script=NULL)
+    {
+        os_prof_names <- names(self$properties$osProfile)
+        windows <- any(grepl("windows", os_prof_names, ignore.case=TRUE))
+        linux <- any(grepl("linux", os_prof_names, ignore.case=TRUE))
+        if(!windows && !linux)
+            stop("Unknown VM operating system", call.=FALSE)
+
+        cmd <- if(windows) "runPowerShellScript" else "runShellScript"
+        self$run_command(cmd, parameters, script)
     }
 ),
 

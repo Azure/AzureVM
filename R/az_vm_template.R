@@ -120,6 +120,11 @@ public=list(
     run_command=function(...)
     {
         private$get_vm()$run_command(...)
+    },
+
+    run_script=function(...)
+    {
+        private$get_vm()$run_script(...)
     }
 ),
 
