@@ -117,9 +117,9 @@ public=list(
         private$get_vm()$add_extension(...)
     },
 
-    run_command=function(...)
+    run_deployed_command=function(...)
     {
-        private$get_vm()$run_command(...)
+        private$get_vm()$run_deployed_command(...)
     },
 
     run_script=function(...)

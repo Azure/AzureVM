@@ -89,7 +89,14 @@ AzureRMR::az_resource_group$set("public", "create_vm", function(name, location, 
 
 AzureRMR::az_resource_group$set("public", "get_vm", function(name)
 {
-    az_vm_template$new(self$token, self$subscription, self$name, name)
+    res <- try(az_vm_template$new(self$token, self$subscription, self$name, name), silent=TRUE)
+
+    # if we couldn't find a VM deployment template, get the raw VM resource
+    if(inherits(res, "try-error"))
+        res <- az_vm_resource$new(self$token, self$subscription, self$name,
+            type="Microsoft.Compute/virtualMachines", name=name)
+
+    res
 })
 
 

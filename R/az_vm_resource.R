@@ -86,7 +86,7 @@ public=list(
 
     add_extension=function(...) { },
 
-    run_command=function(command=NULL, parameters=NULL, script=NULL)
+    run_deployed_command=function(command=NULL, parameters=NULL, script=NULL)
     {
         if(is_empty(command))
             stop("Must supply a command to run", call.=FALSE)
@@ -102,8 +102,8 @@ public=list(
         if(!windows && !linux)
             stop("Unknown VM operating system", call.=FALSE)
 
-        cmd <- if(windows) "runPowerShellScript" else "runShellScript"
-        self$run_command(cmd, parameters, script)
+        cmd <- if(windows) "RunPowerShellScript" else "RunShellScript"
+        self$run_command(cmd, as.list(parameters), as.list(script))
     }
 ),
 
