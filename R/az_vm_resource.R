@@ -32,11 +32,11 @@ public=list(
             for(i in 1:100)
             {
                 self$sync_vm_status()
-                if(!is_empty(self$status) && (self$status["PowerState"] == "running"))
+                if(length(self$status) == 2 && self$status[2] == "running")
                     break
                 Sys.sleep(5)
             }
-            if(is_empty(self$status) || self$status["PowerState"] != "running")
+            if(length(self$status) < 2 || self$status[2] != "running")
                 stop("Unable to start VM", call.=FALSE)
         }
     },
@@ -57,11 +57,11 @@ public=list(
             for(i in 1:100)
             {
                 self$sync_vm_status()
-                if(is_empty(self$status) || self$status["PowerState"] %in% c("stopped", "deallocated"))
+                if(length(self$status) < 2 || self$status[2] %in% c("stopped", "deallocated"))
                     break
                 Sys.sleep(5)
             }
-            if(!is_empty(self$status) && !(self$status["PowerState"] %in% c("stopped", "deallocated")))
+            if(length(self$status) == 2 && !(self$status[2] %in% c("stopped", "deallocated")))
                 stop("Unable to shut down VM", call.=FALSE)
         }
     },
@@ -70,16 +70,17 @@ public=list(
     {
         message("Restarting VM '", self$name, "'")
         self$do_operation("restart", http_verb="POST")
+        Sys.sleep(2)
         if(wait)
         {
             for(i in 1:100)
             {
                 self$sync_vm_status()
-                if(!is_empty(self$status) && self$status["PowerState"] != "running")
+                if(length(self$status) == 2 && self$status[2] == "running")
                     break
                 Sys.sleep(5)
             }
-            if(is_empty(self$status) || self$status["PowerState"] == "running")
+            if(length(self$status) < 2 || self$status[2] != "running")
                 stop("Unable to restart VM", call.=FALSE)
         }
     },
@@ -94,7 +95,7 @@ public=list(
         self$do_operation(http_verb="POST", "runCommand", body=body, encode="json")
     },
 
-    run_script=function(parameters=NULL, script=NULL)
+    run_script=function(script=NULL, parameters=NULL)
     {
         os_prof_names <- names(self$properties$osProfile)
         windows <- any(grepl("windows", os_prof_names, ignore.case=TRUE))
@@ -103,7 +104,7 @@ public=list(
             stop("Unknown VM operating system", call.=FALSE)
 
         cmd <- if(windows) "RunPowerShellScript" else "RunShellScript"
-        self$run_command(cmd, as.list(parameters), as.list(script))
+        self$run_deployed_command(cmd, as.list(parameters), as.list(script))
     }
 ),
 
