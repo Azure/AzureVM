@@ -164,7 +164,7 @@ private=list(
 
 
 #' @export
-is_vm <- function(object)
+is_vm_template <- function(object)
 {
     R6::is.R6(object) && inherits(object, "az_vm_template")
 }

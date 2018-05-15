@@ -104,7 +104,10 @@ AzureRMR::az_resource_group$set("public", "get_vm", function(name)
 
 AzureRMR::az_resource_group$set("public", "delete_vm", function(name, confirm=TRUE, free_resources=TRUE)
 {
-    self$get_vm(name)$delete(confirm=confirm, free_resources=free_resources)
+    vm <- self$get_vm(name)
+    if(is_vm_template(vm))
+        vm$delete(confirm=confirm, free_resources=free_resources)
+    else vm$delete(confirm=confirm)
 })
 
 
