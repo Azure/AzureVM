@@ -32,7 +32,7 @@ public=list(
             for(i in 1:100)
             {
                 self$sync_vm_status()
-                if(self$status["PowerState"] == "running")
+                if(!is_empty(self$status) && self$status["PowerState"] == "running")
                     break
                 Sys.sleep(5)
             }
@@ -57,7 +57,7 @@ public=list(
             for(i in 1:100)
             {
                 self$sync_vm_status()
-                if(self$status["PowerState"] != "running")
+                if(!is_empty(self$status) && self$status["PowerState"] != "running")
                     break
                 Sys.sleep(5)
             }
@@ -75,7 +75,7 @@ public=list(
             for(i in 1:100)
             {
                 self$sync_vm_status()
-                if(self$status["PowerState"] != "running")
+                if(!is_empty(self$status) && self$status["PowerState"] != "running")
                     break
                 Sys.sleep(5)
             }
