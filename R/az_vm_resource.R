@@ -32,11 +32,11 @@ public=list(
             for(i in 1:100)
             {
                 self$sync_vm_status()
-                if(!is_empty(self$status) && self$status["PowerState"] == "running")
+                if(!is_empty(self$status) && (self$status["PowerState"] == "running"))
                     break
                 Sys.sleep(5)
             }
-            if(self$status["PowerState"] != "running")
+            if(is_empty(self$status) || self$status["PowerState"] != "running")
                 stop("Unable to start VM", call.=FALSE)
         }
     },
@@ -57,11 +57,11 @@ public=list(
             for(i in 1:100)
             {
                 self$sync_vm_status()
-                if(!is_empty(self$status) && self$status["PowerState"] != "running")
+                if(is_empty(self$status) || self$status["PowerState"] == "stopped")
                     break
                 Sys.sleep(5)
             }
-            if(self$status["PowerState"] == "running")
+            if(!is_empty(self$status) && self$status["PowerState"] != "stopped")
                 stop("Unable to shut down VM", call.=FALSE)
         }
     },
@@ -79,7 +79,7 @@ public=list(
                     break
                 Sys.sleep(5)
             }
-            if(self$status["PowerState"] == "running")
+            if(is_empty(self$status) || self$status["PowerState"] == "running")
                 stop("Unable to restart VM", call.=FALSE)
         }
     },
