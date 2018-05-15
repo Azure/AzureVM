@@ -57,11 +57,11 @@ public=list(
             for(i in 1:100)
             {
                 self$sync_vm_status()
-                if(is_empty(self$status) || self$status["PowerState"] == "stopped")
+                if(is_empty(self$status) || self$status["PowerState"] %in% c("stopped", "deallocated"))
                     break
                 Sys.sleep(5)
             }
-            if(!is_empty(self$status) && self$status["PowerState"] != "stopped")
+            if(!is_empty(self$status) && !(self$status["PowerState"] %in% c("stopped", "deallocated")))
                 stop("Unable to shut down VM", call.=FALSE)
         }
     },
