@@ -93,9 +93,11 @@ AzureRMR::az_resource_group$set("public", "get_vm", function(name)
 
     # if we couldn't find a VM deployment template, get the raw VM resource
     if(inherits(res, "try-error"))
+    {
+        warning("No deployment template found for VM '", name, "'", call.=FALSE)
         res <- az_vm_resource$new(self$token, self$subscription, self$name,
             type="Microsoft.Compute/virtualMachines", name=name)
-
+    }
     res
 })
 
