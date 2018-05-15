@@ -115,11 +115,3 @@ private=list(
     }
 ))
 
-
-#' @export
-is_vm <- function(object)
-{
-    R6::is.R6(object) && inherits(object, "az_raw_vm")
-}
-
-
