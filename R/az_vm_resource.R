@@ -1,3 +1,22 @@
+#' Virtual machine resource class
+#'
+#' Class representing a virtual machine resource. In general, the methods in this class should not be called directly, nor should objects be directly instantiated from it. Use the `az_vm_template` class for interacting with VMs instead.
+#'
+#' @docType class
+#' @section Methods:
+#' The following methods are available, in addition to those provided by the [AzureRMR::az_resource] class:
+#' - `new(...)`: Initialize a new VM object.
+#' - `start(wait=TRUE)`: Start the VM. By default, wait until the startup process is complete.
+#' - `stop(deallocate=TRUE, wait=FALSE)`: Stop the VM. By default, deallocate it as well.
+#' - `restart(wait=TRUE)`: Restart the VM.
+#' - `run_deployed_command(command, parameters, script)`: Run a PowerShell command on the VM.
+#' - `run_script(script, parameters)`: Run a script on the VM. For a Linux VM, this will be a shell script; for a Windows VM, a PowerShell script. Pass the script as a character vector.
+#' - `sync_vm_status()`: Update the VM status fields in this object with information from the host.
+#'
+#' @seealso
+#' [AzureRMR::az_resource],
+#' [VM API reference](https://docs.microsoft.com/en-us/rest/api/compute/virtualmachines)
+#' @format An R6 object of class `az_vm_resource`, inheriting from `AzureRMR::az_resource`.
 #' @export
 az_vm_resource <- R6::R6Class("az_vm_resource", inherit=AzureRMR::az_resource,
 
@@ -66,7 +85,7 @@ public=list(
         }
     },
 
-    restart=function(wait=FALSE)
+    restart=function(wait=TRUE)
     {
         message("Restarting VM '", self$name, "'")
         self$do_operation("restart", http_verb="POST")

@@ -1,3 +1,45 @@
+#' Virtual machine template class
+#'
+#' Class representing a virtual machine template. This class keeps track of all resources that are created as part of deploying a VM, and exposes methods for managing it. You should use this class for all VM interactions.
+#'
+#' @docType class
+#' @section Methods:
+#' The following methods are available, in addition to those provided by the [AzureRMR::az_template] class:
+#' - `new(...)`: Initialize a new VM object. See 'Initialization' for more details.
+#' - `start(wait=TRUE)`: Start the VM. By default, wait until the startup process is complete.
+#' - `stop(deallocate=TRUE, wait=FALSE)`: Stop the VM. By default, deallocate it as well.
+#' - `restart(wait=TRUE)`: Restart the VM.
+#' - `run_deployed_command(command, parameters, script)`: Run a PowerShell command on the VM.
+#' - `run_script(script, parameters)`: Run a script on the VM. For a Linux VM, this will be a shell script; for a Windows VM, a PowerShell script. Pass the script as a character vector.
+#' - `sync_vm_status()`: Update the VM status fields in this object with information from the host.
+#'
+#' @section Fields:
+#' The following fields are available, in addition to those provided by the `AzureRMR::az_template` class:
+#' - `disks`: The status of any attached disks.
+#' - `ip_address`: The IP address of the VM. NULL if the VM is currently deallocated.
+#' - `dns_name`: The fully qualified domain name of the VM.
+#' - `status`: The status of the VM. This is a vector containing up to two elements: the provisioning state, and the power state. 
+#'
+#' @details
+#' A virtual machine in Azure is actually a collection of resources, including any and all of the following:
+#' - Storage account
+#' - Network interface
+#' - Network security group
+#' - Virtual network
+#' - IP address
+#' - The VM itself
+#'
+#' By wrapping the deployment template used to create a VM, the `az_vm_template` class allows managing all of these resources as a single unit.
+#'
+#' @section Initialization:
+#' Initializing a new object of this class can either retrieve an existing VM template, or deploy a new VM template on the host. Generally, the best way to initialize an object is via the `get_vm`, `create_vm` or `list_vms` methods of the [az_subscription] and [az_resource_group] class, which handle the details automatically.
+#'
+#' A new VM can be created in _exclusive_ mode, meaning a new resource group is created solely to hold the VM. This simplifies deleting a VM considerably, as deleting the resource group will also automatically delete all the VM's resources. This can be done asynchronously, meaning that the `delete()` method returns immediately while the process continues on the host. Otherwise, deleting a VM will explicitly delete each of its resources, a task that must be done synchronously to allow for dependencies.
+#'
+#' @seealso
+#' [AzureRMR::az_resource], [create_vm], [get_vm]
+#' [VM API reference](https://docs.microsoft.com/en-us/rest/api/compute/virtualmachines)
+#' @format An R6 object of class `az_vm_template`, inheriting from `AzureRMR::az_template`.
 #' @export
 az_vm_template <- R6::R6Class("az_vm_template", inherit=AzureRMR::az_template,
 
@@ -163,6 +205,15 @@ private=list(
 ))
 
 
+#' Is an object an Azure VM template
+#'
+#' @param object an R object.
+#'
+#' @details
+#' This function returns TRUE only for an object representing a VM template deployment. In particular, it returns FALSE for a raw VM resource.
+#'
+#' @return
+#' A boolean.
 #' @export
 is_vm_template <- function(object)
 {
