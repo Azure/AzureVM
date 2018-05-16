@@ -12,11 +12,7 @@ list_vms()
 \arguments{
 \item{name}{The name of the VM.}
 
-\item{location}{For the \code{az_subscription} method, the resource group in which \code{get_vm()} will look for the VM. Defaults to the VM name.
-
-The \code{get_vm()} method first instantiates an object of class \code{az_vm_resource}, which wraps the raw VM resource of the given name. It then searches for a deployment template of the same name, with which to instantiate an object of class \code{az_vm_template}. This allows managing all resources that were created as part of the deployment: storage account, IP address, network interface, etc.
-
-The \code{list_vms()} method does the same, but for all VMs in either the subscription or resource group as appropriate.}
+\item{resource_group}{For the \code{az_subscription} method, the resource group in which \code{get_vm()} will look for the VM. Defaults to the VM name.}
 }
 \value{
 For \code{get_vm()}, an object representing the VM, either of class \code{az_vm_template} or \code{az_vm_resource}. If the latter, a warning is thrown as well.
@@ -25,6 +21,11 @@ For \code{list_vms()}, a list of such objects.
 }
 \description{
 Method for the \link[AzureRMR:az_subscription]{AzureRMR::az_subscription} and \link[AzureRMR:az_resource_group]{AzureRMR::az_resource_group} classes.
+}
+\details{
+The \code{get_vm()} method first instantiates an object of class \code{az_vm_resource}, which wraps the raw VM resource of the given name. It then searches for a deployment template of the same name, with which to instantiate an object of class \code{az_vm_template}. This allows managing all resources that were created as part of the deployment: storage account, IP address, network interface, etc.
+
+The \code{list_vms()} method does the same, but for all VMs in either the subscription or resource group as appropriate.
 }
 \seealso{
 \link{az_vm_template}, \link{az_vm_resource},

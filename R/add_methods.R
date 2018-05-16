@@ -33,8 +33,9 @@ NULL
 #' list_vms()
 #'
 #' @param name The name of the VM.
-#' @param location For the `az_subscription` method, the resource group in which `get_vm()` will look for the VM. Defaults to the VM name.
+#' @param resource_group For the `az_subscription` method, the resource group in which `get_vm()` will look for the VM. Defaults to the VM name.
 #'
+#' @details
 #' The `get_vm()` method first instantiates an object of class `az_vm_resource`, which wraps the raw VM resource of the given name. It then searches for a deployment template of the same name, with which to instantiate an object of class `az_vm_template`. This allows managing all resources that were created as part of the deployment: storage account, IP address, network interface, etc.
 #'
 #' The `list_vms()` method does the same, but for all VMs in either the subscription or resource group as appropriate.
