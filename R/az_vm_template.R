@@ -94,7 +94,7 @@ public=list(
         # get the hostname/IP address for the VM
         outputs <- unlist(self$properties$outputResources)
         ip <- az_resource$new(self$token, self$subscription,
-                              id=grep("publicIPAddresses/.+$", outputs, ignore.case=TRUE, value=TRUE))$properties
+            id=grep("publicIPAddresses/.+$", outputs, ignore.case=TRUE, value=TRUE))$properties
         self$ip_address <- ip$ipAddress
         self$dns_name <- ip$dnsSettings$fqdn
 
@@ -167,6 +167,29 @@ public=list(
     run_script=function(...)
     {
         private$get_vm()$run_script(...)
+    },
+
+    print=function(...)
+    {
+        cat("<Azure virtual machine ", self$name, ">\n", sep="")
+
+        osProf <- names(private$vm$properties$osProfile)
+        os <- if(any(grepl("linux", osProf))) "Linux" else if(any(grepl("windows", osProf))) "Windows" else "<unknown>"
+        exclusive <- private$exclusive_group
+        prov_status <- if(is_empty(self$status))
+            "<unknown>"
+        else paste0(names(self$status), "=", self$status, collapse=", ")
+
+        cat("  Operating system:", os, "\n")
+        cat("  Exclusive resource group:", exclusive, "\n")
+        cat("  Domain name:", if(is_empty(self$dns_name)) "<none>" else self$dns_name, "\n")
+        cat("  Status:", prov_status, "\n")
+        cat("---\n")
+
+        cat(format_public_fields(self,
+            exclude=c("subscription", "resource_group", "name", "dns_name", "status")))
+        cat(format_public_methods(self))
+        invisible(NULL)
     }
 ),
 

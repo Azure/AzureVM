@@ -33,6 +33,8 @@ public=list(
             vapply(status, function(x) sub("^[^/]+/", "", x), FUN.VALUE=character(1))
         }
 
+        self$sync_fields()
+
         res <- self$do_operation(http_verb="GET", "instanceView")
         self$status <- get_status(res$statuses)
 
@@ -124,6 +126,26 @@ public=list(
 
         cmd <- if(windows) "RunPowerShellScript" else "RunShellScript"
         self$run_deployed_command(cmd, as.list(parameters), as.list(script))
+    },
+
+    print=function(...)
+    {
+        cat("<Azure virtual machine resource ", self$name, ">\n", sep="")
+
+        osProf <- names(self$properties$osProfile)
+        os <- if(any(grepl("linux", osProf))) "Linux" else if(any(grepl("windows", osProf))) "Windows" else "<unknown>"
+        prov_status <- if(is_empty(self$status))
+            "<unknown>"
+        else paste0(names(self$status), "=", self$status, collapse=", ")
+
+        cat("  Operating system:", os, "\n")
+        cat("  Status:", prov_status, "\n")
+        cat("---\n")
+
+        cat(format_public_fields(self,
+            exclude=c("subscription", "resource_group", "type", "name", "status", "is_synced")))
+        cat(format_public_methods(self))
+        invisible(NULL)
     }
 ),
 
