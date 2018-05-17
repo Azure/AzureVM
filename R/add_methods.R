@@ -87,7 +87,35 @@ NULL
 #' An object of class `az_vm_template` representing the created VM.
 #'
 #' @seealso
-#' [az_vm_template], [Data Science Virtual Machine](https://azure.microsoft.com/en-us/services/virtual-machines/data-science-virtual-machines/)
+#' [az_vm_template],
+#' [AzureRMR::az_subscription], [AzureRMR::az_resource_group],
+#' [Data Science Virtual Machine](https://azure.microsoft.com/en-us/services/virtual-machines/data-science-virtual-machines/)
+NULL
+
+
+#' Delete virtual machine
+#'
+#' Method for the [AzureRMR::az_subscription] and [AzureRMR::az_resource_group] classes.
+#'
+#' @rdname delete_vm
+#' @name delete_vm
+#' @usage
+#' delete_vm(name, confirm=TRUE, free_resources=TRUE)
+#' delete_vm(name, confirm=TRUE, free_resources=TRUE, resource_group=name)
+#'
+#' @param name The VM name.
+#' @param confirm Whether to confirm the delete.
+#' @param free_resources If the VM is a deployed template, whether to free all resources created during the deployment process.
+#' @param resource_group For the `AzureRMR::az_subscription` method, the resource group containing the VM.
+#'
+#' @details
+#' If the VM is of class [az_vm_template] and was created in exclusive mode, this method deletes the entire resource group containing the VM. This automatically frees all resources that were created during the deployment process. Otherwise, if `free_resources=TRUE`, it manually deletes each individual resource in turn. This is done synchronously (the method does not return until the deletion is complete) to allow for dependencies.
+#'
+#' If the VM is of class [az_vm_resource], this method only deletes the VM resource itself, not any other resources it may depend on.
+#'
+#' @seealso
+#' [create_vm], [az_vm_template], [az_vm_resource],
+#' [AzureRMR::az_subscription], [AzureRMR::az_resource_group]
 NULL
 
 
@@ -139,7 +167,7 @@ AzureRMR::az_subscription$set("public", "get_vm", function(name, resource_group=
 
 
 AzureRMR::az_subscription$set("public", "delete_vm", function(name, confirm=TRUE, free_resources=TRUE,
-    resource_group=vm_name)
+    resource_group=name)
 {
     if(!is_resource_group(resource_group))
         resource_group <- self$get_resource_group(resource_group)

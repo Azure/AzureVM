@@ -48,5 +48,7 @@ You can also supply your own VM template for deployment, via the \code{template}
 For the \code{AzureRMR::az_subscription} method, this will by default create the VM in \emph{exclusive} mode, meaning a new resource group is created solely to hold the VM. This simplifies managing the VM considerably, in particular deleting the resource group will also automatically delete all the VM's resources.
 }
 \seealso{
-\link{az_vm_template}, \href{https://azure.microsoft.com/en-us/services/virtual-machines/data-science-virtual-machines/}{Data Science Virtual Machine}
+\link{az_vm_template},
+\link[AzureRMR:az_subscription]{AzureRMR::az_subscription}, \link[AzureRMR:az_resource_group]{AzureRMR::az_resource_group},
+\href{https://azure.microsoft.com/en-us/services/virtual-machines/data-science-virtual-machines/}{Data Science Virtual Machine}
 }
