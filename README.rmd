@@ -4,6 +4,8 @@ This is a package for interacting with virtual machines in Azure. You can deploy
 
 AzureVM uses the tools provided by the [AzureRMR package](https://github.com/hong-revo/AzureRMR) to manage VM resources and templates. The main VM R6 class wraps the deployment template, allowing easy management of all resources as a unit. You can also create a VM in exclusive mode, meaning that it sits in its own resource group.
 
+The package supports both single VMs as well as clusters. A single VM is treated as a cluster containing only one node.
+
 A sample workflow:
 
 ```r
@@ -26,7 +28,7 @@ sub1$list_vm_sizes(location="australiasoutheast")
 # 6 Standard_A4             8        1047552               619520      14336               16
 # ...
 
-# create a new Ubuntu VM in an existing resource group, and wait until deployment is complete
+# create a new Ubuntu VM in an existing resource group
 rg <- sub1$get_resource_group("rdev1")
 key <- readLines("~/id_rsa.pub")
 rdevtest <- rg$create_vm("rdevtest", username="user", passkey=key, userauth_type="key", os="Ubuntu",
@@ -35,11 +37,13 @@ rdevtest
 #<Azure virtual machine rdevtest>
 #  Operating system: Linux 
 #  Exclusive resource group: FALSE
-#  Domain name: rdevtest.australiasoutheast.cloudapp.azure.com 
-#  Status: ProvisioningState=succeeded, PowerState=running
+#  Domain name: rdevtest.australiasoutheast.cloudapp.azure.com
+#  Status:
+#             ProvisioningState PowerState
+#    rdevtest         succeeded    running
 #---
-#  disks: list(osdisk, data-0)
-#  id: /subscriptions/5710aa44-281f-49fe-bfa6-69e66bb55b11/resourceGroups/rdev1/providers/Microsoft ...
+#  disks: list(rdevtest)
+#  id: /subscriptions/5710aa44-281f-49fe-bfa6-69e66bb55b11/resourceGroups/rdev1/providers/Microsoft.Resou ...
 #  ip_address: xxx.xxx.xxx.xxx
 #  properties: list(templateHash, parameters, mode, debugSetting, provisioningState, timestamp, duration,
 #    correlationId, providers, dependencies, outputs, outputResources)
