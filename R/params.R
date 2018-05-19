@@ -13,8 +13,8 @@ param_mappings$win2016_dsvm_cl_ext <- c(
     name="vmName",
     size="vmSize",
     clust_size="numberOfInstances",
-    file_uris="fileUris",
-    command="commandToExecute"
+    ext_file_uris="fileUris",
+    inst_command="commandToExecute"
 )
 
 param_mappings$ubuntu_dsvm <- c(
@@ -36,8 +36,8 @@ param_mappings$ubuntu_dsvm_ext <- c(
     passkey="adminPassword",
     name="vmName",
     size="vmSize",
-    file_uris="fileUris",
-    command="commandToExecute",
+    ext_file_uris="fileUris",
+    inst_command="commandToExecute",
     command_parm="commandParameter"
 )
 
@@ -55,6 +55,6 @@ param_mappings$ubuntu_dsvm_cl_ext <- c(
     name="vmName",
     size="vmSize",
     clust_size="numberOfInstances",
-    file_uris="fileUris",
-    command="commandToExecute"
+    ext_file_uris="fileUris",
+    inst_command="commandToExecute"
 )

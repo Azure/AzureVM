@@ -1,3 +1,47 @@
+#' Virtual machine cluster template class
+#'
+#' Class representing a virtual machine template. This class keeps track of all resources that are created as part of deploying a VM or cluster of VMs, and exposes methods for managing them. In this page, "VM" refers to both a cluster of virtual machines, as well as a single virtual machine (which is treated as the special case of a cluster containing a single node).
+#'
+#' @docType class
+#' @section Methods:
+#' The following methods are available, in addition to those provided by the [AzureRMR::az_template] class:
+#' - `new(...)`: Initialize a new VM object. See 'Initialization' for more details.
+#' - `start(wait=TRUE)`: Start the VM. By default, wait until the startup process is complete.
+#' - `stop(deallocate=TRUE, wait=FALSE)`: Stop the VM. By default, deallocate it as well.
+#' - `restart(wait=TRUE)`: Restart the VM.
+#' - `run_deployed_command(command, parameters, script)`: Run a PowerShell command on the VM.
+#' - `run_script(script, parameters)`: Run a script on the VM. For a Linux VM, this will be a shell script; for a Windows VM, a PowerShell script. Pass the script as a character vector.
+#' - `sync_vm_status()`: Update the VM status fields in this object with information from the host.
+#'
+#' @section Fields:
+#' The following fields are available, in addition to those provided by the `AzureRMR::az_template` class. Each is a list with one element per node in the cluster.
+#' - `disks`: The status of any attached disks.
+#' - `ip_address`: The IP address. NULL if the node is currently deallocated.
+#' - `dns_name`: The fully qualified domain name.
+#' - `status`: The status of the node, giving the provisioning state and power state.
+#'
+#' @details
+#' A single virtual machine in Azure is actually a collection of resources, including any and all of the following. A cluster can share a storage account and virtual network, but each individual node will still have its own IP address and network interface.
+#' - Storage account
+#' - Network interface
+#' - Network security group
+#' - Virtual network
+#' - IP address
+#' - The VM itself
+#'
+#' By wrapping the deployment template used to create these resources, the `az_vm_template` class allows managing them all as a single entity.
+#'
+#' @section Initialization:
+#' Initializing a new object of this class can either retrieve an existing VM template, or deploy a new VM template on the host. Generally, the best way to initialize an object is via the VM-related methods of the [az_subscription] and [az_resource_group] class, which handle the details automatically.
+#'
+#' A new VM can be created in _exclusive_ mode, meaning a new resource group is created solely to hold the VM. This simplifies deleting a VM considerably, as deleting the resource group will also automatically delete all the VM's resources. This can be done asynchronously, meaning that the `delete()` method returns immediately while the process continues on the host. Otherwise, deleting a VM will explicitly delete each of its resources, a task that must be done synchronously to allow for dependencies.
+#'
+#' @seealso
+#' [AzureRMR::az_resource], [create_vm], [create_vm_cluster], [get_vm], [get_vm_cluster], [list_vms],
+#' [delete_vm], [delete_vm_cluster],
+#' [VM API reference](https://docs.microsoft.com/en-us/rest/api/compute/virtualmachines)
+#' @format An R6 object of class `az_vm_template`, inheriting from `AzureRMR::az_template`.
+#' @export
 az_vm_clust_template <- R6::R6Class("az_vm_clust_template", inherit=az_template,
 
 public=list(
@@ -7,15 +51,17 @@ public=list(
     dns_name=NULL,
     clust_size=NULL,
 
-    initialize=function(token, subscription, resource_group, name, location, os=c("Windows", "Ubuntu"),
-                        size="Standard_DS3_v2", username, passkey, userauth_type=c("password", "key"),
-                        extensions=NULL, clust_size=1, template, parameters,
+    initialize=function(token, subscription, resource_group, name, location,
+                        os=c("Windows", "Ubuntu"), size="Standard_DS3_v2",
+                        username, passkey, userauth_type=c("password", "key"),
+                        ext_file_uris=NULL, inst_command=NULL,
+                        clust_size=1, template, parameters,
                         ..., wait=TRUE)
     {
         # if no parameters were supplied, we want to retrieve an existing VM
         existing_vm <- missing(location) && missing(size) && missing(os) &&
                        missing(username) && missing(userauth_type) && missing(passkey) &&
-                       missing(extensions) && missing(clust_size) &&
+                       missing(ext_file_uris) && missing(inst_command) && missing(clust_size) &&
                        missing(template) && missing(parameters) && is_empty(list(...))
 
         if(!existing_vm) # we want to deploy
@@ -28,13 +74,14 @@ public=list(
 
             # find template given input args
             if(missing(template))
-                template <- private$get_dsvm_template(os, userauth_type, clust_size, extensions)
+                template <- private$get_dsvm_template(os, userauth_type, clust_size, ext_file_uris, inst_command)
 
             # convert input args into parameter list for template
             if(missing(parameters))
-                parameters <-
-                    private$make_dsvm_param_list(name, username, userauth_type, passkey, size,
-                                                 extensions, clust_size, template)
+                parameters <- private$make_dsvm_param_list(name=name, size=size,
+                    username=username, userauth_type=userauth_type, passkey=passkey,
+                    ext_file_uris=ext_file_uris, inst_command=inst_command,
+                    clust_size=clust_size, template=template)
 
             super$initialize(token, subscription, resource_group, name, template, parameters, ..., wait=wait)
 
@@ -121,16 +168,19 @@ public=list(
     add_extension=function(...)
     {
         lapply(private$get_vm(), function(obj) obj$add_extension(...))
+        invisible(NULL)
     },
 
     run_deployed_command=function(...)
     {
         lapply(private$get_vm(), function(obj) obj$run_deployed_command(...))
+        invisible(NULL)
     },
 
     run_script=function(...)
     {
         lapply(private$get_vm(), function(obj) obj$run_script(...))
+        invisible(NULL)
     },
 
     delete=function(confirm=TRUE, free_resources=TRUE)
@@ -139,7 +189,8 @@ public=list(
         {
             if(confirm && interactive())
             {
-                msg <- paste0("Do you really want to delete VM cluster and resource group '", self$name, "'? (y/N) ")
+                vmtype <- if(self$clust_size == 1) "VM" else "VM cluster"
+                msg <- paste0("Do you really want to delete ", vmtype, " and resource group '", self$name, "'? (y/N) ")
                 yn <- readline(msg)
                 if(tolower(substr(yn, 1, 1)) != "y")
                     return(invisible(NULL))
@@ -203,7 +254,7 @@ private=list(
         private$vm
     },
 
-    get_dsvm_template=function(os, userauth_type, clust_size, extensions)
+    get_dsvm_template=function(os, userauth_type, clust_size, ext_file_uris, inst_command)
     {
 
         if(os == "Ubuntu")
@@ -218,7 +269,7 @@ private=list(
         if(userauth_type == "key")
             template <- paste0(template, "_key")
 
-        if(!is_empty(extensions))
+        if(!is_empty(ext_file_uris) || !is_empty(inst_command))
             template <- paste0(template, "_ext")
 
         template <- system.file("templates", paste0(template, ".json"), package="AzureVM")
@@ -227,18 +278,19 @@ private=list(
         template
     },
 
-    make_dsvm_param_list=function(name, username, userauth_type, passkey, size, extensions, clust_size, template)
+    # arguments to this must be named
+    make_dsvm_param_list=function(...)
     {
-        template <- tools::file_path_sans_ext(basename(template))
+        params <- list(...)
+
+        template <- tools::file_path_sans_ext(basename(params$template))
         parm_map <- param_mappings[[template]]
 
-        params <- list(username=username, userauth_type=userauth_type, passkey=passkey,
-                       name=name, size=size, clust_size=clust_size, extensions=extensions)
-        params <- lapply(params, function(x) list(value=as.character(x)))
-
+        # match supplied arguments to those expected by template
         params <- params[names(params) %in% names(parm_map)]
-        names(params) <- parm_map
-        params
+        names(params) <- parm_map[match(names(parm_map), names(params))]
+
+        lapply(params, function(x) list(value=as.character(x)))
     }
 ))
 
