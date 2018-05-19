@@ -160,6 +160,29 @@ NULL
     })
 
 
+    AzureRMR::az_subscription$set("public", "create_vm_cluster",
+                                  function(name, location, ..., resource_group=name)
+    {
+        if(is_resource_group(resource_group))
+        {
+            if(missing(location))
+                location <- resource_group$location
+            resource_group <- resource_group$name
+        }
+
+        rgnames <- names(self$list_resource_groups())
+        exclusive_group <- !(resource_group %in% rgnames)
+        if(exclusive_group)
+        {
+            message("Creating resource group '", resource_group, "'")
+            self$create_resource_group(resource_group, location=location)
+            mode <- "Complete"
+        }
+        else mode <- "Incremental"
+        az_vm_clust_template$new(self$token, self$id, resource_group, name, location, ..., mode=mode)
+    })
+
+
     AzureRMR::az_subscription$set("public", "get_vm", function(name, resource_group=name)
     {
         if(!is_resource_group(resource_group))
@@ -169,13 +192,32 @@ NULL
     })
 
 
-    AzureRMR::az_subscription$set("public", "delete_vm", function(name, confirm=TRUE, free_resources=TRUE,
-    resource_group=name)
+    AzureRMR::az_subscription$set("public", "get_vm_cluster", function(name, resource_group=name)
+    {
+        if(!is_resource_group(resource_group))
+            resource_group <- self$get_resource_group(resource_group)
+
+        resource_group$get_vm_cluster(name)
+    })
+
+
+    AzureRMR::az_subscription$set("public", "delete_vm",
+                                  function(name, confirm=TRUE, free_resources=TRUE, resource_group=name)
     {
         if(!is_resource_group(resource_group))
             resource_group <- self$get_resource_group(resource_group)
 
         resource_group$delete_vm(name, confirm=confirm, free_resources=free_resources)
+    })
+
+
+    AzureRMR::az_subscription$set("public", "delete_vm_cluster",
+                                  function(name, confirm=TRUE, free_resources=TRUE, resource_group=name)
+    {
+        if(!is_resource_group(resource_group))
+            resource_group <- self$get_resource_group(resource_group)
+
+        resource_group$delete_vm_cluster(name, confirm=confirm, free_resources=free_resources)
     })
 
 
@@ -211,6 +253,12 @@ NULL
     })
 
 
+    AzureRMR::az_resource_group$set("public", "create_vm_cluster", function(name, location, ...)
+    {
+        az_vm_clust_template$new(self$token, self$subscription, self$name, name, location, ...)
+    })
+
+
     AzureRMR::az_resource_group$set("public", "get_vm", function(name)
     {
         res <- try(az_vm_template$new(self$token, self$subscription, self$name, name), silent=TRUE)
@@ -226,12 +274,24 @@ NULL
     })
 
 
+    AzureRMR::az_resource_group$set("public", "get_vm_cluster", function(name)
+    {
+        az_vm_clust_template$new(self$token, self$subscription, self$name, name)
+    })
+
+
     AzureRMR::az_resource_group$set("public", "delete_vm", function(name, confirm=TRUE, free_resources=TRUE)
     {
         vm <- self$get_vm(name)
         if(is_vm_template(vm))
             vm$delete(confirm=confirm, free_resources=free_resources)
         else vm$delete(confirm=confirm)
+    })
+
+
+    AzureRMR::az_resource_group$set("public", "delete_vm_cluster", function(name, confirm=TRUE, free_resources=TRUE)
+    {
+        self$get_vm_cluster(name)$delete(confirm=confirm, free_resources=free_resources)
     })
 
 
@@ -276,10 +336,6 @@ convert_to_vm_template <- function(vm_resource)
        grepl(sprintf("providers/Microsoft.Compute/virtualMachines/%s$", name),
              tpl$properties$outputResources[[1]]$id, ignore.case=TRUE))
         tpl
-    else
-    {
-        warning("No deployment template found for VM '", name, "'", call.=FALSE)
-        vm_resource
-    }
+    else vm_resource
 }
 

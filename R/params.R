@@ -1,4 +1,4 @@
-param_mappings <- new.env()
+param_mappings <- list()
 
 param_mappings$win2016_dsvm <- c(
     username="adminUsername",
@@ -12,7 +12,7 @@ param_mappings$win2016_dsvm_cl_ext <- c(
     passkey="adminPassword",
     name="vmName",
     size="vmSize",
-    nclust="numberOfInstances",
+    clust_size="numberOfInstances",
     file_uris="fileUris",
     command="commandToExecute"
 )
@@ -46,7 +46,7 @@ param_mappings$ubuntu_dsvm_cl <- c(
     passkey="adminPassword",
     name="vmName",
     size="vmSize",
-    nclust="numberOfInstances"
+    clust_size="numberOfInstances"
 )
 
 param_mappings$ubuntu_dsvm_cl_ext <- c(
@@ -54,7 +54,7 @@ param_mappings$ubuntu_dsvm_cl_ext <- c(
     passkey="adminPassword",
     name="vmName",
     size="vmSize",
-    nclust="numberOfInstances",
+    clust_size="numberOfInstances",
     file_uris="fileUris",
     command="commandToExecute"
 )
