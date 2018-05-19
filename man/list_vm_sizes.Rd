@@ -4,7 +4,7 @@
 \alias{list_vm_sizes}
 \title{List available VM sizes}
 \usage{
-list_vm_sizes(location, name_only=FALSE)
+list_vm_sizes(location, name_only = FALSE)
 }
 \arguments{
 \item{location}{The location/region for which to obtain available VM sizes.}

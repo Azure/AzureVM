@@ -2,14 +2,20 @@
 % Please edit documentation in R/add_methods.R
 \name{create_vm}
 \alias{create_vm}
-\title{Create a new virtual machine}
+\alias{create_vm_cluster}
+\title{Create a new virtual machine or cluster of virtual machines}
 \usage{
-create_vm(name, location, os=c("Windows", "Ubuntu"), size="Standard_DS3_v2",
-          username, passkey, userauth_type=c("password", "key"),
-          template, parameters, ..., wait=TRUE)
+create_vm(name, location, os = c("Windows", "Ubuntu"), size = "Standard_DS3_v2",
+          username, passkey, userauth_type = c("password", "key"),
+          ext_file_uris = NULL, inst_command = NULL,
+          template, parameters, ..., wait = TRUE)
+create_vm_cluster(name, location, os = c("Windows", "Ubuntu"), size = "Standard_DS3_v2",
+                  username, passkey, userauth_type = c("password", "key"),
+                  ext_file_uris = NULL, inst_command = NULL, clust_size,
+                  template, parameters, ..., wait = TRUE)
 }
 \arguments{
-\item{name}{The VM name.}
+\item{name}{The name of the VM or cluster.}
 
 \item{location}{The location for the VM. Use the \code{list_locations()} method of the \code{AzureRMR::az_subscription} class to see what locations are available.}
 
@@ -23,11 +29,19 @@ create_vm(name, location, os=c("Windows", "Ubuntu"), size="Standard_DS3_v2",
 
 \item{userauth_type}{The type of login authentication to use. Only has an effect for Linux-based VMs; Windows VMs will always use \code{"password"}.}
 
+\item{ext_file_uris}{Optional link to download extension packages.}
+
+\item{inst_command}{If \code{ext_file_uris} is supplied, the install script to run. Defaults to \code{install.sh} for an Ubuntu VM, or \code{install.ps1} for a Windows VM.}
+
+\item{clust_size}{For a cluster, the number of nodes to create.}
+
 \item{template}{Optional: the VM template to deploy. By default, this is determined by the values of the other arguments; see 'Details' below.}
 
 \item{parameters}{Optional: other parameters to pass to the deployment.}
 
 \item{wait}{Whether to wait until the deployment is complete.}
+
+\item{...}{Other arguments to lower-level methods.}
 }
 \value{
 An object of class \code{az_vm_template} representing the created VM.
@@ -36,14 +50,20 @@ An object of class \code{az_vm_template} representing the created VM.
 Method for the \link[AzureRMR:az_subscription]{AzureRMR::az_subscription} and \link[AzureRMR:az_resource_group]{AzureRMR::az_resource_group} classes.
 }
 \details{
-This method deploys a template to create a new virtual machine. Currently, three VM templates are supplied with this package, based on the Azure Data Science Virtual Machine:
+This method deploys a template to create a new virtual machine or cluster of VMs. Currently, seven templates are supplied with this package, based on the Azure Data Science Virtual Machine:
 \itemize{
 \item Ubuntu DSVM
 \item Ubuntu DSVM using public key authentication
+\item Ubuntu DSVM with extensions
+\item Ubuntu DSVM cluster
+\item Ubuntu DSVM cluster with extensions
 \item Windows Server 2016 DSVM
+\item Windows Server 2016 DSVM cluster with extensions
 }
 
-You can also supply your own VM template for deployment, via the \code{template} argument. See \link[AzureRMR:az_template]{AzureRMR::az_template} for information how to supply templates for deployment. Note that if you do this, you may also have to supply a \code{parameters} argument, as the standard parameters for this method are customised for the DSVM.
+An individual virtual machine is treated as a cluster containing only a single node.
+
+You can also supply your own VM template for deployment, via the \code{template} argument. See \link[AzureRMR:az_template]{AzureRMR::az_template} for information how to supply templates. Note that if you do this, you may also have to supply a \code{parameters} argument, as the standard parameters for this method are customised for the DSVM.
 
 For the \code{AzureRMR::az_subscription} method, this will by default create the VM in \emph{exclusive} mode, meaning a new resource group is created solely to hold the VM. This simplifies managing the VM considerably, in particular deleting the resource group will also automatically delete all the VM's resources.
 }

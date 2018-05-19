@@ -7,7 +7,7 @@
 #' @rdname list_vm_sizes
 #' @name list_vm_sizes
 #' @usage
-#' list_vm_sizes(location, name_only=FALSE)
+#' list_vm_sizes(location, name_only = FALSE)
 #'
 #' @param location The location/region for which to obtain available VM sizes.
 #' @param name_only Whether to return only a vector of names, or all information on each VM size.
@@ -26,24 +26,26 @@ NULL
 #'
 #' @rdname get_vm
 #' @name get_vm
-#' @aliases list_vms
+#' @aliases get_vm_cluster, list_vms
 #' @usage
-#' get_vm(name, resource_group=name)
+#' get_vm(name, resource_group = name)
 #' get_vm(name)
+#' get_vm_cluster(name, resource_group = name)
+#' get_vm_cluster(name)
 #' list_vms()
 #'
-#' @param name The name of the VM.
+#' @param name The name of the VM or cluster.
 #' @param resource_group For the `az_subscription` method, the resource group in which `get_vm()` will look for the VM. Defaults to the VM name.
 #'
 #' @details
-#' The `get_vm()` method first instantiates an object of class `az_vm_resource`, which wraps the raw VM resource of the given name. It then searches for a deployment template of the same name, with which to instantiate an object of class `az_vm_template`. This allows managing all resources that were created as part of the deployment: storage account, IP address, network interface, etc.
-#'
-#' The `list_vms()` method does the same, but for all VMs in either the subscription or resource group as appropriate.
+#' Despite the names, `get_vm` and `get_vm_cluster` can both be used to retrieve individual VMs and clusters. The main difference is in their behaviour if a deployment template is not found. In the case of `get_vm`, it also searches for a raw VM resource of the given name, whereas `get_vm_cluster` will throw an error immediately.
 #'
 #' @return
-#' For `get_vm()`, an object representing the VM, either of class `az_vm_template` or `az_vm_resource`. If the latter, a warning is thrown as well.
+#' For `get_vm()`, an object representing the VM, either of class `az_vm_template` or `az_vm_resource`.
 #'
 #' For `list_vms()`, a list of such objects.
+#'
+#' For `get_vm_cluster()`, an object representing the cluster.
 #'
 #' @seealso
 #' [az_vm_template], [az_vm_resource],
@@ -51,35 +53,51 @@ NULL
 NULL
 
 
-#' Create a new virtual machine
+#' Create a new virtual machine or cluster of virtual machines
 #'
 #' Method for the [AzureRMR::az_subscription] and [AzureRMR::az_resource_group] classes.
 #'
 #' @rdname create_vm
 #' @name create_vm
+#' @aliases create_vm_cluster
 #' @usage
-#' create_vm(name, location, os=c("Windows", "Ubuntu"), size="Standard_DS3_v2",
-#'           username, passkey, userauth_type=c("password", "key"),
-#'           template, parameters, ..., wait=TRUE)
+#' create_vm(name, location, os = c("Windows", "Ubuntu"), size = "Standard_DS3_v2",
+#'           username, passkey, userauth_type = c("password", "key"),
+#'           ext_file_uris = NULL, inst_command = NULL,
+#'           template, parameters, ..., wait = TRUE)
+#' create_vm_cluster(name, location, os = c("Windows", "Ubuntu"), size = "Standard_DS3_v2",
+#'                   username, passkey, userauth_type = c("password", "key"),
+#'                   ext_file_uris = NULL, inst_command = NULL, clust_size,
+#'                   template, parameters, ..., wait = TRUE)
 #'
-#' @param name The VM name.
+#' @param name The name of the VM or cluster.
 #' @param location The location for the VM. Use the `list_locations()` method of the `AzureRMR::az_subscription` class to see what locations are available.
 #' @param os The operating system for the VM.
 #' @param size The VM size. Use the `list_vm_sizes()` method of the `AzureRMR::az_subscription` class to see what sizes are available.
 #' @param username The login username for the VM.
 #' @param passkey The login password or public key.
 #' @param userauth_type The type of login authentication to use. Only has an effect for Linux-based VMs; Windows VMs will always use `"password"`.
+#' @param ext_file_uris Optional link to download extension packages.
+#' @param inst_command If `ext_file_uris` is supplied, the install script to run. Defaults to `install.sh` for an Ubuntu VM, or `install.ps1` for a Windows VM.
+#' @param clust_size For a cluster, the number of nodes to create.
 #' @param template Optional: the VM template to deploy. By default, this is determined by the values of the other arguments; see 'Details' below.
 #' @param parameters Optional: other parameters to pass to the deployment.
 #' @param wait Whether to wait until the deployment is complete.
+#' @param ... Other arguments to lower-level methods.
 #'
 #' @details
-#' This method deploys a template to create a new virtual machine. Currently, three VM templates are supplied with this package, based on the Azure Data Science Virtual Machine:
+#' This method deploys a template to create a new virtual machine or cluster of VMs. Currently, seven templates are supplied with this package, based on the Azure Data Science Virtual Machine:
 #' - Ubuntu DSVM
 #' - Ubuntu DSVM using public key authentication
+#' - Ubuntu DSVM with extensions
+#' - Ubuntu DSVM cluster
+#' - Ubuntu DSVM cluster with extensions
 #' - Windows Server 2016 DSVM
+#' - Windows Server 2016 DSVM cluster with extensions
 #'
-#' You can also supply your own VM template for deployment, via the `template` argument. See [AzureRMR::az_template] for information how to supply templates for deployment. Note that if you do this, you may also have to supply a `parameters` argument, as the standard parameters for this method are customised for the DSVM.
+#' An individual virtual machine is treated as a cluster containing only a single node.
+#'
+#' You can also supply your own VM template for deployment, via the `template` argument. See [AzureRMR::az_template] for information how to supply templates. Note that if you do this, you may also have to supply a `parameters` argument, as the standard parameters for this method are customised for the DSVM.
 #'
 #' For the `AzureRMR::az_subscription` method, this will by default create the VM in _exclusive_ mode, meaning a new resource group is created solely to hold the VM. This simplifies managing the VM considerably, in particular deleting the resource group will also automatically delete all the VM's resources.
 #'
@@ -99,17 +117,22 @@ NULL
 #'
 #' @rdname delete_vm
 #' @name delete_vm
+#' @aliases delete_vm_cluster
 #' @usage
-#' delete_vm(name, confirm=TRUE, free_resources=TRUE)
-#' delete_vm(name, confirm=TRUE, free_resources=TRUE, resource_group=name)
+#' delete_vm(name, confirm = TRUE, free_resources = TRUE)
+#' delete_vm(name, confirm = TRUE, free_resources = TRUE,
+#'           resource_group = name)
+#' delete_vm_cluster(name, confirm = TRUE, free_resources = TRUE)
+#' delete_vm_cluster(name, confirm = TRUE, free_resources = TRUE,
+#'                   resource_group = name)
 #'
-#' @param name The VM name.
+#' @param name The name of the VM or cluster.
 #' @param confirm Whether to confirm the delete.
-#' @param free_resources If the VM is a deployed template, whether to free all resources created during the deployment process.
-#' @param resource_group For the `AzureRMR::az_subscription` method, the resource group containing the VM.
+#' @param free_resources If this was a deployed template, whether to free all resources created during the deployment process.
+#' @param resource_group For the `AzureRMR::az_subscription` method, the resource group containing the VM or cluster.
 #'
 #' @details
-#' If the VM is of class [az_vm_template] and was created in exclusive mode, this method deletes the entire resource group containing the VM. This automatically frees all resources that were created during the deployment process. Otherwise, if `free_resources=TRUE`, it manually deletes each individual resource in turn. This is done synchronously (the method does not return until the deletion is complete) to allow for dependencies.
+#' If the VM or cluster is of class [az_vm_template] and was created in exclusive mode, this method deletes the entire resource group that it occupies. This automatically frees all resources that were created during the deployment process. Otherwise, if `free_resources=TRUE`, it manually deletes each individual resource in turn. This is done synchronously (the method does not return until the deletion is complete) to allow for dependencies.
 #'
 #' If the VM is of class [az_vm_resource], this method only deletes the VM resource itself, not any other resources it may depend on.
 #'
@@ -140,23 +163,7 @@ NULL
 
     AzureRMR::az_subscription$set("public", "create_vm", function(name, location, ..., resource_group=name)
     {
-        if(is_resource_group(resource_group))
-        {
-            if(missing(location))
-                location <- resource_group$location
-            resource_group <- resource_group$name
-        }
-
-        rgnames <- names(self$list_resource_groups())
-        exclusive_group <- !(resource_group %in% rgnames)
-        if(exclusive_group)
-        {
-            message("Creating resource group '", resource_group, "'")
-            self$create_resource_group(resource_group, location=location)
-            mode <- "Complete"
-        }
-        else mode <- "Incremental"
-        az_vm_template$new(self$token, self$id, resource_group, name, location, ..., mode=mode)
+        self$create_vm_cluster(name, location, ..., resource_group=name, clust_size=1)
     })
 
 
@@ -179,7 +186,7 @@ NULL
             mode <- "Complete"
         }
         else mode <- "Incremental"
-        az_vm_clust_template$new(self$token, self$id, resource_group, name, location, ..., mode=mode)
+        az_vm_template$new(self$token, self$id, resource_group, name, location, ..., mode=mode)
     })
 
 
@@ -249,13 +256,13 @@ NULL
     ## extend resource group methods
     AzureRMR::az_resource_group$set("public", "create_vm", function(name, location, ...)
     {
-        az_vm_template$new(self$token, self$subscription, self$name, name, location, ...)
+        az_vm_template$new(self$token, self$subscription, self$name, name, location, ..., clust_size=1)
     })
 
 
     AzureRMR::az_resource_group$set("public", "create_vm_cluster", function(name, location, ...)
     {
-        az_vm_clust_template$new(self$token, self$subscription, self$name, name, location, ...)
+        az_vm_template$new(self$token, self$subscription, self$name, name, location, ...)
     })
 
 
@@ -276,7 +283,7 @@ NULL
 
     AzureRMR::az_resource_group$set("public", "get_vm_cluster", function(name)
     {
-        az_vm_clust_template$new(self$token, self$subscription, self$name, name)
+        az_vm_template$new(self$token, self$subscription, self$name, name)
     })
 
 
@@ -300,8 +307,8 @@ NULL
         provider <- "Microsoft.Compute"
         path <- "virtualMachines"
         api_version <- az_subscription$
-        new(self$token, self$subscription)$
-        get_provider_api_version(provider, path)
+            new(self$token, self$subscription)$
+            get_provider_api_version(provider, path)
 
         op <- file.path("resourceGroups", self$name, "providers", provider, path)
 

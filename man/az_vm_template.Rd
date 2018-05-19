@@ -3,16 +3,16 @@
 \docType{class}
 \name{az_vm_template}
 \alias{az_vm_template}
-\title{Virtual machine template class}
+\title{Virtual machine cluster template class}
 \format{An R6 object of class \code{az_vm_template}, inheriting from \code{AzureRMR::az_template}.}
 \usage{
 az_vm_template
 }
 \description{
-Class representing a virtual machine template. This class keeps track of all resources that are created as part of deploying a VM, and exposes methods for managing it. You should use this class for all VM interactions.
+Class representing a virtual machine template. This class keeps track of all resources that are created as part of deploying a VM or cluster of VMs, and exposes methods for managing them. In this page, "VM" refers to both a cluster of virtual machines, as well as a single virtual machine (which is treated as the special case of a cluster containing a single node).
 }
 \details{
-A virtual machine in Azure is actually a collection of resources, including any and all of the following:
+A single virtual machine in Azure is actually a collection of resources, including any and all of the following. A cluster can share a storage account and virtual network, but each individual node will still have its own IP address and network interface.
 \itemize{
 \item Storage account
 \item Network interface
@@ -22,7 +22,7 @@ A virtual machine in Azure is actually a collection of resources, including any 
 \item The VM itself
 }
 
-By wrapping the deployment template used to create a VM, the \code{az_vm_template} class allows managing all of these resources as a single unit.
+By wrapping the deployment template used to create these resources, the \code{az_vm_template} class allows managing them all as a single entity.
 }
 \section{Methods}{
 
@@ -40,24 +40,25 @@ The following methods are available, in addition to those provided by the \link[
 
 \section{Fields}{
 
-The following fields are available, in addition to those provided by the \code{AzureRMR::az_template} class:
+The following fields are available, in addition to those provided by the \code{AzureRMR::az_template} class. Each is a list with one element per node in the cluster.
 \itemize{
 \item \code{disks}: The status of any attached disks.
-\item \code{ip_address}: The IP address of the VM. NULL if the VM is currently deallocated.
-\item \code{dns_name}: The fully qualified domain name of the VM.
-\item \code{status}: The status of the VM. This is a vector containing up to two elements: the provisioning state, and the power state.
+\item \code{ip_address}: The IP address. NULL if the node is currently deallocated.
+\item \code{dns_name}: The fully qualified domain name.
+\item \code{status}: The status of the node, giving the provisioning state and power state.
 }
 }
 
 \section{Initialization}{
 
-Initializing a new object of this class can either retrieve an existing VM template, or deploy a new VM template on the host. Generally, the best way to initialize an object is via the \code{get_vm}, \code{create_vm} or \code{list_vms} methods of the \link{az_subscription} and \link{az_resource_group} class, which handle the details automatically.
+Initializing a new object of this class can either retrieve an existing VM template, or deploy a new VM template on the host. Generally, the best way to initialize an object is via the VM-related methods of the \link{az_subscription} and \link{az_resource_group} class, which handle the details automatically.
 
 A new VM can be created in \emph{exclusive} mode, meaning a new resource group is created solely to hold the VM. This simplifies deleting a VM considerably, as deleting the resource group will also automatically delete all the VM's resources. This can be done asynchronously, meaning that the \code{delete()} method returns immediately while the process continues on the host. Otherwise, deleting a VM will explicitly delete each of its resources, a task that must be done synchronously to allow for dependencies.
 }
 
 \seealso{
-\link[AzureRMR:az_resource]{AzureRMR::az_resource}, \link{create_vm}, \link{get_vm}
+\link[AzureRMR:az_resource]{AzureRMR::az_resource}, \link{create_vm}, \link{create_vm_cluster}, \link{get_vm}, \link{get_vm_cluster}, \link{list_vms},
+\link{delete_vm}, \link{delete_vm_cluster},
 \href{https://docs.microsoft.com/en-us/rest/api/compute/virtualmachines}{VM API reference}
 }
 \keyword{datasets}
