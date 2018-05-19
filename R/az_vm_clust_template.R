@@ -9,7 +9,7 @@ public=list(
 
     initialize=function(token, subscription, resource_group, name, location, os=c("Windows", "Ubuntu"),
                         size="Standard_DS3_v2", username, passkey, userauth_type=c("password", "key"),
-                        extensions=NULL, clust_size=3, template, parameters,
+                        extensions=NULL, clust_size=1, template, parameters,
                         ..., wait=TRUE)
     {
         # if no parameters were supplied, we want to retrieve an existing VM
@@ -28,13 +28,13 @@ public=list(
 
             # find template given input args
             if(missing(template))
-                template <- private$get_dsvm_clust_template(os, userauth_type, extensions)
+                template <- private$get_dsvm_template(os, userauth_type, clust_size, extensions)
 
             # convert input args into parameter list for template
             if(missing(parameters))
                 parameters <-
-                    private$make_dsvm_clust_param_list(name, username, userauth_type, passkey, size,
-                                                       extensions, clust_size, template)
+                    private$make_dsvm_param_list(name, username, userauth_type, passkey, size,
+                                                 extensions, clust_size, template)
 
             super$initialize(token, subscription, resource_group, name, template, parameters, ..., wait=wait)
 
@@ -47,14 +47,23 @@ public=list(
         }
         else super$initialize(token, subscription, resource_group, name)
 
-        self$clust_size <- as.numeric(self$properties$outputs$numInstances$value)
-
-        private$vm <- lapply(seq_len(self$clust_size), function(i)
+        num_instances <- self$properties$outputs$numInstances
+        if(is_empty(num_instances))
         {
-            name <- paste0(self$name, i - 1)
+            self$clust_size <- 1
+            vmnames <- self$name
+        }
+        else
+        {
+            self$clust_size <- as.numeric(num_instances$value)
+            vmnames <- paste0(self$name, seq_len(self$clust_size) - 1)
+        }
+
+        private$vm <- sapply(vmnames, function(name)
+        {
             az_vm_resource$new(self$token, self$subscription, self$resource_group,
                 type="Microsoft.Compute/virtualMachines", name=name)
-        })
+        }, simplify=FALSE)
 
         # get the hostname/IP address for the VM
         outputs <- unlist(self$properties$outputResources)
@@ -91,24 +100,21 @@ public=list(
         invisible(NULL)
     },
 
-    start=function(wait=FALSE)
+    start=function(wait=TRUE)
     {
-        private$wait_warn(wait)
-        lapply(private$get_vm(), function(obj) obj$start(wait=FALSE))
+        lapply(private$get_vm(), function(obj) obj$start(wait=wait))
         self$sync_vm_status()
     },
 
-    stop=function(deallocate=TRUE, wait=FALSE)
+    stop=function(deallocate=TRUE, wait=TRUE)
     {
-        private$wait_warn(wait)
-        lapply(private$get_vm(), function(obj) obj$stop(deallocate=deallocate, wait=FALSE))
+        lapply(private$get_vm(), function(obj) obj$stop(deallocate=deallocate, wait=wait))
         self$sync_vm_status()
     },
 
     restart=function(wait=TRUE)
     {
-        private$wait_warn(wait)
-        lapply(private$get_vm(), function(obj) obj$restart(wait=FALSE))
+        lapply(private$get_vm(), function(obj) obj$restart(wait=wait))
         self$sync_vm_status()
     },
 
@@ -124,7 +130,7 @@ public=list(
 
     run_script=function(...)
     {
-        lapply(private$get_vm(), function(obj) obj$private$get_vm()$run_script(...))
+        lapply(private$get_vm(), function(obj) obj$run_script(...))
     },
 
     delete=function(confirm=TRUE, free_resources=TRUE)
@@ -164,16 +170,14 @@ public=list(
         cat(paste0(dns_names, collapse="\n"), "\n", sep="")
         cat("  Status:")
 
-        if(is_empty(self$status))
+        if(is_empty(self$status) || is_empty(self$status[[1]]))
             cat(" <unknown>\n")
         else
         {
-            prov_status <- do.call(rbind.data.frame, self$status)
-            prov_status[[1]] <- paste0("    ", as.character(prov_status[[1]]))
-            names(prov_status) <- names(self$status[[1]])
-            names(prov_status)[1] <- paste0("    ", names(prov_status)[1])
+            prov_status <- as.data.frame(do.call(rbind, self$status))
+            row.names(prov_status) <- paste0("    ", row.names(prov_status))
             cat("\n")
-            print(prov_status, row.names=FALSE, right=FALSE)
+            print(prov_status)
         }
 
         cat("---\n")
@@ -199,13 +203,7 @@ private=list(
         private$vm
     },
 
-    wait_warn=function(wait)
-    {
-        if(wait)
-            warning("'wait' argument not used", call.=FALSE)
-    },
-
-    get_dsvm_clust_template=function(os, userauth_type, clust_size, extensions)
+    get_dsvm_template=function(os, userauth_type, clust_size, extensions)
     {
 
         if(os == "Ubuntu")
@@ -229,12 +227,16 @@ private=list(
         template
     },
 
-    make_dsvm_clust_param_list=function(name, username, userauth_type, passkey, size, extensions, clust_size, template)
+    make_dsvm_param_list=function(name, username, userauth_type, passkey, size, extensions, clust_size, template)
     {
         template <- tools::file_path_sans_ext(basename(template))
         parm_map <- param_mappings[[template]]
 
-        params <- lapply(c(username, passkey, name, size, clust_size), function(x) list(value=x))
+        params <- list(username=username, userauth_type=userauth_type, passkey=passkey,
+                       name=name, size=size, clust_size=clust_size, extensions=extensions)
+        params <- lapply(params, function(x) list(value=as.character(x)))
+
+        params <- params[names(params) %in% names(parm_map)]
         names(params) <- parm_map
         params
     }
