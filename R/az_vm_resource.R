@@ -142,9 +142,9 @@ public=list(
         cat("  Status:", prov_status, "\n")
         cat("---\n")
 
-        cat(format_public_fields(self,
+        cat(AzureRMR::format_public_fields(self,
             exclude=c("subscription", "resource_group", "type", "name", "status", "is_synced")))
-        cat(format_public_methods(self))
+        cat(AzureRMR::format_public_methods(self))
         invisible(NULL)
     }
 ),

@@ -146,7 +146,8 @@ NULL
 .onLoad <- function(libname, pkgname)
 {
     ## extend subscription methods
-    AzureRMR::az_subscription$set("public", "list_vm_sizes", function(location, name_only=FALSE)
+    AzureRMR::az_subscription$set("public", "list_vm_sizes", overwrite=TRUE,
+                                  function(location, name_only=FALSE)
     {
         provider <- "Microsoft.Compute"
         path <- "locations"
@@ -161,13 +162,14 @@ NULL
     })
 
 
-    AzureRMR::az_subscription$set("public", "create_vm", function(name, location, ..., resource_group=name)
+    AzureRMR::az_subscription$set("public", "create_vm", overwrite=TRUE,
+                                  function(name, location, ..., resource_group=name)
     {
         self$create_vm_cluster(name, location, ..., resource_group=name, clust_size=1)
     })
 
 
-    AzureRMR::az_subscription$set("public", "create_vm_cluster",
+    AzureRMR::az_subscription$set("public", "create_vm_cluster", overwrite=TRUE,
                                   function(name, location, ..., resource_group=name)
     {
         if(is_resource_group(resource_group))
@@ -190,7 +192,8 @@ NULL
     })
 
 
-    AzureRMR::az_subscription$set("public", "get_vm", function(name, resource_group=name)
+    AzureRMR::az_subscription$set("public", "get_vm", overwrite=TRUE,
+                                  function(name, resource_group=name)
     {
         if(!is_resource_group(resource_group))
             resource_group <- self$get_resource_group(resource_group)
@@ -199,7 +202,8 @@ NULL
     })
 
 
-    AzureRMR::az_subscription$set("public", "get_vm_cluster", function(name, resource_group=name)
+    AzureRMR::az_subscription$set("public", "get_vm_cluster", overwrite=TRUE,
+                                  function(name, resource_group=name)
     {
         if(!is_resource_group(resource_group))
             resource_group <- self$get_resource_group(resource_group)
@@ -208,7 +212,7 @@ NULL
     })
 
 
-    AzureRMR::az_subscription$set("public", "delete_vm",
+    AzureRMR::az_subscription$set("public", "delete_vm", overwrite=TRUE,
                                   function(name, confirm=TRUE, free_resources=TRUE, resource_group=name)
     {
         if(!is_resource_group(resource_group))
@@ -218,7 +222,7 @@ NULL
     })
 
 
-    AzureRMR::az_subscription$set("public", "delete_vm_cluster",
+    AzureRMR::az_subscription$set("public", "delete_vm_cluster", overwrite=TRUE,
                                   function(name, confirm=TRUE, free_resources=TRUE, resource_group=name)
     {
         if(!is_resource_group(resource_group))
@@ -228,7 +232,7 @@ NULL
     })
 
 
-    AzureRMR::az_subscription$set("public", "list_vms", function()
+    AzureRMR::az_subscription$set("public", "list_vms", overwrite=TRUE, function()
     {
         provider <- "Microsoft.Compute"
         path <- "virtualMachines"
@@ -254,19 +258,22 @@ NULL
 
     ##
     ## extend resource group methods
-    AzureRMR::az_resource_group$set("public", "create_vm", function(name, location, ...)
+    AzureRMR::az_resource_group$set("public", "create_vm", overwrite=TRUE,
+                                    function(name, location, ...)
     {
         az_vm_template$new(self$token, self$subscription, self$name, name, location, ..., clust_size=1)
     })
 
 
-    AzureRMR::az_resource_group$set("public", "create_vm_cluster", function(name, location, ...)
+    AzureRMR::az_resource_group$set("public", "create_vm_cluster", overwrite=TRUE,
+                                    function(name, location, ...)
     {
         az_vm_template$new(self$token, self$subscription, self$name, name, location, ...)
     })
 
 
-    AzureRMR::az_resource_group$set("public", "get_vm", function(name)
+    AzureRMR::az_resource_group$set("public", "get_vm", overwrite=TRUE,
+                                    function(name)
     {
         res <- try(az_vm_template$new(self$token, self$subscription, self$name, name), silent=TRUE)
 
@@ -281,13 +288,15 @@ NULL
     })
 
 
-    AzureRMR::az_resource_group$set("public", "get_vm_cluster", function(name)
+    AzureRMR::az_resource_group$set("public", "get_vm_cluster", overwrite=TRUE,
+                                    function(name)
     {
         az_vm_template$new(self$token, self$subscription, self$name, name)
     })
 
 
-    AzureRMR::az_resource_group$set("public", "delete_vm", function(name, confirm=TRUE, free_resources=TRUE)
+    AzureRMR::az_resource_group$set("public", "delete_vm", overwrite=TRUE,
+                                    function(name, confirm=TRUE, free_resources=TRUE)
     {
         vm <- self$get_vm(name)
         if(is_vm_template(vm))
@@ -296,13 +305,14 @@ NULL
     })
 
 
-    AzureRMR::az_resource_group$set("public", "delete_vm_cluster", function(name, confirm=TRUE, free_resources=TRUE)
+    AzureRMR::az_resource_group$set("public", "delete_vm_cluster", overwrite=TRUE,
+                                    function(name, confirm=TRUE, free_resources=TRUE)
     {
         self$get_vm_cluster(name)$delete(confirm=confirm, free_resources=free_resources)
     })
 
 
-    AzureRMR::az_resource_group$set("public", "list_vms", function()
+    AzureRMR::az_resource_group$set("public", "list_vms", overwrite=TRUE, function()
     {
         provider <- "Microsoft.Compute"
         path <- "virtualMachines"

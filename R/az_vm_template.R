@@ -236,11 +236,10 @@ public=list(
         exclude <- c("subscription", "resource_group", "name", "dns_name", "status")
         if(self$clust_size == 1)
             exclude <- c(exclude, "clust_size")
-        cat(format_public_fields(self, exclude=exclude))
-        cat(format_public_methods(self))
+        cat(AzureRMR::format_public_fields(self, exclude=exclude))
+        cat(AzureRMR::format_public_methods(self))
         invisible(NULL)
     }
-
 ),
 
 private=list(
@@ -256,7 +255,6 @@ private=list(
 
     get_dsvm_template=function(os, userauth_type, clust_size, ext_file_uris, inst_command)
     {
-
         if(os == "Ubuntu")
             template <- "ubuntu_dsvm"
         else if(os == "Windows")
