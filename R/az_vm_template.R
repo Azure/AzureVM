@@ -84,16 +84,10 @@ public=list(
                     clust_size=clust_size, template=template)
 
             super$initialize(token, subscription, resource_group, name, template, parameters, ..., wait=wait)
-
-            if(!wait)
-            {
-                message("Deployment started. Call the sync_vm_status() method ",
-                        "when deployment is complete to initialise the VM")
-                return(NULL)
-            }
         }
         else super$initialize(token, subscription, resource_group, name)
 
+        # fill in fields that don't require querying the host
         num_instances <- self$properties$outputs$numInstances
         if(is_empty(num_instances))
         {
@@ -104,6 +98,12 @@ public=list(
         {
             self$clust_size <- as.numeric(num_instances$value)
             vmnames <- paste0(self$name, seq_len(self$clust_size) - 1)
+        }
+
+        if(!existing_vm && !wait)
+        {
+            message("Deployment started. Call the sync_vm_status() method to track the status of the deployment.")
+            return(NULL)
         }
 
         private$vm <- sapply(vmnames, function(name)
@@ -125,7 +125,6 @@ public=list(
         self$disks <- lapply(private$vm, "[[", "disks")
         self$status <- lapply(private$vm, "[[", "status")
 
-        private$exclusive_group <- self$properties$mode == "Complete"
         NULL
     },
 
@@ -144,7 +143,7 @@ public=list(
         lapply(private$vm, function(obj) obj$sync_vm_status())
         self$disks <- lapply(private$vm, "[[", "disks")
         self$status <- lapply(private$vm, "[[", "status")
-        invisible(NULL)
+        self$status
     },
 
     start=function(wait=TRUE)
@@ -185,17 +184,15 @@ public=list(
 
     delete=function(confirm=TRUE, free_resources=TRUE)
     {
-        if(private$exclusive_group)
+        # customised confirmation message
+        if(self$properties$mode == "Complete" && confirm && interactive())
         {
-            if(confirm && interactive())
-            {
-                vmtype <- if(self$clust_size == 1) "VM" else "VM cluster"
-                msg <- paste0("Do you really want to delete ", vmtype, " and resource group '", self$name, "'? (y/N) ")
-                yn <- readline(msg)
-                if(tolower(substr(yn, 1, 1)) != "y")
-                    return(invisible(NULL))
-            }
-            az_resource_group$new(self$token, self$subscription, self$resource_group)$delete(confirm=FALSE)
+            vmtype <- if(self$clust_size == 1) "VM" else "VM cluster"
+            msg <- paste0("Do you really want to delete ", vmtype, " and resource group '", self$name, "'? (y/N) ")
+            yn <- readline(msg)
+            if(tolower(substr(yn, 1, 1)) != "y")
+                return(invisible(NULL))
+            super$delete(confirm=FALSE, free_resources=TRUE)
         }
         else super$delete(confirm=confirm, free_resources=free_resources)
     },
@@ -209,7 +206,7 @@ public=list(
 
         osProf <- names(private$vm[[1]]$properties$osProfile)
         os <- if(any(grepl("linux", osProf))) "Linux" else if(any(grepl("windows", osProf))) "Windows" else "<unknown>"
-        exclusive <- private$exclusive_group
+        exclusive <- self$properties$mode == "Complete"
         dns_label <- if(self$clust_size == 1) "Domain name:" else "Domain names:"
         dns_names <- if(is_empty(self$dns_name))
             paste0("  ", dns_label, " <none>")
@@ -243,8 +240,7 @@ public=list(
 ),
 
 private=list(
-    exclusive_group=NULL,
-    vm=NULL,
+    vm=list(NULL),
 
     get_vm=function()
     {
