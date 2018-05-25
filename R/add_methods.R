@@ -188,7 +188,11 @@ NULL
             mode <- "Complete"
         }
         else mode <- "Incremental"
-        az_vm_template$new(self$token, self$id, resource_group, name, location, ..., mode=mode)
+
+        res <- try(az_vm_template$new(self$token, self$id, resource_group, name, location, ..., mode=mode))
+        if(inherits(res, "try-error") && mode == "Complete")
+            return(self$delete_resource_group(resource_group, confirm=FALSE))
+        res
     })
 
 
