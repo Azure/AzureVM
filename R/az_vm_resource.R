@@ -35,7 +35,7 @@ public=list(
 
         self$sync_fields()
 
-        res <- self$do_operation(http_verb="GET", "instanceView")
+        res <- self$do_operation("instanceView", http_verb="GET")
         self$status <- get_status(res$statuses)
 
         disks <- named_list(res$disks)
@@ -47,7 +47,7 @@ public=list(
     start=function(wait=TRUE)
     {
         message("Starting VM '", self$name, "'")
-        self$do_operation(http_verb="POST", "start")
+        self$do_operation("start", http_verb="POST")
         if(wait)
         {
             for(i in 1:100)
@@ -70,9 +70,9 @@ public=list(
         msg <- paste0(msg, " VM '", self$name, "'")
         message(msg)
 
-        self$do_operation(http_verb="POST", "powerOff")
+        self$do_operation("powerOff", http_verb="POST")
         if(deallocate)
-            self$do_operation(http_verb="POST", "deallocate")
+            self$do_operation("deallocate", http_verb="POST")
         if(wait)
         {
             for(i in 1:100)
@@ -113,7 +113,7 @@ public=list(
         if(is_empty(command))
             stop("Must supply a command to run", call.=FALSE)
         body <- list(commandId=command, parameters=parameters, script=script)
-        self$do_operation(http_verb="POST", "runCommand", body=body, encode="json")
+        self$do_operation("runCommand", body=body, encode="json", http_verb="POST")
     },
 
     run_script=function(script=NULL, parameters=NULL)
