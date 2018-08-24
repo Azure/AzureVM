@@ -255,6 +255,9 @@ NULL
             function(parms) az_vm_resource$new(self$token, self$id, deployed_properties=parms))
         }
 
+        # namespace shenanigans: get unexported function from AzureVM
+        convert_to_vm_template <- get("convert_to_vm_template", loadNamespace("AzureVM"))
+
         # get templates corresponding to raw VMs (if possible)
         lapply(named_list(lst), convert_to_vm_template)
     })
@@ -337,6 +340,9 @@ NULL
             lst <- lapply(cont$value,
             function(parms) az_vm_resource$new(self$token, self$subscription, deployed_properties=parms))
         }
+
+        # namespace shenanigans: get unexported function from AzureVM
+        convert_to_vm_template <- get("convert_to_vm_template", loadNamespace("AzureVM"))
 
         # get templates corresponding to raw VMs (if possible)
         lapply(named_list(lst), convert_to_vm_template)
