@@ -146,8 +146,8 @@ NULL
 .onLoad <- function(libname, pkgname)
 {
     ## extend subscription methods
-    AzureRMR::az_subscription$set("public", "list_vm_sizes", overwrite=TRUE,
-                                  function(location, name_only=FALSE)
+    az_subscription$set("public", "list_vm_sizes", overwrite=TRUE,
+                        function(location, name_only=FALSE)
     {
         provider <- "Microsoft.Compute"
         path <- "locations"
@@ -162,42 +162,54 @@ NULL
     })
 
 
-    AzureRMR::az_subscription$set("public", "create_vm", overwrite=TRUE,
-                                  function(name, location, ..., resource_group=name)
+    az_subscription$set("public", "create_vm", overwrite=TRUE, function(...)
     {
-        self$create_vm_cluster(name, location, ..., resource_group=name, clust_size=1)
+        self$create_vm_cluster(..., clust_size=1)
     })
 
 
-    AzureRMR::az_subscription$set("public", "create_vm_cluster", overwrite=TRUE,
-                                  function(name, location, ..., resource_group=name)
+    az_subscription$set("public", "create_vm_cluster", overwrite=TRUE,
+                        function(name, location, resource_group=name,
+                                 os=c("Windows", "Ubuntu"), size="Standard_DS3_v2",
+                                 username, passkey, userauth_type=c("password", "key"),
+                                 ext_file_uris=NULL, inst_command=NULL,
+                                 clust_size, template, parameters,
+                                 ..., wait=TRUE)
     {
-        if(is_resource_group(resource_group))
+        if(!is_resource_group(resource_group))
         {
-            if(missing(location))
-                location <- resource_group$location
-            resource_group <- resource_group$name
+            rgnames <- names(self$list_resource_groups())
+            if(resource_group %in% rgnames)
+            {
+                resource_group <- self$get_resource_group(resource_group)
+                mode <- "Incremental"
+            }
+            else
+            {
+                message("Creating resource group '", resource_group$name, "'")
+                resource_group <- self$create_resource_group(resource_group, location=location)
+                mode <- "Complete"
+            }
         }
+        else mode <- "Incremental" # if passed a resource group object, assume it already exists in Azure
 
-        rgnames <- names(self$list_resource_groups())
-        exclusive_group <- !(resource_group %in% rgnames)
-        if(exclusive_group)
-        {
-            message("Creating resource group '", resource_group, "'")
-            self$create_resource_group(resource_group, location=location)
-            mode <- "Complete"
-        }
-        else mode <- "Incremental"
+        res <- try(resource_group$create_vm_cluster(name, os=os, size=size,
+            username=username, passkey=passkey, userauth_type=userauth_type,
+            ext_file_uris=ext_file_uris, inst_command=inst_command,
+            clust_size=clust_size, template=template, parameters=parameters,
+            ..., wait=wait, mode=mode))
 
-        res <- try(az_vm_template$new(self$token, self$id, resource_group, name, location, ..., mode=mode))
         if(inherits(res, "try-error") && mode == "Complete")
-            return(self$delete_resource_group(resource_group, confirm=FALSE))
+        {
+            resource_group$delete(confirm=FALSE)
+            stop("Unable to create VM", call.=FALSE)
+        }
         res
     })
 
 
-    AzureRMR::az_subscription$set("public", "get_vm", overwrite=TRUE,
-                                  function(name, resource_group=name)
+    az_subscription$set("public", "get_vm", overwrite=TRUE,
+                        function(name, resource_group=name)
     {
         if(!is_resource_group(resource_group))
             resource_group <- self$get_resource_group(resource_group)
@@ -206,8 +218,8 @@ NULL
     })
 
 
-    AzureRMR::az_subscription$set("public", "get_vm_cluster", overwrite=TRUE,
-                                  function(name, resource_group=name)
+    az_subscription$set("public", "get_vm_cluster", overwrite=TRUE,
+                        function(name, resource_group=name)
     {
         if(!is_resource_group(resource_group))
             resource_group <- self$get_resource_group(resource_group)
@@ -216,8 +228,8 @@ NULL
     })
 
 
-    AzureRMR::az_subscription$set("public", "delete_vm", overwrite=TRUE,
-                                  function(name, confirm=TRUE, free_resources=TRUE, resource_group=name)
+    az_subscription$set("public", "delete_vm", overwrite=TRUE,
+                        function(name, confirm=TRUE, free_resources=TRUE, resource_group=name)
     {
         if(!is_resource_group(resource_group))
             resource_group <- self$get_resource_group(resource_group)
@@ -226,8 +238,8 @@ NULL
     })
 
 
-    AzureRMR::az_subscription$set("public", "delete_vm_cluster", overwrite=TRUE,
-                                  function(name, confirm=TRUE, free_resources=TRUE, resource_group=name)
+    az_subscription$set("public", "delete_vm_cluster", overwrite=TRUE,
+                        function(name, confirm=TRUE, free_resources=TRUE, resource_group=name)
     {
         if(!is_resource_group(resource_group))
             resource_group <- self$get_resource_group(resource_group)
@@ -236,7 +248,7 @@ NULL
     })
 
 
-    AzureRMR::az_subscription$set("public", "list_vms", overwrite=TRUE, function()
+    az_subscription$set("public", "list_vms", overwrite=TRUE, function()
     {
         provider <- "Microsoft.Compute"
         path <- "virtualMachines"
@@ -265,22 +277,47 @@ NULL
 
     ##
     ## extend resource group methods
-    AzureRMR::az_resource_group$set("public", "create_vm", overwrite=TRUE,
-                                    function(name, location, ...)
+    az_resource_group$set("public", "create_vm", overwrite=TRUE, function(...)
     {
-        az_vm_template$new(self$token, self$subscription, self$name, name, location, ..., clust_size=1)
+        self$create_vm_cluster(..., clust_size=1)
     })
 
 
-    AzureRMR::az_resource_group$set("public", "create_vm_cluster", overwrite=TRUE,
-                                    function(name, location, ...)
+    az_resource_group$set("public", "create_vm_cluster", overwrite=TRUE,
+                          function(name, location,
+                                   os=c("Windows", "Ubuntu"), size="Standard_DS3_v2",
+                                   username, passkey, userauth_type=c("password", "key"),
+                                   ext_file_uris=NULL, inst_command=NULL,
+                                   clust_size, template, parameters,
+                                   ..., wait=TRUE)
     {
-        az_vm_template$new(self$token, self$subscription, self$name, name, location, ...)
+        os <- match.arg(os)
+        userauth_type <- match.arg(userauth_type)
+
+        if(missing(parameters) && (missing(username) || missing(passkey)))
+            stop("Must supply login username and password/private key", call.=FALSE)
+
+        # find template given input args
+        if(missing(template))
+            template <- get_dsvm_template(os, userauth_type, clust_size, ext_file_uris, inst_command)
+
+        # convert input args into parameter list for template
+        if(missing(parameters))
+            parameters <- make_dsvm_param_list(name=name, size=size,
+                username=username, userauth_type=userauth_type, passkey=passkey,
+                ext_file_uris=ext_file_uris, inst_command=inst_command,
+                clust_size=clust_size, template=template)
+
+        res <- az_vm_template$new(self$token, self$subscription, self$name, name,
+                                  template=template, parameters=parameters, ..., wait=wait)
+        if(!wait)
+            message("Deployment started. Call the sync_vm_status() method to track the status of the deployment.")
+        res
     })
 
 
-    AzureRMR::az_resource_group$set("public", "get_vm", overwrite=TRUE,
-                                    function(name)
+    az_resource_group$set("public", "get_vm", overwrite=TRUE,
+                          function(name)
     {
         res <- try(az_vm_template$new(self$token, self$subscription, self$name, name), silent=TRUE)
 
@@ -295,15 +332,15 @@ NULL
     })
 
 
-    AzureRMR::az_resource_group$set("public", "get_vm_cluster", overwrite=TRUE,
-                                    function(name)
+    az_resource_group$set("public", "get_vm_cluster", overwrite=TRUE,
+                          function(name)
     {
         az_vm_template$new(self$token, self$subscription, self$name, name)
     })
 
 
-    AzureRMR::az_resource_group$set("public", "delete_vm", overwrite=TRUE,
-                                    function(name, confirm=TRUE, free_resources=TRUE)
+    az_resource_group$set("public", "delete_vm", overwrite=TRUE,
+                          function(name, confirm=TRUE, free_resources=TRUE)
     {
         vm <- self$get_vm(name)
         if(is_vm_template(vm))
@@ -312,14 +349,14 @@ NULL
     })
 
 
-    AzureRMR::az_resource_group$set("public", "delete_vm_cluster", overwrite=TRUE,
-                                    function(name, confirm=TRUE, free_resources=TRUE)
+    az_resource_group$set("public", "delete_vm_cluster", overwrite=TRUE,
+                          function(name, confirm=TRUE, free_resources=TRUE)
     {
         self$get_vm_cluster(name)$delete(confirm=confirm, free_resources=free_resources)
     })
 
 
-    AzureRMR::az_resource_group$set("public", "list_vms", overwrite=TRUE, function()
+    az_resource_group$set("public", "list_vms", overwrite=TRUE, function()
     {
         provider <- "Microsoft.Compute"
         path <- "virtualMachines"

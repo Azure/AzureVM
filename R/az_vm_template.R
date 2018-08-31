@@ -51,41 +51,9 @@ public=list(
     dns_name=NULL,
     clust_size=NULL,
 
-    initialize=function(token, subscription, resource_group, name, location,
-                        os=c("Windows", "Ubuntu"), size="Standard_DS3_v2",
-                        username, passkey, userauth_type=c("password", "key"),
-                        ext_file_uris=NULL, inst_command=NULL,
-                        clust_size, template, parameters,
-                        ..., wait=TRUE)
+    initialize=function(token, subscription, resource_group, name, ...)
     {
-        # if no parameters were supplied, we want to retrieve an existing VM
-        existing_vm <- missing(location) && missing(size) && missing(os) &&
-                       missing(username) && missing(userauth_type) && missing(passkey) &&
-                       missing(ext_file_uris) && missing(inst_command) && missing(clust_size) &&
-                       missing(template) && missing(parameters) && is_empty(list(...))
-
-        if(!existing_vm) # we want to deploy
-        {
-            os <- match.arg(os)
-            userauth_type <- match.arg(userauth_type)
-
-            if(missing(parameters) && (missing(username) || missing(passkey)))
-                stop("Must supply login username and password/private key", call.=FALSE)
-
-            # find template given input args
-            if(missing(template))
-                template <- private$get_dsvm_template(os, userauth_type, clust_size, ext_file_uris, inst_command)
-
-            # convert input args into parameter list for template
-            if(missing(parameters))
-                parameters <- private$make_dsvm_param_list(name=name, size=size,
-                    username=username, userauth_type=userauth_type, passkey=passkey,
-                    ext_file_uris=ext_file_uris, inst_command=inst_command,
-                    clust_size=clust_size, template=template)
-
-            super$initialize(token, subscription, resource_group, name, template, parameters, ..., wait=wait)
-        }
-        else super$initialize(token, subscription, resource_group, name)
+        super$initialize(token, subscription, resource_group, name, ...)
 
         # fill in fields that don't require querying the host
         num_instances <- self$properties$outputs$numInstances
@@ -98,12 +66,6 @@ public=list(
         {
             self$clust_size <- as.numeric(num_instances$value)
             vmnames <- paste0(self$name, seq_len(self$clust_size) - 1)
-        }
-
-        if(!existing_vm && !wait)
-        {
-            message("Deployment started. Call the sync_vm_status() method to track the status of the deployment.")
-            return(NULL)
         }
 
         private$vm <- sapply(vmnames, function(name)
@@ -247,44 +209,6 @@ private=list(
         if(is_empty(private$vm))
             stop("VM deployment in progress", call.=FALSE)
         private$vm
-    },
-
-    get_dsvm_template=function(os, userauth_type, clust_size, ext_file_uris, inst_command)
-    {
-        if(os == "Ubuntu")
-            template <- "ubuntu_dsvm"
-        else if(os == "Windows")
-            template <- "win2016_dsvm"
-        else stop("Unknown OS: ", os, call.=FALSE)
-
-        if(clust_size > 1)
-            template <- paste0(template, "_cl")
-
-        if(userauth_type == "key")
-            template <- paste0(template, "_key")
-
-        if(!is_empty(ext_file_uris) || !is_empty(inst_command))
-            template <- paste0(template, "_ext")
-
-        template <- system.file("templates", paste0(template, ".json"), package="AzureVM")
-        if(template == "")
-            stop("Unsupported combination of parameters", call.=FALSE)
-        template
-    },
-
-    # arguments to this must be named
-    make_dsvm_param_list=function(...)
-    {
-        params <- list(...)
-
-        template <- tools::file_path_sans_ext(basename(params$template))
-        parm_map <- param_mappings[[template]]
-
-        # match supplied arguments to those expected by template
-        params <- params[names(params) %in% names(parm_map)]
-        names(params) <- parm_map[match(names(parm_map), names(params))]
-
-        lapply(params, function(x) list(value=as.character(x)))
     }
 ))
 
@@ -304,3 +228,42 @@ is_vm_template <- function(object)
     R6::is.R6(object) && inherits(object, "az_vm_template")
 }
 
+
+# arguments to this must be named
+make_dsvm_param_list=function(...)
+{
+    params <- list(...)
+
+    template <- tools::file_path_sans_ext(basename(params$template))
+    parm_map <- param_mappings[[template]]
+
+    # match supplied arguments to those expected by template
+    params <- params[names(params) %in% names(parm_map)]
+    names(params) <- parm_map[match(names(parm_map), names(params))]
+
+    lapply(params, function(x) list(value=as.character(x)))
+}
+
+
+get_dsvm_template=function(os, userauth_type, clust_size, ext_file_uris, inst_command)
+{
+    if(os == "Ubuntu")
+        template <- "ubuntu_dsvm"
+    else if(os == "Windows")
+        template <- "win2016_dsvm"
+    else stop("Unknown OS: ", os, call.=FALSE)
+
+    if(clust_size > 1)
+        template <- paste0(template, "_cl")
+
+    if(userauth_type == "key")
+        template <- paste0(template, "_key")
+
+    if(!is_empty(ext_file_uris) || !is_empty(inst_command))
+        template <- paste0(template, "_ext")
+
+    template <- system.file("templates", paste0(template, ".json"), package="AzureVM")
+    if(template == "")
+        stop("Unsupported combination of parameters", call.=FALSE)
+    template
+}
