@@ -186,7 +186,7 @@ NULL
             }
             else
             {
-                message("Creating resource group '", resource_group$name, "'")
+                message("Creating resource group '", resource_group, "'")
                 resource_group <- self$create_resource_group(resource_group, location=location)
                 mode <- "Complete"
             }
