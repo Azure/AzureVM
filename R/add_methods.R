@@ -291,6 +291,10 @@ NULL
                                    clust_size, template, parameters,
                                    ..., wait=TRUE)
     {
+        # namespace shenanigans: get unexported functions from AzureVM
+        get_dsvm_template <- get("get_dsvm_template", loadNamespace("AzureVM"))
+        make_dsvm_param_list <- get("make_dsvm_param_list", loadNamespace("AzureVM"))
+
         os <- match.arg(os)
         userauth_type <- match.arg(userauth_type)
 
