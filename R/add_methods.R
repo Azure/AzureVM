@@ -312,11 +312,8 @@ NULL
                 ext_file_uris=ext_file_uris, inst_command=inst_command,
                 clust_size=clust_size, template=template)
 
-        res <- az_vm_template$new(self$token, self$subscription, self$name, name,
-                                  template=template, parameters=parameters, ..., wait=wait)
-        if(!wait)
-            message("Deployment started. Call the sync_vm_status() method to track the status of the deployment.")
-        res
+        az_vm_template$new(self$token, self$subscription, self$name, name,
+                           template=template, parameters=parameters, ..., wait=wait)
     })
 
 

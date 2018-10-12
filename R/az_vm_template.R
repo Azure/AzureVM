@@ -51,9 +51,9 @@ public=list(
     dns_name=NULL,
     clust_size=NULL,
 
-    initialize=function(token, subscription, resource_group, name, ...)
+    initialize=function(token, subscription, resource_group, name, ..., wait=TRUE)
     {
-        super$initialize(token, subscription, resource_group, name, ...)
+        super$initialize(token, subscription, resource_group, name, ..., wait=wait)
 
         # fill in fields that don't require querying the host
         num_instances <- self$properties$outputs$numInstances
@@ -68,24 +68,29 @@ public=list(
             vmnames <- paste0(self$name, seq_len(self$clust_size) - 1)
         }
 
-        private$vm <- sapply(vmnames, function(name)
+        if(wait)
         {
-            az_vm_resource$new(self$token, self$subscription, self$resource_group,
+            private$vm <- sapply(vmnames, function(name)
+            {
+                az_vm_resource$new(self$token, self$subscription, self$resource_group,
                 type="Microsoft.Compute/virtualMachines", name=name)
-        }, simplify=FALSE)
+            }, simplify=FALSE)
 
-        # get the hostname/IP address for the VM
-        outputs <- unlist(self$properties$outputResources)
-        ip_id <- grep("publicIPAddresses/.+$", outputs, ignore.case=TRUE, value=TRUE)
-        ip <- lapply(ip_id, function(id)
-            az_resource$new(self$token, self$subscription, id=id)$properties)
+            # get the hostname/IP address for the VM
+            outputs <- unlist(self$properties$outputResources)
+            ip_id <- grep("publicIPAddresses/.+$", outputs, ignore.case=TRUE, value=TRUE)
+            ip <- lapply(ip_id, function(id)
+                az_resource$new(self$token, self$subscription, id=id)$properties)
 
-        self$ip_address <- sapply(ip, function(x) x$ipAddress)
-        self$dns_name <- sapply(ip, function(x) x$dnsSettings$fqdn)
+            self$ip_address <- sapply(ip, function(x) x$ipAddress)
+            self$dns_name <- sapply(ip, function(x) x$dnsSettings$fqdn)
 
-        lapply(private$vm, function(obj) obj$sync_vm_status())
-        self$disks <- lapply(private$vm, "[[", "disks")
-        self$status <- lapply(private$vm, "[[", "status")
+            lapply(private$vm, function(obj) obj$sync_vm_status())
+            self$disks <- lapply(private$vm, "[[", "disks")
+            self$status <- lapply(private$vm, "[[", "status")
+            NULL
+        }
+        else message("Deployment started. Call the sync_vm_status() method to track the status of the deployment.")
 
         NULL
     },
@@ -209,6 +214,29 @@ private=list(
         if(is_empty(private$vm))
             stop("VM deployment in progress", call.=FALSE)
         private$vm
+    },
+
+    sync_vm_resources=function()
+    {
+        private$vm <- sapply(vmnames, function(name)
+        {
+            az_vm_resource$new(self$token, self$subscription, self$resource_group,
+                type="Microsoft.Compute/virtualMachines", name=name)
+        }, simplify=FALSE)
+
+        # get the hostname/IP address for the VM
+        outputs <- unlist(self$properties$outputResources)
+        ip_id <- grep("publicIPAddresses/.+$", outputs, ignore.case=TRUE, value=TRUE)
+        ip <- lapply(ip_id, function(id)
+            az_resource$new(self$token, self$subscription, id=id)$properties)
+
+        self$ip_address <- sapply(ip, function(x) x$ipAddress)
+        self$dns_name <- sapply(ip, function(x) x$dnsSettings$fqdn)
+
+        lapply(private$vm, function(obj) obj$sync_vm_status())
+        self$disks <- lapply(private$vm, "[[", "disks")
+        self$status <- lapply(private$vm, "[[", "status")
+        NULL
     }
 ))
 
