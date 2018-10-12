@@ -8,10 +8,10 @@
                 "description": "Username for the Virtual Machine."
             }
         },
-        "adminPassword": {
-            "type": "securestring",
+        "sshKeyData": {
+            "type": "string",
             "metadata": {
-                "description": "Password for the Virtual Machine."
+                "description": "SSH public key data as a string."
             }
         },
         "numberOfInstances": {
@@ -33,19 +33,6 @@
             "metadata": {
                 "description": "Size for the Virtual Machine."
             }
-        },
-        "fileUris": {
-            "type": "string",
-            "metadata": {
-                "description": "URL of the extension package or file"
-            }
-        },
-        "commandToExecute": {
-            "type": "string",
-            "defaultValue": "install.sh",
-            "metadata": {
-                "description": "Extension bash script command to execute"
-            }
         }
     },
     "variables": {
@@ -65,8 +52,7 @@
         "virtualNetworkName": "[parameters('vmName')]",
         "vnetID": "[resourceId('Microsoft.Network/virtualNetworks',variables('virtualNetworkName'))]",
         "subnetRef": "[concat(variables('vnetID'),'/subnets/',variables('subnetName'))]",
-        "fileUris": "[parameters('fileUris')]",
-        "commandToExecute": "[concat('bash ', parameters('commandToExecute'))]"
+        "sshKeyPath": "[concat('/home/',parameters('adminUsername'),'/.ssh/authorized_keys')]"
     },
     "resources": [
         {
@@ -158,7 +144,17 @@
                 "osProfile": {
                     "computerName": "[concat(variables('vmName'), copyIndex())]",
                     "adminUsername": "[parameters('adminUsername')]",
-                    "adminPassword": "[parameters('adminPassword')]"
+                    "linuxConfiguration": {
+                        "disablePasswordAuthentication": true,
+                        "ssh": {
+                            "publicKeys": [
+                                {
+                                    "path": "[variables('sshKeyPath')]",
+                                    "keyData": "[parameters('sshKeyData')]"
+                                }
+                            ]
+                        }
+                    }
                 },
                 "storageProfile": {
                     "imageReference": {
@@ -195,28 +191,7 @@
                         "enabled": false
                     }
                 }
-            },
-            "resources": [
-                {
-                    "type": "extensions",
-                    "name": "[variables('vmName')]",
-                    "apiVersion": "2017-03-30",
-                    "location": "[variables('location')]",
-                    "dependsOn": [
-                        "[concat('Microsoft.Compute/virtualMachines/', variables('vmName'),copyindex())]"
-                    ],
-                    "properties": {
-                        "publisher": "Microsoft.OSTCExtensions",
-                        "type": "CustomScriptForLinux",
-                        "typeHandlerVersion": "1.4",
-                        "autoUpgradeMinorVersion": true,
-                        "settings": {
-                            "fileUris": "[split(variables('fileUris'), ' ')]",
-                            "commandToExecute": "[variables('commandToExecute')]"
-                        }
-                    }
-                }
-            ]
+            }
         }
     ],
     "outputs": {

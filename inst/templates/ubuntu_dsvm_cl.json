@@ -39,7 +39,7 @@
         "location": "[resourceGroup().location]",
         "numberOfInstances": "[int(parameters('numberOfInstances'))]",
         "imagePublisher": "microsoft-dsvm",
-        "imageOffer": "linux-data-science-vm-ubuntu",            
+        "imageOffer": "linux-data-science-vm-ubuntu",
         "sku": "linuxdsvmubuntu",
         "nicName": "[parameters('vmName')]",
         "addressPrefix": "10.0.0.0/16",
@@ -154,19 +154,19 @@
                     },
                     "osDisk": {
                         "managedDisk": {
-                            "storageAccountType": "Standard_LRS"           
-                          },
+                            "storageAccountType": "Standard_LRS"
+                        },
                         "createOption": "FromImage"
                     },
                     "dataDisks": [
                         {
                             "managedDisk": {
-                                "storageAccountType": "Standard_LRS"           
-                              },
+                                "storageAccountType": "Standard_LRS"
+                            },
                             "createOption": "FromImage",
                             "lun": 0
                         }
-                    ]                    
+                    ]
                 },
                 "networkProfile": {
                     "networkInterfaces": [
@@ -184,7 +184,13 @@
         }
     ],
     "outputs": {
-        "firstDataScienceVmUrl": { "type": "string", "value": "[concat('https://ms.portal.azure.com/#resource/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Compute/virtualMachines/', variables('vmName'), '0')]" },
-        "numInstances": { "type": "string", "value": "[parameters('numberOfInstances')]" }
+        "firstDataScienceVmUrl": {
+            "type": "string",
+            "value": "[concat('https://ms.portal.azure.com/#resource/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Compute/virtualMachines/', variables('vmName'), '0')]"
+        },
+        "numInstances": {
+            "type": "string",
+            "value": "[parameters('numberOfInstances')]"
+        }
     }
 }

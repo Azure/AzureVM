@@ -10,10 +10,10 @@
         },
         "sshKeyData": {
             "type": "string",
-          "metadata": {
-              "description": "SSH public key data as a string."
-          }
-      },
+            "metadata": {
+                "description": "SSH public key data as a string."
+            }
+        },
         "vmName": {
             "type": "string",
             "metadata": {
@@ -112,7 +112,7 @@
             "apiVersion": "2017-03-30",
             "type": "Microsoft.Compute/virtualMachines",
             "name": "[variables('vmName')]",
-            "location": "[variables('location')]",         
+            "location": "[variables('location')]",
             "tags": {
                 "Application": "DataScience"
             },
@@ -130,13 +130,13 @@
                         "disablePasswordAuthentication": true,
                         "ssh": {
                             "publicKeys": [
-                            {
-                                "path": "[variables('sshKeyPath')]",
-                                "keyData": "[parameters('sshKeyData')]"
-                            }
+                                {
+                                    "path": "[variables('sshKeyPath')]",
+                                    "keyData": "[parameters('sshKeyData')]"
+                                }
                             ]
                         }
-                        }
+                    }
                 },
                 "storageProfile": {
                     "imageReference": {
@@ -148,16 +148,16 @@
                     "osDisk": {
                         "name": "[variables('OSDiskName')]",
                         "managedDisk": {
-                            "storageAccountType": "Standard_LRS"           
-                          },
+                            "storageAccountType": "Standard_LRS"
+                        },
                         "createOption": "FromImage"
                     },
                     "dataDisks": [
                         {
                             "name": "[variables('DataDiskName')]",
                             "managedDisk": {
-                                "storageAccountType": "Standard_LRS"           
-                              },
+                                "storageAccountType": "Standard_LRS"
+                            },
                             "createOption": "FromImage",
                             "lun": 0
                         }
@@ -179,6 +179,9 @@
         }
     ],
     "outputs": {
-        "DataScienceVmUrl": { "type": "string", "value": "[concat('https://ms.portal.azure.com/#resource/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Compute/virtualMachines/', variables('vmName'))]" }
+        "DataScienceVmUrl": {
+            "type": "string",
+            "value": "[concat('https://ms.portal.azure.com/#resource/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Compute/virtualMachines/', variables('vmName'))]"
+        }
     }
 }

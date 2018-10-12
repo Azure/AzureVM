@@ -49,6 +49,14 @@ param_mappings$ubuntu_dsvm_cl <- c(
     clust_size="numberOfInstances"
 )
 
+param_mappings$ubuntu_dsvm_cl_key <- c(
+    username="adminUsername",
+    passkey="sshKeyData",
+    name="vmName",
+    size="vmSize",
+    clust_size="numberOfInstances"
+)
+
 param_mappings$ubuntu_dsvm_cl_ext <- c(
     username="adminUsername",
     passkey="adminPassword",

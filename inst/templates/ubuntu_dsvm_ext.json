@@ -27,25 +27,25 @@
                 "description": "Size for the Virtual Machine."
             }
         },
-		"fileUris": {
+        "fileUris": {
             "type": "string",
             "metadata": {
                 "description": "URL of the extension package or file"
             }
         },
-		"commandToExecute": {
+        "commandToExecute": {
             "type": "string",
             "defaultValue": "install.sh",
             "metadata": {
                 "description": "Extension bash script command to execute"
             }
         },
-		"commandParameter": {
+        "commandParameter": {
             "type": "string",
             "metadata": {
                 "description": "Extension bash script command parameter"
             }
-        }        
+        }
     },
     "variables": {
         "location": "[resourceGroup().location]",
@@ -66,7 +66,7 @@
         "vnetID": "[resourceId('Microsoft.Network/virtualNetworks',variables('virtualNetworkName'))]",
         "subnetRef": "[concat(variables('vnetID'),'/subnets/',variables('subnetName'))]",
         "fileUris": "[parameters('fileUris')]",
-        "commandToExecute": "[concat('bash ', parameters('commandToExecute'), ' ', parameters('commandParameter'))]"        
+        "commandToExecute": "[concat('bash ', parameters('commandToExecute'), ' ', parameters('commandParameter'))]"
     },
     "resources": [
         {
@@ -132,7 +132,7 @@
             "apiVersion": "2017-03-30",
             "type": "Microsoft.Compute/virtualMachines",
             "name": "[variables('vmName')]",
-            "location": "[variables('location')]",         
+            "location": "[variables('location')]",
             "tags": {
                 "Application": "DataScience"
             },
@@ -158,16 +158,16 @@
                     "osDisk": {
                         "name": "[variables('OSDiskName')]",
                         "managedDisk": {
-                            "storageAccountType": "Standard_LRS"           
-                          },
+                            "storageAccountType": "Standard_LRS"
+                        },
                         "createOption": "FromImage"
                     },
                     "dataDisks": [
                         {
                             "name": "[variables('DataDiskName')]",
                             "managedDisk": {
-                                "storageAccountType": "Standard_LRS"           
-                              },
+                                "storageAccountType": "Standard_LRS"
+                            },
                             "createOption": "FromImage",
                             "lun": 0
                         }
@@ -186,30 +186,33 @@
                     }
                 }
             },
-			"resources": [
+            "resources": [
                 {
-                 "type": "extensions",
-                 "name": "[variables('vmName')]",
-                 "apiVersion": "2017-03-30",
-                 "location": "[variables('location')]",
-                 "dependsOn": [
-                   "[concat('Microsoft.Compute/virtualMachines/', variables('vmName')]"
-                 ],
-                 "properties": {
-                   "publisher": "Microsoft.OSTCExtensions",
-                   "type": "CustomScriptForLinux",
-                   "typeHandlerVersion": "1.4",
-                   "autoUpgradeMinorVersion": true,
-                   "settings": {
-                     "fileUris": "[split(variables('fileUris'), ' ')]",
-                     "commandToExecute": "[variables('commandToExecute')]"
-                   }
-                 }
+                    "type": "extensions",
+                    "name": "[variables('vmName')]",
+                    "apiVersion": "2017-03-30",
+                    "location": "[variables('location')]",
+                    "dependsOn": [
+                        "[concat('Microsoft.Compute/virtualMachines/', variables('vmName')]"
+                    ],
+                    "properties": {
+                        "publisher": "Microsoft.OSTCExtensions",
+                        "type": "CustomScriptForLinux",
+                        "typeHandlerVersion": "1.4",
+                        "autoUpgradeMinorVersion": true,
+                        "settings": {
+                            "fileUris": "[split(variables('fileUris'), ' ')]",
+                            "commandToExecute": "[variables('commandToExecute')]"
+                        }
+                    }
                 }
-               ]            
+            ]
         }
     ],
     "outputs": {
-        "DataScienceVmUrl": { "type": "string", "value": "[concat('https://ms.portal.azure.com/#resource/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Compute/virtualMachines/', variables('vmName'))]" }
+        "DataScienceVmUrl": {
+            "type": "string",
+            "value": "[concat('https://ms.portal.azure.com/#resource/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Compute/virtualMachines/', variables('vmName'))]"
+        }
     }
 }
