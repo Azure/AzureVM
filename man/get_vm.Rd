@@ -2,7 +2,7 @@
 % Please edit documentation in R/add_methods.R
 \name{get_vm}
 \alias{get_vm}
-\alias{get_vm_cluster,}
+\alias{get_vm_cluster}
 \alias{list_vms}
 \title{Get existing virtual machine(s)}
 \usage{

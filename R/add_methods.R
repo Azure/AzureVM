@@ -26,7 +26,7 @@ NULL
 #'
 #' @rdname get_vm
 #' @name get_vm
-#' @aliases get_vm_cluster, list_vms
+#' @aliases get_vm_cluster list_vms
 #' @usage
 #' get_vm(name, resource_group = name)
 #' get_vm(name)
