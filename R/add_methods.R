@@ -145,9 +145,16 @@ NULL
 # adding methods to classes in external package must go in .onLoad
 .onLoad <- function(libname, pkgname)
 {
-    ## extend subscription methods
+    add_sub_methods()
+    add_rg_methods()
+}
+
+
+# extend subscription methods
+add_sub_methods <- function()
+{
     az_subscription$set("public", "list_vm_sizes", overwrite=TRUE,
-                        function(location, name_only=FALSE)
+    function(location, name_only=FALSE)
     {
         provider <- "Microsoft.Compute"
         path <- "locations"
@@ -169,12 +176,12 @@ NULL
 
 
     az_subscription$set("public", "create_vm_cluster", overwrite=TRUE,
-                        function(name, location, resource_group=name,
-                                 os=c("Windows", "Ubuntu"), size="Standard_DS3_v2",
-                                 username, passkey, userauth_type=c("password", "key"),
-                                 ext_file_uris=NULL, inst_command=NULL,
-                                 clust_size, template, parameters,
-                                 ..., wait=TRUE)
+    function(name, location, resource_group=name,
+             os=c("Windows", "Ubuntu"), size="Standard_DS3_v2",
+             username, passkey, userauth_type=c("password", "key"),
+             ext_file_uris=NULL, inst_command=NULL,
+             clust_size, template, parameters,
+             ..., wait=TRUE)
     {
         if(!is_resource_group(resource_group))
         {
@@ -209,7 +216,7 @@ NULL
 
 
     az_subscription$set("public", "get_vm", overwrite=TRUE,
-                        function(name, resource_group=name)
+    function(name, resource_group=name)
     {
         if(!is_resource_group(resource_group))
             resource_group <- self$get_resource_group(resource_group)
@@ -219,7 +226,7 @@ NULL
 
 
     az_subscription$set("public", "get_vm_cluster", overwrite=TRUE,
-                        function(name, resource_group=name)
+    function(name, resource_group=name)
     {
         if(!is_resource_group(resource_group))
             resource_group <- self$get_resource_group(resource_group)
@@ -227,9 +234,8 @@ NULL
         resource_group$get_vm_cluster(name)
     })
 
-
     az_subscription$set("public", "delete_vm", overwrite=TRUE,
-                        function(name, confirm=TRUE, free_resources=TRUE, resource_group=name)
+    function(name, confirm=TRUE, free_resources=TRUE, resource_group=name)
     {
         if(!is_resource_group(resource_group))
             resource_group <- self$get_resource_group(resource_group)
@@ -239,7 +245,7 @@ NULL
 
 
     az_subscription$set("public", "delete_vm_cluster", overwrite=TRUE,
-                        function(name, confirm=TRUE, free_resources=TRUE, resource_group=name)
+    function(name, confirm=TRUE, free_resources=TRUE, resource_group=name)
     {
         if(!is_resource_group(resource_group))
             resource_group <- self$get_resource_group(resource_group)
@@ -273,10 +279,12 @@ NULL
         # get templates corresponding to raw VMs (if possible)
         lapply(named_list(lst), convert_to_vm_template)
     })
+}
 
 
-    ##
-    ## extend resource group methods
+# extend resource group methods
+add_rg_methods <- function()
+{
     az_resource_group$set("public", "create_vm", overwrite=TRUE, function(...)
     {
         self$create_vm_cluster(..., clust_size=1)
@@ -284,12 +292,12 @@ NULL
 
 
     az_resource_group$set("public", "create_vm_cluster", overwrite=TRUE,
-                          function(name, location,
-                                   os=c("Windows", "Ubuntu"), size="Standard_DS3_v2",
-                                   username, passkey, userauth_type=c("password", "key"),
-                                   ext_file_uris=NULL, inst_command=NULL,
-                                   clust_size, template, parameters,
-                                   ..., wait=TRUE)
+    function(name, location,
+             os=c("Windows", "Ubuntu"), size="Standard_DS3_v2",
+             username, passkey, userauth_type=c("password", "key"),
+             ext_file_uris=NULL, inst_command=NULL,
+             clust_size, template, parameters,
+             ..., wait=TRUE)
     {
         # namespace shenanigans: get unexported functions from AzureVM
         get_dsvm_template <- get("get_dsvm_template", loadNamespace("AzureVM"))
@@ -318,7 +326,7 @@ NULL
 
 
     az_resource_group$set("public", "get_vm", overwrite=TRUE,
-                          function(name)
+    function(name)
     {
         res <- try(az_vm_template$new(self$token, self$subscription, self$name, name), silent=TRUE)
 
@@ -334,7 +342,7 @@ NULL
 
 
     az_resource_group$set("public", "get_vm_cluster", overwrite=TRUE,
-                          function(name)
+    function(name)
     {
         az_vm_template$new(self$token, self$subscription, self$name, name)
     })
@@ -351,7 +359,7 @@ NULL
 
 
     az_resource_group$set("public", "delete_vm_cluster", overwrite=TRUE,
-                          function(name, confirm=TRUE, free_resources=TRUE)
+    function(name, confirm=TRUE, free_resources=TRUE)
     {
         self$get_vm_cluster(name)$delete(confirm=confirm, free_resources=free_resources)
     })
