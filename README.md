@@ -73,3 +73,5 @@ rdevtest2$stop()
 rdevtest2$delete()
 ```
 
+---
+[![cloudyr project logo](https://i.imgur.com/JHS98Y7.png)](https://github.com/cloudyr)
