@@ -136,10 +136,10 @@ NULL
 #'                   resource_group = name)
 #' ```
 #' @section Arguments:
-#' - `name` The name of the VM or cluster.
-#' - `confirm` Whether to confirm the delete.
-#' - `free_resources` If this was a deployed template, whether to free all resources created during the deployment process.
-#' - `resource_group` For the `AzureRMR::az_subscription` method, the resource group containing the VM or cluster.
+#' - `name`: The name of the VM or cluster.
+#' - `confirm`: Whether to confirm the delete.
+#' - `free_resources`: If this was a deployed template, whether to free all resources created during the deployment process.
+#' - `resource_group`: For the `AzureRMR::az_subscription` method, the resource group containing the VM or cluster.
 #'
 #' @section Details:
 #' If the VM or cluster is of class [az_vm_template] and was created in exclusive mode, this method deletes the entire resource group that it occupies. This automatically frees all resources that were created during the deployment process. Otherwise, if `free_resources=TRUE`, it manually deletes each individual resource in turn. This is done synchronously (the method does not return until the deletion is complete) to allow for dependencies.

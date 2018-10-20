@@ -21,10 +21,10 @@ delete_vm_cluster(name, confirm = TRUE, free_resources = TRUE,
 \section{Arguments}{
 
 \itemize{
-\item \code{name} The name of the VM or cluster.
-\item \code{confirm} Whether to confirm the delete.
-\item \code{free_resources} If this was a deployed template, whether to free all resources created during the deployment process.
-\item \code{resource_group} For the \code{AzureRMR::az_subscription} method, the resource group containing the VM or cluster.
+\item \code{name}: The name of the VM or cluster.
+\item \code{confirm}: Whether to confirm the delete.
+\item \code{free_resources}: If this was a deployed template, whether to free all resources created during the deployment process.
+\item \code{resource_group}: For the \code{AzureRMR::az_subscription} method, the resource group containing the VM or cluster.
 }
 }
 
