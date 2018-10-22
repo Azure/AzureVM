@@ -4,7 +4,6 @@
 #'
 #' Method for the [AzureRMR::az_subscription] class.
 #'
-#' @docType class
 #' @section Usage:
 #' ```
 #' list_vm_sizes(location, name_only = FALSE)
@@ -28,7 +27,6 @@ NULL
 #'
 #' Method for the [AzureRMR::az_subscription] and [AzureRMR::az_resource_group] classes.
 #'
-#' @docType class
 #' @section Usage:
 #' ```
 #' get_vm(name, resource_group = name)
@@ -64,7 +62,6 @@ NULL
 #'
 #' Method for the [AzureRMR::az_subscription] and [AzureRMR::az_resource_group] classes.
 #'
-#' @docType class
 #' @section Usage:
 #' ```
 #' create_vm(name, location, os = c("Windows", "Ubuntu"), size = "Standard_DS3_v2",
