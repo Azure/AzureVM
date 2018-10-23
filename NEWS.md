@@ -1,3 +1,3 @@
-# AzureVM 0.9
+# AzureVM 0.9.0
 
 * Moved to cloudyr organisation
