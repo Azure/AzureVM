@@ -151,7 +151,7 @@ public=list(
 
     delete=function(confirm=TRUE, free_resources=TRUE)
     {
-        # customised confirmation message
+        # delete the resource group -- customised confirmation message
         if(self$properties$mode == "Complete" && confirm && interactive())
         {
             vmtype <- if(self$clust_size == 1) "VM" else "VM cluster"
@@ -161,7 +161,26 @@ public=list(
                 return(invisible(NULL))
             super$delete(confirm=FALSE, free_resources=TRUE)
         }
-        else super$delete(confirm=confirm, free_resources=free_resources)
+        else
+        {
+            if(free_resources)
+            {
+                # delete individual resources
+
+                if(confirm && interactive())
+                {
+                    vmtype <- if(self$clust_size == 1) "VM" else "VM cluster"
+                    msg <- paste0("Do you really want to delete ", vmtype, " '", self$name, "'? (y/N) ")
+                    yn <- readline(msg)
+                    if(tolower(substr(yn, 1, 1)) != "y")
+                        return(invisible(NULL))
+                }
+
+                lapply(private$vm, function(obj) obj$delete(confirm=FALSE, wait=TRUE))
+                super$delete(confirm=FALSE, free_resources=TRUE)
+            }
+            else super$delete(confirm=confirm, free_resources=FALSE)
+        }
     },
 
     print=function(...)

@@ -146,6 +146,33 @@ public=list(
             exclude=c("subscription", "resource_group", "type", "name", "status", "is_synced")))
         cat(AzureRMR::format_public_methods(self))
         invisible(NULL)
+    },
+
+    # add custom deletion method to handle managed disks
+    delete=function(..., confirm=TRUE, wait=TRUE)
+    {
+        managed_disks <- c(
+            self$properties$storageProfile$osDisk$managedDisk$id,
+            lapply(self$properties$storageProfile$dataDisks,
+                function(x) x$managedDisk$id)
+        )
+
+        super$delete(..., confirm=confirm, wait=wait)
+        if(!is_empty(managed_disks))
+        {
+            md_api_ver <- named_list(
+                call_azure_rm(self$token, self$subscription, "providers/Microsoft.Compute")$
+                    resourceTypes, "resourceType"
+                )$
+                disks$
+                apiVersions[[1]]
+
+            lapply(managed_disks, function(id)
+                az_resource$
+                    new(self$token, self$subscription, id=id, deployed_properties=list(NULL))$
+                    delete(confirm=confirm, wait=wait)
+            )
+        }
     }
 ),
 
