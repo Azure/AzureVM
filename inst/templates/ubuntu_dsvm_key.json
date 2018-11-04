@@ -10,10 +10,10 @@
         },
         "sshKeyData": {
             "type": "string",
-            "metadata": {
-                "description": "SSH public key data as a string."
-            }
-        },
+          "metadata": {
+              "description": "SSH public key data as a string."
+          }
+      },
         "vmName": {
             "type": "string",
             "metadata": {
@@ -44,11 +44,41 @@
         "vmName": "[parameters('vmName')]",
         "vmSize": "[parameters('vmSize')]",
         "virtualNetworkName": "[parameters('vmName')]",
+        "nsgName": "[concat(parameters('vmName'),'-nsg')]",
+        "nsgId": "[resourceId(resourceGroup().name, 'Microsoft.Network/networkSecurityGroups', variables('nsgName'))]",
         "vnetID": "[resourceId('Microsoft.Network/virtualNetworks',variables('virtualNetworkName'))]",
         "subnetRef": "[concat(variables('vnetID'),'/subnets/',variables('subnetName'))]",
         "sshKeyPath": "[concat('/home/',parameters('adminUsername'),'/.ssh/authorized_keys')]"
     },
     "resources": [
+		{
+            "apiVersion": "2018-02-01",
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "location": "[variables('location')]",
+            "name": "[variables('nsgName')]",
+            "properties": {
+                "securityRules": [
+                    {
+                        "name": "Allow-SSH-Jupyterhub",
+                        "properties": {
+                            "protocol": "Tcp",
+                            "sourcePortRange": "*",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 100,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [],
+                            "destinationPortRanges": [
+                                "22",
+                                "8000"
+                            ],
+                            "destinationPortRange": ""
+                        }
+                    }
+                ]
+            }
+        },             
         {
             "apiVersion": "2015-05-01-preview",
             "type": "Microsoft.Network/publicIPAddresses",
@@ -66,6 +96,9 @@
             "type": "Microsoft.Network/virtualNetworks",
             "name": "[variables('virtualNetworkName')]",
             "location": "[variables('location')]",
+            "dependsOn": [
+                "[concat('Microsoft.Network/networkSecurityGroups/', variables('nsgName'))]"
+              ],                  
             "properties": {
                 "addressSpace": {
                     "addressPrefixes": [
@@ -89,6 +122,7 @@
             "location": "[variables('location')]",
             "dependsOn": [
                 "[concat('Microsoft.Network/publicIPAddresses/', variables('publicIPAddressName'))]",
+                "[concat('Microsoft.Network/networkSecurityGroups/', variables('nsgName'))]",		                
                 "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]"
             ],
             "properties": {
@@ -105,14 +139,17 @@
                             }
                         }
                     }
-                ]
+                ],
+                "networkSecurityGroup": {
+                    "id": "[variables('nsgId')]"
+                }
             }
         },
         {
             "apiVersion": "2017-03-30",
             "type": "Microsoft.Compute/virtualMachines",
             "name": "[variables('vmName')]",
-            "location": "[variables('location')]",
+            "location": "[variables('location')]",         
             "tags": {
                 "Application": "DataScience"
             },
@@ -130,13 +167,13 @@
                         "disablePasswordAuthentication": true,
                         "ssh": {
                             "publicKeys": [
-                                {
-                                    "path": "[variables('sshKeyPath')]",
-                                    "keyData": "[parameters('sshKeyData')]"
-                                }
+                            {
+                                "path": "[variables('sshKeyPath')]",
+                                "keyData": "[parameters('sshKeyData')]"
+                            }
                             ]
                         }
-                    }
+                        }
                 },
                 "storageProfile": {
                     "imageReference": {
@@ -148,16 +185,16 @@
                     "osDisk": {
                         "name": "[variables('OSDiskName')]",
                         "managedDisk": {
-                            "storageAccountType": "Standard_LRS"
-                        },
+                            "storageAccountType": "Standard_LRS"           
+                          },
                         "createOption": "FromImage"
                     },
                     "dataDisks": [
                         {
                             "name": "[variables('DataDiskName')]",
                             "managedDisk": {
-                                "storageAccountType": "Standard_LRS"
-                            },
+                                "storageAccountType": "Standard_LRS"           
+                              },
                             "createOption": "FromImage",
                             "lun": 0
                         }
@@ -179,9 +216,6 @@
         }
     ],
     "outputs": {
-        "DataScienceVmUrl": {
-            "type": "string",
-            "value": "[concat('https://ms.portal.azure.com/#resource/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Compute/virtualMachines/', variables('vmName'))]"
-        }
+        "DataScienceVmUrl": { "type": "string", "value": "[concat('https://ms.portal.azure.com/#resource/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Compute/virtualMachines/', variables('vmName'))]" }
     }
 }
