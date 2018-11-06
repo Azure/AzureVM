@@ -8,11 +8,14 @@ Authors@R: c(
     )
 Description: A package for managing virtual machines in Azure.
 License: file LICENSE
+VignetteBuilder: knitr
 Depends: 
     R (>= 3.3),
 Imports: 
     R6,
     AzureRMR
+Suggests:
+    knitr
 Roxygen: list(markdown=TRUE)
 RoxygenNote: 6.1.0.9000
 Remotes:
