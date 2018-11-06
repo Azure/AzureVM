@@ -48,17 +48,45 @@ public=list(
     {
         message("Starting VM '", self$name, "'")
         self$do_operation("start", http_verb="POST")
+        Sys.sleep(2)
         if(wait)
         {
             for(i in 1:100)
             {
                 self$sync_vm_status()
-                if(length(self$status) == 2 && self$status[2] == "running")
+                if(length(self$status) == 2 &&
+                    self$status[1] == "succeeded" &&
+                    self$status[2] == "running")
                     break
                 Sys.sleep(5)
             }
-            if(length(self$status) < 2 || self$status[2] != "running")
+            if(length(self$status) < 2 ||
+                self$status[1] != "succeeded" ||
+                self$status[2] != "running")
                 stop("Unable to start VM", call.=FALSE)
+        }
+    },
+
+    restart=function(wait=TRUE)
+    {
+        message("Restarting VM '", self$name, "'")
+        self$do_operation("restart", http_verb="POST")
+        Sys.sleep(2)
+        if(wait)
+        {
+            for(i in 1:100)
+            {
+                self$sync_vm_status()
+                if(length(self$status) == 2 &&
+                    self$status[1] == "succeeded" &&
+                    self$status[2] == "running")
+                    break
+                Sys.sleep(5)
+            }
+            if(length(self$status) < 2 ||
+                self$status[1] != "succeeded" ||
+                self$status[2] != "running")
+                stop("Unable to restart VM", call.=FALSE)
         }
     },
 
@@ -84,25 +112,6 @@ public=list(
             }
             if(length(self$status) == 2 && !(self$status[2] %in% c("stopped", "deallocated")))
                 stop("Unable to shut down VM", call.=FALSE)
-        }
-    },
-
-    restart=function(wait=TRUE)
-    {
-        message("Restarting VM '", self$name, "'")
-        self$do_operation("restart", http_verb="POST")
-        Sys.sleep(2)
-        if(wait)
-        {
-            for(i in 1:100)
-            {
-                self$sync_vm_status()
-                if(length(self$status) == 2 && self$status[2] == "running")
-                    break
-                Sys.sleep(5)
-            }
-            if(length(self$status) < 2 || self$status[2] != "running")
-                stop("Unable to restart VM", call.=FALSE)
         }
     },
 
