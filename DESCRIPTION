@@ -9,7 +9,7 @@ Authors@R: c(
 Description: A package for working with virtual machines in Microsoft's 'Azure' cloud. 'AzureVM' includes facilities to create, startup, shutdown, and delete cleanly VMs. You can run scripts and install optional extensions. It includes a selection of VM templates based on the 'Data Science Virtual Machine', which is preinstalled with several software packages useful for data science. Alternatively, the user can also supply their own template.
 URL: https://github.com/cloudyr/AzureVM
 BugReports: https://github.com/cloudyr/AzureVM/issues
-License: file LICENSE
+License: MIT + file LICENSE
 VignetteBuilder: knitr
 Depends: 
     R (>= 3.3),
