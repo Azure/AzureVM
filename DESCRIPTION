@@ -3,10 +3,10 @@ Title: Virtual Machines in 'Azure'
 Version: 0.9.0
 Authors@R: c(
     person("Hong", "Ooi", , "hongooi@microsoft.com", role = c("aut", "cre")),
-    person("Data Science Virtual Machine team", role="ctb"),
+    person("Data Science Virtual Machine team", role="ctb", comment="DSVM template provider"),
     person("Microsoft", role="cph")
     )
-Description: Functionality for working with virtual machines in Microsoft's 'Azure' cloud. Includes facilities to create, startup, shutdown, and cleanly delete VMs and VM clusters. With a running VM, execute scripts and install optional extensions. A selection of VM templates based on the 'Data Science Virtual Machine' are supplied; users can thus quickly create and use a VM preinstalled with several software packages useful for data science. Also works with user-supplied templates.
+Description: Functionality for working with virtual machines in Microsoft's 'Azure' cloud. Includes facilities to create, startup, shutdown, and cleanly delete VMs and VM clusters. With a running VM, execute scripts and install optional extensions. A selection of VM templates based on the 'Data Science Virtual Machine' (DSVM) is supplied; this allows fast and easy provisioning of a VM preinstalled with several software packages useful for data science. Alternatively, users can provide VM templates of their own.
 URL: https://github.com/cloudyr/AzureVM
 BugReports: https://github.com/cloudyr/AzureVM/issues
 License: MIT + file LICENSE
