@@ -12,6 +12,7 @@
 #' - `run_deployed_command(command, parameters, script)`: Run a PowerShell command on the VM.
 #' - `run_script(script, parameters)`: Run a script on the VM. For a Linux VM, this will be a shell script; for a Windows VM, a PowerShell script. Pass the script as a character vector.
 #' - `sync_vm_status()`: Update the VM status fields in this object with information from the host.
+#' - `resize(size, deallocate=FALSE, wait=FALSE)`: Resize the VM. Optionally deallocate it first (may sometimes be necessary).
 #'
 #' @section Fields:
 #' The following fields are available, in addition to those provided by the `AzureRMR::az_template` class. Each is a list with one element per node in the cluster.
@@ -134,6 +135,12 @@ public=list(
     add_extension=function(...)
     {
         lapply(private$get_vm(), function(obj) obj$add_extension(...))
+        invisible(NULL)
+    },
+
+    resize=function(size, deallocate=FALSE, wait=FALSE)
+    {
+        lapply(private$get_vm(), function(obj) obj$resize(size, deallocate=deallocate, wait=wait))
         invisible(NULL)
     },
 

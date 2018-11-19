@@ -12,6 +12,7 @@
 #' - `run_deployed_command(command, parameters, script)`: Run a PowerShell command on the VM.
 #' - `run_script(script, parameters)`: Run a script on the VM. For a Linux VM, this will be a shell script; for a Windows VM, a PowerShell script. Pass the script as a character vector.
 #' - `sync_vm_status()`: Update the VM status fields in this object with information from the host.
+#' - `resize(size, deallocate=FALSE, wait=FALSE)`: Resize the VM. Optionally deallocate it first (may sometimes be necessary).
 #'
 #' @seealso
 #' [AzureRMR::az_resource],
@@ -115,7 +116,34 @@ public=list(
         }
     },
 
-    add_extension=function(...) { },
+    add_extension=function(...)
+    {
+        stop("This function is not yet implemented", call.=FALSE)
+    },
+
+    resize=function(size, deallocate=FALSE, wait=FALSE)
+    {
+        if(deallocate)
+            self$stop(deallocate=TRUE, wait=TRUE)
+
+        properties <- list(hardwareProfile=list(vmSize=size))
+        self$do_operation(http_verb="PATCH",
+            body=list(properties=properties), encode="json")
+
+        if(wait)
+        {
+            for(i in 1:100)
+            {
+                self$sync_vm_status()
+                if(length(self$status) == 2 && self$status[2] == "running")
+                    break
+                Sys.sleep(5)
+            }
+            if(length(self$status) != 2 || self$status[2] != "running")
+                stop("Unable to resize VM", call.=FALSE)
+        }
+
+    },
 
     run_deployed_command=function(command=NULL, parameters=NULL, script=NULL)
     {

@@ -22,6 +22,7 @@ The following methods are available, in addition to those provided by the \link[
 \item \code{run_deployed_command(command, parameters, script)}: Run a PowerShell command on the VM.
 \item \code{run_script(script, parameters)}: Run a script on the VM. For a Linux VM, this will be a shell script; for a Windows VM, a PowerShell script. Pass the script as a character vector.
 \item \code{sync_vm_status()}: Update the VM status fields in this object with information from the host.
+\item \code{resize(size, deallocate=FALSE, wait=FALSE)}: Resize the VM. Optionally deallocate it first (may sometimes be necessary).
 }
 }
 
