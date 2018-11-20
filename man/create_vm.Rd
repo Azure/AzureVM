@@ -8,10 +8,25 @@
 Method for the \link[AzureRMR:az_subscription]{AzureRMR::az_subscription} and \link[AzureRMR:az_resource_group]{AzureRMR::az_resource_group} classes.
 }
 \section{Usage}{
-\preformatted{create_vm(name, location, os = c("Windows", "Ubuntu"), size = "Standard_DS3_v2",
+\preformatted{## R6 method for class 'az_resource_group'
+create_vm(name, os = c("Windows", "Ubuntu"), size = "Standard_DS3_v2",
           username, passkey, userauth_type = c("password", "key"),
           ext_file_uris = NULL, inst_command = NULL,
           template, parameters, ..., wait = TRUE)
+
+## R6 method for class 'az_subscription'
+create_vm(name, location, os = c("Windows", "Ubuntu"), size = "Standard_DS3_v2",
+          username, passkey, userauth_type = c("password", "key"),
+          ext_file_uris = NULL, inst_command = NULL,
+          template, parameters, ..., wait = TRUE)
+
+## R6 method for class 'az_resource_group'
+create_vm_cluster(name, os = c("Windows", "Ubuntu"), size = "Standard_DS3_v2",
+                  username, passkey, userauth_type = c("password", "key"),
+                  ext_file_uris = NULL, inst_command = NULL, clust_size,
+                  template, parameters, ..., wait = TRUE)
+
+## R6 method for class 'az_subscription'
 create_vm_cluster(name, location, os = c("Windows", "Ubuntu"), size = "Standard_DS3_v2",
                   username, passkey, userauth_type = c("password", "key"),
                   ext_file_uris = NULL, inst_command = NULL, clust_size,
@@ -23,7 +38,7 @@ create_vm_cluster(name, location, os = c("Windows", "Ubuntu"), size = "Standard_
 
 \itemize{
 \item \code{name}: The name of the VM or cluster.
-\item \code{location}: The location for the VM. Use the \code{list_locations()} method of the \code{AzureRMR::az_subscription} class to see what locations are available.
+\item \code{location}: For the subscription class methods, the location for the VM. Use the \code{list_locations()} method of the \code{AzureRMR::az_subscription} class to see what locations are available.
 \item \code{os}: The operating system for the VM.
 \item \code{size}: The VM size. Use the \code{list_vm_sizes()} method of the \code{AzureRMR::az_subscription} class to see what sizes are available.
 \item \code{username}: The login username for the VM.

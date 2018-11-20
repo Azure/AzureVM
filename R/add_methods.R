@@ -78,18 +78,34 @@ NULL
 #'
 #' @section Usage:
 #' ```
+#' ## R6 method for class 'az_resource_group'
+#' create_vm(name, os = c("Windows", "Ubuntu"), size = "Standard_DS3_v2",
+#'           username, passkey, userauth_type = c("password", "key"),
+#'           ext_file_uris = NULL, inst_command = NULL,
+#'           template, parameters, ..., wait = TRUE)
+#'
+#' ## R6 method for class 'az_subscription'
 #' create_vm(name, location, os = c("Windows", "Ubuntu"), size = "Standard_DS3_v2",
 #'           username, passkey, userauth_type = c("password", "key"),
 #'           ext_file_uris = NULL, inst_command = NULL,
 #'           template, parameters, ..., wait = TRUE)
+#'
+#' ## R6 method for class 'az_resource_group'
+#' create_vm_cluster(name, os = c("Windows", "Ubuntu"), size = "Standard_DS3_v2",
+#'                   username, passkey, userauth_type = c("password", "key"),
+#'                   ext_file_uris = NULL, inst_command = NULL, clust_size,
+#'                   template, parameters, ..., wait = TRUE)
+#'
+#' ## R6 method for class 'az_subscription'
 #' create_vm_cluster(name, location, os = c("Windows", "Ubuntu"), size = "Standard_DS3_v2",
 #'                   username, passkey, userauth_type = c("password", "key"),
 #'                   ext_file_uris = NULL, inst_command = NULL, clust_size,
 #'                   template, parameters, ..., wait = TRUE)
+
 #' ```
 #' @section Arguments:
 #' - `name`: The name of the VM or cluster.
-#' - `location`: The location for the VM. Use the `list_locations()` method of the `AzureRMR::az_subscription` class to see what locations are available.
+#' - `location`: For the subscription class methods, the location for the VM. Use the `list_locations()` method of the `AzureRMR::az_subscription` class to see what locations are available.
 #' - `os`: The operating system for the VM.
 #' - `size`: The VM size. Use the `list_vm_sizes()` method of the `AzureRMR::az_subscription` class to see what sizes are available.
 #' - `username`: The login username for the VM.
@@ -323,8 +339,7 @@ add_rg_methods <- function()
 
 
     az_resource_group$set("public", "create_vm_cluster", overwrite=TRUE,
-    function(name, location,
-             os=c("Windows", "Ubuntu"), size="Standard_DS3_v2",
+    function(name, os=c("Windows", "Ubuntu"), size="Standard_DS3_v2",
              username, passkey, userauth_type=c("password", "key"),
              ext_file_uris=NULL, inst_command=NULL,
              clust_size, template, parameters,
