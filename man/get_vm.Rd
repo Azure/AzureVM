@@ -9,10 +9,20 @@
 Method for the \link[AzureRMR:az_subscription]{AzureRMR::az_subscription} and \link[AzureRMR:az_resource_group]{AzureRMR::az_resource_group} classes.
 }
 \section{Usage}{
-\preformatted{get_vm(name, resource_group = name)
+\preformatted{## R6 method for class 'az_subscription'
+get_vm(name, resource_group = name)
+
+## R6 method for class 'az_resource_group'
 get_vm(name)
+
+## R6 method for class 'az_subscription'
 get_vm_cluster(name, resource_group = name)
+
+## R6 method for class 'az_resource_group'
 get_vm_cluster(name)
+
+## R6 method for class 'az_resource_group'
+## R6 method for class 'az_subscription'
 list_vms()
 }
 }

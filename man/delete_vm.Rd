@@ -9,10 +9,17 @@
 Method for the \link[AzureRMR:az_subscription]{AzureRMR::az_subscription} and \link[AzureRMR:az_resource_group]{AzureRMR::az_resource_group} classes.
 }
 \section{Usage}{
-\preformatted{delete_vm(name, confirm = TRUE, free_resources = TRUE)
+\preformatted{## R6 method for class 'az_resource_group'
+delete_vm(name, confirm = TRUE, free_resources = TRUE)
+
+## R6 method for class 'az_subscription'
 delete_vm(name, confirm = TRUE, free_resources = TRUE,
           resource_group = name)
+
+## R6 method for class 'az_resource_group'
 delete_vm_cluster(name, confirm = TRUE, free_resources = TRUE)
+
+## R6 method for class 'az_subscription'
 delete_vm_cluster(name, confirm = TRUE, free_resources = TRUE,
                   resource_group = name)
 }

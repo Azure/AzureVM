@@ -2,14 +2,18 @@
 
 #' List available VM sizes
 #'
-#' Method for the [AzureRMR::az_subscription] class.
+#' Method for the [AzureRMR::az_subscription] and [AzureRMR::az_resource_group] classes.
 #'
 #' @section Usage:
 #' ```
+#' ## R6 method for class 'az_subscription'
 #' list_vm_sizes(location, name_only = FALSE)
+#'
+#' ## R6 method for class 'az_resource_group'
+#' list_vm_sizes(name_only = FALSE)
 #' ```
 #' @section Arguments:
-#' - `location`: The location/region for which to obtain available VM sizes.
+#' - `location`: For the subscription class method, the location/region for which to obtain available VM sizes.
 #' - `name_only`: Whether to return only a vector of names, or all information on each VM size.
 #'
 #' @section Value:
@@ -29,10 +33,20 @@ NULL
 #'
 #' @section Usage:
 #' ```
+#' ## R6 method for class 'az_subscription'
 #' get_vm(name, resource_group = name)
+#'
+#' ## R6 method for class 'az_resource_group'
 #' get_vm(name)
+#'
+#' ## R6 method for class 'az_subscription'
 #' get_vm_cluster(name, resource_group = name)
+#'
+#' ## R6 method for class 'az_resource_group'
 #' get_vm_cluster(name)
+#'
+#' ## R6 method for class 'az_resource_group'
+#' ## R6 method for class 'az_subscription'
 #' list_vms()
 #' ```
 #' @section Arguments:
@@ -125,10 +139,17 @@ NULL
 #' @docType class
 #' @section Usage:
 #' ```
+#' ## R6 method for class 'az_resource_group'
 #' delete_vm(name, confirm = TRUE, free_resources = TRUE)
+#'
+#' ## R6 method for class 'az_subscription'
 #' delete_vm(name, confirm = TRUE, free_resources = TRUE,
 #'           resource_group = name)
+#'
+#' ## R6 method for class 'az_resource_group'
 #' delete_vm_cluster(name, confirm = TRUE, free_resources = TRUE)
+#'
+#' ## R6 method for class 'az_subscription'
 #' delete_vm_cluster(name, confirm = TRUE, free_resources = TRUE,
 #'                   resource_group = name)
 #' ```
@@ -402,6 +423,15 @@ add_rg_methods <- function()
 
         # get templates corresponding to raw VMs (if possible)
         lapply(named_list(lst), convert_to_vm_template)
+    })
+
+
+    az_resource_group$set("public", "list_vm_sizes", overwrite=TRUE,
+    function(name_only=FALSE)
+    {
+        az_subscription$
+            new(self$token, self$subscription)$
+            list_vm_sizes(self$location, name_only=name_only)
     })
 }
 

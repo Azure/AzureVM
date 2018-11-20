@@ -4,17 +4,21 @@
 \alias{list_vm_sizes}
 \title{List available VM sizes}
 \description{
-Method for the \link[AzureRMR:az_subscription]{AzureRMR::az_subscription} class.
+Method for the \link[AzureRMR:az_subscription]{AzureRMR::az_subscription} and \link[AzureRMR:az_resource_group]{AzureRMR::az_resource_group} classes.
 }
 \section{Usage}{
-\preformatted{list_vm_sizes(location, name_only = FALSE)
+\preformatted{## R6 method for class 'az_subscription'
+list_vm_sizes(location, name_only = FALSE)
+
+## R6 method for class 'az_resource_group'
+list_vm_sizes(name_only = FALSE)
 }
 }
 
 \section{Arguments}{
 
 \itemize{
-\item \code{location}: The location/region for which to obtain available VM sizes.
+\item \code{location}: For the subscription class method, the location/region for which to obtain available VM sizes.
 \item \code{name_only}: Whether to return only a vector of names, or all information on each VM size.
 }
 }
