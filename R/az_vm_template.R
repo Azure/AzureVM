@@ -41,6 +41,33 @@
 #' [AzureRMR::az_resource], [create_vm], [create_vm_cluster], [get_vm], [get_vm_cluster], [list_vms],
 #' [delete_vm], [delete_vm_cluster],
 #' [VM API reference](https://docs.microsoft.com/en-us/rest/api/compute/virtualmachines)
+#'
+#' @examples
+#' \dontrun{
+#'
+#' # recommended way to retrieve a VM: via a resource group or subscription object
+#' sub <- AzureRMR::az_rm$
+#'     new(tenant="myaadtenant.onmicrosoft.com", app="app_id", password="password")$
+#'     get_subscription("subscription_id")
+#' 
+#' vm <- sub$get_vm("myLinuxDSVM")
+#'
+#' # start the VM
+#' vm$start()
+#'
+#' # run a shell command
+#' vm$run_script("ifconfig > /tmp/ifc.out")
+#'
+#' # stop (and deallocate) the VM
+#' vm$stop()
+#'
+#' # resize the VM
+#' vm$resize("Standard_DS13_v2")
+#'
+#' # get the VM status
+#' vm$sync_vm_status()
+#'
+#' }
 #' @format An R6 object of class `az_vm_template`, inheriting from `AzureRMR::az_template`.
 #' @export
 az_vm_template <- R6::R6Class("az_vm_template", inherit=az_template,

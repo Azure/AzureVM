@@ -49,6 +49,21 @@ For \code{list_vms()}, a list of such objects.
 For \code{get_vm_cluster()}, an object representing the cluster.
 }
 
+\examples{
+\dontrun{
+
+sub <- AzureRMR::az_rm$
+    new(tenant="myaadtenant.onmicrosoft.com", app="app_id", password="password")$
+    get_subscription("subscription_id")
+
+sub$list_vms()
+sub$get_vm("myVirtualMachine")
+
+rg <- sub$get_resource_group("rgname")
+rg$get_vm("myOtherVirtualMachine")
+
+}
+}
 \seealso{
 \link{az_vm_template}, \link{az_vm_resource},
 \link[AzureRMR:az_subscription]{AzureRMR::az_subscription}, \link[AzureRMR:az_resource_group]{AzureRMR::az_resource_group}

@@ -42,6 +42,18 @@ If the VM or cluster is of class \link{az_vm_template} and was created in exclus
 If the VM is of class \link{az_vm_resource}, this method only deletes the VM resource itself, not any other resources it may depend on.
 }
 
+\examples{
+\dontrun{
+
+sub <- AzureRMR::az_rm$
+    new(tenant="myaadtenant.onmicrosoft.com", app="app_id", password="password")$
+    get_subscription("subscription_id")
+
+sub$delete_vm("myWindowsDSVM")
+sub$delete_vm("myLinuxDSVM")
+
+}
+}
 \seealso{
 \link{create_vm}, \link{az_vm_template}, \link{az_vm_resource},
 \link[AzureRMR:az_subscription]{AzureRMR::az_subscription}, \link[AzureRMR:az_resource_group]{AzureRMR::az_resource_group}

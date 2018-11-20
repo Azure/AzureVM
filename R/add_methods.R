@@ -21,6 +21,21 @@
 #'
 #' @seealso
 #' [create_vm]
+#'
+#' @examples
+#' \dontrun{
+#'
+#' sub <- AzureRMR::az_rm$
+#'     new(tenant="myaadtenant.onmicrosoft.com", app="app_id", password="password")$
+#'     get_subscription("subscription_id")
+#'
+#' sub$list_vm_sizes("australiaeast")
+#'
+#' # same output as above
+#' rg <- sub$create_resource_group("rgname", location="australiaeast")
+#' rg$list_vm_sizes()
+#'
+#' }
 #' @rdname list_vm_sizes
 #' @aliases list_vm_sizes
 #' @name list_vm_sizes
@@ -66,6 +81,21 @@ NULL
 #' @seealso
 #' [az_vm_template], [az_vm_resource],
 #' [AzureRMR::az_subscription], [AzureRMR::az_resource_group]
+#'
+#' @examples
+#' \dontrun{
+#' 
+#' sub <- AzureRMR::az_rm$
+#'     new(tenant="myaadtenant.onmicrosoft.com", app="app_id", password="password")$
+#'     get_subscription("subscription_id")
+#'
+#' sub$list_vms()
+#' sub$get_vm("myVirtualMachine")
+#'
+#' rg <- sub$get_resource_group("rgname")
+#' rg$get_vm("myOtherVirtualMachine")
+#' 
+#' }
 #' @rdname get_vm
 #' @aliases get_vm get_vm_cluster list_vms
 #' @name get_vm
@@ -142,6 +172,37 @@ NULL
 #' [az_vm_template],
 #' [AzureRMR::az_subscription], [AzureRMR::az_resource_group],
 #' [Data Science Virtual Machine](https://azure.microsoft.com/en-us/services/virtual-machines/data-science-virtual-machines/)
+#'
+#' @examples
+#' \dontrun{
+#' 
+#' sub <- AzureRMR::az_rm$
+#'     new(tenant="myaadtenant.onmicrosoft.com", app="app_id", password="password")$
+#'     get_subscription("subscription_id")
+#'
+#' # default Windows Server DSVM: make sure to use a strong password!
+#' sub$create_vm("myWindowsDSVM",
+#'    location="australiaeast",
+#'    username="ds",
+#'    passkey="Password123!")
+#'
+#' # upsized Linux (Ubuntu) DSVM
+#' sub$create_vm("myLinuxDSVM",
+#'    location="australiaeast",
+#'    os="Linux",
+#'    username="ds",
+#'    passkey=readLines("~/id_rsa.pub"),
+#'    size="Standard_DS13_v2")
+#'
+#" # Linux cluster with 5 nodes
+#' sub$create_vm_cluster("myLinuxCluster",
+#'    location="australiaeast",
+#'    os="Linux",
+#'    username="ds",
+#'    passkey=readLines("~/id_rsa.pub"),
+#'    clust_size=5)
+#'
+#' }
 #' @rdname create_vm
 #' @aliases create_vm create_vm_cluster
 #' @name create_vm
@@ -183,6 +244,18 @@ NULL
 #' @seealso
 #' [create_vm], [az_vm_template], [az_vm_resource],
 #' [AzureRMR::az_subscription], [AzureRMR::az_resource_group]
+#'
+#' @examples
+#' \dontrun{
+#'
+#' sub <- AzureRMR::az_rm$
+#'     new(tenant="myaadtenant.onmicrosoft.com", app="app_id", password="password")$
+#'     get_subscription("subscription_id")
+#' 
+#' sub$delete_vm("myWindowsDSVM")
+#' sub$delete_vm("myLinuxDSVM")
+#'
+#' }
 #' @rdname delete_vm
 #' @aliases delete_vm delete_vm_cluster
 #' @name delete_vm

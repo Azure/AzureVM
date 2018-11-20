@@ -79,6 +79,36 @@ For the \code{AzureRMR::az_subscription} method, this will by default create the
 An object of class \code{az_vm_template} representing the created VM.
 }
 
+\examples{
+\dontrun{
+
+sub <- AzureRMR::az_rm$
+    new(tenant="myaadtenant.onmicrosoft.com", app="app_id", password="password")$
+    get_subscription("subscription_id")
+
+# default Windows Server DSVM: make sure to use a strong password!
+sub$create_vm("myWindowsDSVM",
+   location="australiaeast",
+   username="ds",
+   passkey="Password123!")
+
+# upsized Linux (Ubuntu) DSVM
+sub$create_vm("myLinuxDSVM",
+   location="australiaeast",
+   os="Linux",
+   username="ds",
+   passkey=readLines("~/id_rsa.pub"),
+   size="Standard_DS13_v2")
+
+sub$create_vm_cluster("myLinuxCluster",
+   location="australiaeast",
+   os="Linux",
+   username="ds",
+   passkey=readLines("~/id_rsa.pub"),
+   clust_size=5)
+
+}
+}
 \seealso{
 \link{az_vm_template},
 \link[AzureRMR:az_subscription]{AzureRMR::az_subscription}, \link[AzureRMR:az_resource_group]{AzureRMR::az_resource_group},

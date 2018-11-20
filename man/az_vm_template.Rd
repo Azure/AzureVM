@@ -57,6 +57,33 @@ Initializing a new object of this class can either retrieve an existing VM templ
 A new VM can be created in \emph{exclusive} mode, meaning a new resource group is created solely to hold the VM. This simplifies deleting a VM considerably, as deleting the resource group will also automatically delete all the VM's resources. This can be done asynchronously, meaning that the \code{delete()} method returns immediately while the process continues on the host. Otherwise, deleting a VM will explicitly delete each of its resources, a task that must be done synchronously to allow for dependencies.
 }
 
+\examples{
+\dontrun{
+
+# recommended way to retrieve a VM: via a resource group or subscription object
+sub <- AzureRMR::az_rm$
+    new(tenant="myaadtenant.onmicrosoft.com", app="app_id", password="password")$
+    get_subscription("subscription_id")
+
+vm <- sub$get_vm("myLinuxDSVM")
+
+# start the VM
+vm$start()
+
+# run a shell command
+vm$run_script("ifconfig > /tmp/ifc.out")
+
+# stop (and deallocate) the VM
+vm$stop()
+
+# resize the VM
+vm$resize("Standard_DS13_v2")
+
+# get the VM status
+vm$sync_vm_status()
+
+}
+}
 \seealso{
 \link[AzureRMR:az_resource]{AzureRMR::az_resource}, \link{create_vm}, \link{create_vm_cluster}, \link{get_vm}, \link{get_vm_cluster}, \link{list_vms},
 \link{delete_vm}, \link{delete_vm_cluster},
