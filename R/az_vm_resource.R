@@ -135,14 +135,13 @@ public=list(
             for(i in 1:100)
             {
                 self$sync_vm_status()
-                if(length(self$status) == 2 && self$status[2] == "running")
+                if(properties$hardwareProfile$vmSize == size)
                     break
                 Sys.sleep(5)
             }
-            if(length(self$status) != 2 || self$status[2] != "running")
+            if(properties$hardwareProfile$vmSize != size)
                 stop("Unable to resize VM", call.=FALSE)
         }
-
     },
 
     run_deployed_command=function(command=NULL, parameters=NULL, script=NULL)
