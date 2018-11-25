@@ -6,10 +6,10 @@ password <- Sys.getenv("AZ_TEST_PASSWORD")
 subscription <- Sys.getenv("AZ_TEST_SUBSCRIPTION")
 
 if(tenant == "" || app == "" || password == "" || subscription == "")
-    skip("Authentication tests skipped: ARM credentials not set")
+    skip("Tests skipped: ARM credentials not set")
 
 
-sub <- az_rm$new(tenant=tenant, app=app, password=password)$get_subscription(subscription)
+sub <- AzureRMR::az_rm$new(tenant=tenant, app=app, password=password)$get_subscription(subscription)
 
 rgname <- paste(sample(letters, 20, replace=TRUE), collapse="")
 winvm_name <- paste0("win", paste0(sample(letters, 10, TRUE), collapse=""))
