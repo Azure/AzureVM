@@ -1,3 +1,7 @@
+# AzureVM 1.0.0.9000
+
+* Allow resource group and subscription accessor methods to work without AzureVM on the search path.
+
 # AzureVM 1.0.0
 
 * Submitted to CRAN

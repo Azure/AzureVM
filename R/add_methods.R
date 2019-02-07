@@ -384,13 +384,13 @@ add_sub_methods <- function()
 
         cont <- call_azure_rm(self$token, self$id, op, api_version=api_version)
         lst <- lapply(cont$value,
-        function(parms) az_vm_resource$new(self$token, self$id, deployed_properties=parms))
+        function(parms) AzureVM::az_vm_resource$new(self$token, self$id, deployed_properties=parms))
         # keep going until paging is complete
         while(!is_empty(cont$nextLink))
         {
             cont <- call_azure_url(self$token, cont$nextLink)
             lst <- lapply(cont$value,
-            function(parms) az_vm_resource$new(self$token, self$id, deployed_properties=parms))
+            function(parms) AzureVM::az_vm_resource$new(self$token, self$id, deployed_properties=parms))
         }
 
         # namespace shenanigans: get unexported function from AzureVM
@@ -439,21 +439,21 @@ add_rg_methods <- function()
                 ext_file_uris=ext_file_uris, inst_command=inst_command,
                 clust_size=clust_size, template=template)
 
-        az_vm_template$new(self$token, self$subscription, self$name, name,
-                           template=template, parameters=parameters, ..., wait=wait)
+        AzureVM::az_vm_template$new(self$token, self$subscription, self$name, name,
+            template=template, parameters=parameters, ..., wait=wait)
     })
 
 
     az_resource_group$set("public", "get_vm", overwrite=TRUE,
     function(name)
     {
-        res <- try(az_vm_template$new(self$token, self$subscription, self$name, name), silent=TRUE)
+        res <- try(AzureVM::az_vm_template$new(self$token, self$subscription, self$name, name), silent=TRUE)
 
         # if we couldn't find a VM deployment template, get the raw VM resource
         if(inherits(res, "try-error"))
         {
             warning("No deployment template found for VM '", name, "'", call.=FALSE)
-            res <- az_vm_resource$new(self$token, self$subscription, self$name,
+            res <- AzureVM::az_vm_resource$new(self$token, self$subscription, self$name,
             type="Microsoft.Compute/virtualMachines", name=name)
         }
         res
@@ -463,7 +463,7 @@ add_rg_methods <- function()
     az_resource_group$set("public", "get_vm_cluster", overwrite=TRUE,
     function(name)
     {
-        az_vm_template$new(self$token, self$subscription, self$name, name)
+        AzureVM::az_vm_template$new(self$token, self$subscription, self$name, name)
     })
 
 
@@ -496,14 +496,14 @@ add_rg_methods <- function()
 
         cont <- call_azure_rm(self$token, self$subscription, op, api_version=api_version)
         lst <- lapply(cont$value,
-        function(parms) az_vm_resource$new(self$token, self$subscription, deployed_properties=parms))
+        function(parms) AzureVM::az_vm_resource$new(self$token, self$subscription, deployed_properties=parms))
 
         # keep going until paging is complete
         while(!is_empty(cont$nextLink))
         {
             cont <- call_azure_url(self$token, cont$nextLink)
             lst <- lapply(cont$value,
-            function(parms) az_vm_resource$new(self$token, self$subscription, deployed_properties=parms))
+            function(parms) AzureVM::az_vm_resource$new(self$token, self$subscription, deployed_properties=parms))
         }
 
         # namespace shenanigans: get unexported function from AzureVM
@@ -531,7 +531,7 @@ convert_to_vm_template <- function(vm_resource)
     resource_group <- vm_resource$resource_group
     name <- vm_resource$name
 
-    tpl <- try(az_vm_template$new(token, subscription, resource_group, name), silent=TRUE)
+    tpl <- try(AzureVM::az_vm_template$new(token, subscription, resource_group, name), silent=TRUE)
     if(!inherits(tpl, "try-error") &&
        !is_empty(tpl$properties$outputResources) &&
        grepl(sprintf("providers/Microsoft.Compute/virtualMachines/%s$", name),
