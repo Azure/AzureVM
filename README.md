@@ -2,11 +2,11 @@
 
 [![CRAN](https://www.r-pkg.org/badges/version/AzureVM)](https://cran.r-project.org/package=AzureVM)
 ![Downloads](https://cranlogs.r-pkg.org/badges/AzureVM)
-[![Travis Build Status](https://travis-ci.org/cloudyr/AzureVM.png?branch=master)](https://travis-ci.org/cloudyr/AzureVM)
+[![Travis Build Status](https://travis-ci.org/Azure/AzureVM.png?branch=master)](https://travis-ci.org/Azure/AzureVM)
 
 This is a package for interacting with virtual machines in Azure. You can deploy, start up, shut down, run scripts, deallocate and delete VMs from the R command line. A number of VM templates are included based on the [Data Science Virtual Machine](https://azure.microsoft.com/en-us/services/virtual-machines/data-science-virtual-machines/), but you can also deploy other templates that you supply.
 
-AzureVM uses the tools provided by the [AzureRMR package](https://github.com/hong-revo/AzureRMR) to manage VM resources and templates. The main VM R6 class wraps the deployment template, allowing easy management of all resources as a unit. You can also create a VM in exclusive mode, meaning that it sits in its own resource group.
+AzureVM uses the tools provided by the [AzureRMR package](https://github.com/Azure/AzureRMR) to manage VM resources and templates. The main VM R6 class wraps the deployment template, allowing easy management of all resources as a unit. You can also create a VM in exclusive mode, meaning that it sits in its own resource group.
 
 The package supports both single VMs as well as clusters. A single VM is treated as a cluster containing only one node.
 

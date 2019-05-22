@@ -7,8 +7,8 @@ Authors@R: c(
     person("Microsoft", role="cph")
     )
 Description: Functionality for working with virtual machines (VMs) in Microsoft's 'Azure' cloud: <https://azure.microsoft.com/en-us/services/virtual-machines/>. Includes facilities to create, startup, shutdown, and cleanly delete VMs and VM clusters. With a running VM, execute scripts and install optional extensions. A selection of VM templates based on the 'Data Science Virtual Machine' (DSVM) is supplied; this allows fast and easy provisioning of a VM preinstalled with several software packages useful for data science. Alternatively, users can provide VM templates of their own.
-URL: https://github.com/cloudyr/AzureVM
-BugReports: https://github.com/cloudyr/AzureVM/issues
+URL: https://github.com/Azure/AzureVM
+BugReports: https://github.com/Azure/AzureVM/issues
 License: MIT + file LICENSE
 VignetteBuilder: knitr
 Depends: 
