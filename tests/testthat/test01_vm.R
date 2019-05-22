@@ -28,7 +28,7 @@ test_that("VM creation works",
     expect_true(sub$resource_group_exists(winvm_name))
 
     expect_is(sub$create_vm(luxvm_name, location="australiaeast",
-              os="Ubuntu", username="ds", pass=readLines("~/id_rsa.pub"), userauth_type="key"),
+              os="Ubuntu", username="ds", pass=readLines("~/.ssh/id_rsa.pub"), userauth_type="key"),
         "az_vm_template")
     expect_true(sub$resource_group_exists(luxvm_name))
 
@@ -38,7 +38,7 @@ test_that("VM creation works",
               username="ds", pass="PassWord343!"),
         "az_vm_template")
     expect_is(rg$create_vm(luxvmrg_name,
-              os="Ubuntu", username="ds", pass=readLines("~/id_rsa.pub"), userauth_type="key"),
+              os="Ubuntu", username="ds", pass=readLines("~/.ssh/id_rsa.pub"), userauth_type="key"),
         "az_vm_template")
 })
 
