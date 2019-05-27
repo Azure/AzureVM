@@ -414,15 +414,13 @@ add_rg_methods <- function()
         build_vm_template <- get("build_vm_template", getNamespace("AzureVM"))
         build_vm_parameters <- get("build_vm_parameters", getNamespace("AzureVM"))
 
-        # supplied templates:
+        # known templates:
         # Win 2016 DSVM
         # Ubuntu 16.04 DSVM
         # Win 2016
         # Win 2019
-        # Win 10
         # Ubuntu 16.04
         # Ubuntu 18.04
-        # Ubuntu AML workspace
         image <- verify_vm_image(image)
 
         if(missing(template))
