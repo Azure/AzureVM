@@ -28,13 +28,18 @@ tpl_variables_default <- jsonlite::fromJSON(
         "OSDiskName": "[concat(parameters(\'vmName\'), \'-osdisk\')]",
         "DataDiskName0": "[concat(parameters(\'vmName\'), \'-data-0\')]",
         "DataDiskName1": "[concat(parameters(\'vmName\'), \'-data-1\')]",
+        "subnet": "Subnet1",
         "nsgName": "[concat(parameters(\'vmName\'), \'-nsg\')]",
         "nsgId": "[resourceId(\'Microsoft.Network/networkSecurityGroups\', variables(\'nsgName\'))]",
         "nicId": "[resourceId(\'Microsoft.Network/networkInterfaces\', parameters(\'vmName\'))]",
         "ipId": "[resourceId(\'Microsoft.Network/publicIPAddresses\', parameters(\'vmName\'))]",
         "vnetId": "[resourceId(\'Microsoft.Network/virtualNetworks\', parameters(\'vmName\'))]",
         "vmId": "[resourceId(\'Microsoft.Compute/virtualMachines\', variables(\'vmName\'))]",
-        "subnet": "Subnet1"
+        "nsgRef": "[concat(\'Microsoft.Network/networkSecurityGroups/\', variables(\'nsgName\'))]",
+        "nicRef": "[concat(\'Microsoft.Network/networkInterfaces/\', variables(\'vmName\'))]",
+        "ipRef": "[concat(\'Microsoft.Network/publicIPAddresses/\', variables(\'vmName\'))]",
+        "vnetRef": "[concat(\'Microsoft.Network/virtualNetworks/\', variables(\'vmName\'))]",
+        "vmRef": "[concat(\'Microsoft.Compute/virtualMachines/\', variables(\'vmName\'))]"
     }',
     simplifyVector=FALSE
 )
@@ -50,7 +55,7 @@ vm_default <- jsonlite::fromJSON(
             "CreatedBy": "AzureR/AzureVM"
         },
         "dependsOn": [
-            "[concat(\'Microsoft.Network/networkInterfaces/\', parameters(\'vmName\'))]"
+            "[variables(\'nicRef\')]"
         ],
         "properties": {
             "hardwareProfile": {
@@ -81,11 +86,6 @@ vm_default <- jsonlite::fromJSON(
                         "id": "[parameters(\'nicId\')]"
                     }
                 ]
-            },
-            "diagnosticsProfile": {
-                "bootDiagnostics": {
-                    "enabled": false
-                }
             }
         }
     }',
@@ -100,7 +100,7 @@ vnet_default <- jsonlite::fromJSON(
         "name": "[parameters(\'vmName\')]",
         "location": "[variables(\'location\')]",
         "dependsOn": [
-            "[concat(\'Microsoft.Network/networkSecurityGroups/\', variables(\'nsgName\'))]"
+            "[variables(\'nsgRef\')]"
         ],
         "properties": {
             "addressSpace": {
@@ -129,9 +129,9 @@ nic_default <- jsonlite::fromJSON(
         "name": "[variables(\'vmName\')]",
         "location": "[variables(\'location\')]",
         "dependsOn": [
-            "[concat(\'Microsoft.Network/publicIPAddresses/\', variables(\'vmName\'))]",
-            "[concat(\'Microsoft.Network/networkSecurityGroups/\', variables(\'vmName\'))]",
-            "[concat(\'Microsoft.Network/virtualNetworks/\', variables(\'vmName\'))]"
+            "[variables(\'ipRef\')]",
+            "[variables(\'nsgRef\')]",
+            "[variables(\'vnetRef\')]"
         ],
         "properties": {
             "ipConfigurations": [
@@ -202,15 +202,4 @@ tpl_outputs_default <- jsonlite::fromJSON(
     }',
     simplifyVector=FALSE
 )
-
-
-template_skeleton <- list(
-    `$schema`="https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
-    contentVersion="1.0.0.0",
-    parameters=tpl_parameters_default,
-    variables=tpl_variables_default,
-    resources=list(nic_default, nsg_default, vnet_default, ip_default, vm_default),
-    outputs=tpl_outputs_default
-)
-
 
