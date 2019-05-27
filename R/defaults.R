@@ -3,6 +3,12 @@ tpl_parameters_default <- jsonlite::fromJSON(
         "adminUsername": {
             "type": "string"
         },
+        "adminPassword": {
+            "type": "securestring"
+        },
+        "sshKeyData": {
+            "type": "string"
+        },
         "vmName": {
             "type": "string"
         },
@@ -26,8 +32,7 @@ tpl_variables_default <- jsonlite::fromJSON(
     '{
         "location": "[resourceGroup().location]",
         "OSDiskName": "[concat(parameters(\'vmName\'), \'-osdisk\')]",
-        "DataDiskName0": "[concat(parameters(\'vmName\'), \'-data-0\')]",
-        "DataDiskName1": "[concat(parameters(\'vmName\'), \'-data-1\')]",
+        "LinuxDataDiskName": "[concat(parameters(\'vmName\'), \'-data-0\')]",
         "subnet": "Subnet1",
         "nsgName": "[concat(parameters(\'vmName\'), \'-nsg\')]",
         "nsgId": "[resourceId(\'Microsoft.Network/networkSecurityGroups\', variables(\'nsgName\'))]",

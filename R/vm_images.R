@@ -1,0 +1,35 @@
+vm_images <- data.frame(
+    imagePublisher=c(
+        "microsoft-dsvm",
+        "microsoft-dsvm",
+        "Canonical",
+        "Canonical",
+        "MicrosoftWindowsServer",
+        "MicrosoftWindowsServer"
+    ),
+    imageOffer=c(
+        "linux-data-science-vm-ubuntu",
+        "dsvm-windows",
+        "UbuntuServer",
+        "UbuntuServer",
+        "WindowsServer",
+        "WindowsServer"
+    ),
+    sku=c(
+        "linuxdsvmubuntu",
+        "server-2016",
+        "16.04-LTS",
+        "18.04-LTS",
+        "2016-Datacenter",
+        "2019-Datacenter"
+    ),
+    row.names=c(
+        "ubuntu_dsvm",
+        "windows_dsvm",
+        "ubuntu_1604",
+        "ubuntu_1804",
+        "windows_2016",
+        "windows_2019"
+    ),
+    stringsAsFactors=FALSE
+)

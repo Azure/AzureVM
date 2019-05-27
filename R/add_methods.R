@@ -406,7 +406,7 @@ add_sub_methods <- function()
 add_rg_methods <- function()
 {
     az_resource_group$set("public", "create_vm", overwrite=TRUE,
-    function(name, login_user, image="ubuntu_dsvm", size="Standard_DS3_v2", data_disks=1,
+    function(name, login_user, image="ubuntu_dsvm", size="Standard_DS3_v2", datadisks=1, win_licensed=FALSE,
              template, parameters, ..., wait=TRUE)
     {
         # namespace shenanigans: get unexported functions from AzureVM
@@ -419,16 +419,17 @@ add_rg_methods <- function()
         # Ubuntu 16.04 DSVM
         # Win 2016
         # Win 2019
+        # Win 10
         # Ubuntu 16.04
         # Ubuntu 18.04
         # Ubuntu AML workspace
         image <- verify_vm_image(image)
 
         if(missing(template))
-            template <- build_vm_template(name, login_user, image, size, data_disks, ...)
+            template <- build_vm_template(image, login_user, datadisks, win_licensed, ...)
 
         if(missing(parameters))
-            parameters <- build_vm_parameters(name, login_user, image, size, data_disks, ...)
+            parameters <- build_vm_parameters(name, login_user, size, ...)
 
         AzureVM::az_vm_template$new(self$token, self$subscription, self$name, name,
             template=template, parameters=parameters, ..., wait=wait)
@@ -436,7 +437,7 @@ add_rg_methods <- function()
 
 
     az_resource_group$set("public", "create_vm_cluster", overwrite=TRUE,
-    function(name, login_user, image="ubuntu_dsvm", size="Standard_DS3_v2", data_disks=1,
+    function(name, login_user, image="ubuntu_dsvm", size="Standard_DS3_v2", datadisks=1,
              cluster_config, template, parameters, ..., wait=TRUE)
     {
         # namespace shenanigans: get unexported functions from AzureVM
@@ -447,10 +448,10 @@ add_rg_methods <- function()
         image <- verify_vm_image(image)
 
         if(missing(template))
-            template <- build_vmss_template(name, login_user, image, size, data_disks, cluster_config, ...)
+            template <- build_vmss_template(name, login_user, image, size, datadisks, cluster_config, ...)
 
         if(missing(parameters))
-            parameters <- build_vmss_parameters(name, login_user, image, size, data_disks, cluster_config, ...)
+            parameters <- build_vmss_parameters(name, login_user, image, size, datadisks, cluster_config, ...)
 
         AzureVM::az_vmss_template$new(self$token, self$subscription, self$name, name,
             template=template, parameters=parameters, ..., wait=wait)

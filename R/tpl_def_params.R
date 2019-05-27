@@ -92,15 +92,25 @@ nsrule_allow_rstudio <- jsonlite::fromJSON(
 )
 
 
-dsvm_datadisk_0 <- jsonlite::fromJSON(
+ubuntudsvm_datadisk <- jsonlite::fromJSON(
     '{
-        "name": "[variables(\'DataDiskName\')]",
+        "name": "[variables(\'LinuxDataDiskName\')]",
         "managedDisk": {
             "storageAccountType": "Standard_LRS"
         },
-        "createOption": "FromImage",
-        "lun": 0
+        "createOption": "FromImage"
     }',
     simplifyVector=FALSE
 )
 
+
+blank_datadisk <- jsonlite::fromJSON(
+    '{
+        "name": "",
+        "managedDisk": {
+            "storageAccountType:": "Standard_LRS"
+        },
+        "createOption": "empty"
+    }',
+    simplifyVector=FALSE
+)
