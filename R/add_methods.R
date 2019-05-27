@@ -405,41 +405,54 @@ add_sub_methods <- function()
 # extend resource group methods
 add_rg_methods <- function()
 {
-    az_resource_group$set("public", "create_vm", overwrite=TRUE, function(...)
+    az_resource_group$set("public", "create_vm", overwrite=TRUE,
+    function(name, login_user, image="ubuntu_dsvm", size="Standard_DS3_v2", data_disks=1,
+             template, parameters, ..., wait=TRUE)
     {
-        self$create_vm_cluster(..., clust_size=1)
+        # namespace shenanigans: get unexported functions from AzureVM
+        verify_vm_image <- get("verify_vm_image", getNamespace("AzureVM"))
+        build_vm_template <- get("build_vm_template", getNamespace("AzureVM"))
+        build_vm_parameters <- get("build_vm_parameters", getNamespace("AzureVM"))
+
+        # supplied templates:
+        # Win 2016 DSVM
+        # Ubuntu 16.04 DSVM
+        # Win 2016
+        # Win 2019
+        # Ubuntu 16.04
+        # Ubuntu 18.04
+        # Ubuntu AML workspace
+        image <- verify_vm_image(image)
+
+        if(missing(template))
+            template <- build_vm_template(name, login_user, image, size, data_disks, ...)
+
+        if(missing(parameters))
+            parameters <- build_vm_parameters(name, login_user, image, size, data_disks, ...)
+
+        AzureVM::az_vm_template$new(self$token, self$subscription, self$name, name,
+            template=template, parameters=parameters, ..., wait=wait)
     })
 
 
     az_resource_group$set("public", "create_vm_cluster", overwrite=TRUE,
-    function(name, os=c("Windows", "Ubuntu"), size="Standard_DS3_v2",
-             username, passkey, userauth_type=c("password", "key"),
-             ext_file_uris=NULL, inst_command=NULL,
-             clust_size, template, parameters,
-             ..., wait=TRUE)
+    function(name, login_user, image="ubuntu_dsvm", size="Standard_DS3_v2", data_disks=1,
+             cluster_config, template, parameters, ..., wait=TRUE)
     {
         # namespace shenanigans: get unexported functions from AzureVM
-        get_dsvm_template <- get("get_dsvm_template", loadNamespace("AzureVM"))
-        make_dsvm_param_list <- get("make_dsvm_param_list", loadNamespace("AzureVM"))
+        verify_vm_image <- get("verify_vm_image", getNamespace("AzureVM"))
+        build_vmss_template <- get("build_vmss_template", getNamespace("AzureVM"))
+        build_vmss_parameters <- get("build_vmss_parameters", getNamespace("AzureVM"))
 
-        os <- match.arg(os)
-        userauth_type <- match.arg(userauth_type)
+        image <- verify_vm_image(image)
 
-        if(missing(parameters) && (missing(username) || missing(passkey)))
-            stop("Must supply login username and password/private key", call.=FALSE)
-
-        # find template given input args
         if(missing(template))
-            template <- get_dsvm_template(os, userauth_type, clust_size, ext_file_uris, inst_command)
+            template <- build_vmss_template(name, login_user, image, size, data_disks, cluster_config, ...)
 
-        # convert input args into parameter list for template
         if(missing(parameters))
-            parameters <- make_dsvm_param_list(name=name, size=size,
-                username=username, userauth_type=userauth_type, passkey=passkey,
-                ext_file_uris=ext_file_uris, inst_command=inst_command,
-                clust_size=clust_size, template=template)
+            parameters <- build_vmss_parameters(name, login_user, image, size, data_disks, cluster_config, ...)
 
-        AzureVM::az_vm_template$new(self$token, self$subscription, self$name, name,
+        AzureVM::az_vmss_template$new(self$token, self$subscription, self$name, name,
             template=template, parameters=parameters, ..., wait=wait)
     })
 

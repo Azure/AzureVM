@@ -45,7 +45,7 @@
         "vmSize": "[parameters('vmSize')]",
         "virtualNetworkName": "[parameters('vmName')]",
         "nsgName": "[concat(parameters('vmName'),'-nsg')]",
-        "nsgId": "[resourceId(resourceGroup().name, 'Microsoft.Network/networkSecurityGroups', variables('nsgName'))]",        
+        "nsgId": "[resourceId(resourceGroup().name, 'Microsoft.Network/networkSecurityGroups', variables('nsgName'))]",
         "vnetID": "[resourceId('Microsoft.Network/virtualNetworks',variables('virtualNetworkName'))]",
         "subnetRef": "[concat(variables('vnetID'),'/subnets/',variables('subnetName'))]"
     },
