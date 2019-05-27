@@ -193,6 +193,19 @@ nsg_default <- jsonlite::fromJSON(
 )
 
 
+disk_default <- jsonlite::fromJSON(
+    '{
+        "apiVersion": "2018-06-01",
+        "type": "Microsoft.Compute/disks",
+        "name" "[variables(\'diskName\')]",
+        "properties": {
+
+        }
+    }',
+    simplifyVector=FALSE
+)
+
+
 tpl_outputs_default <- jsonlite::fromJSON(
     '{
         "vmName": {
@@ -203,7 +216,6 @@ tpl_outputs_default <- jsonlite::fromJSON(
             "type": "string",
             "value": "[parameters(\'adminUsername\')]"
         }
-
     }',
     simplifyVector=FALSE
 )
