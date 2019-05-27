@@ -157,9 +157,35 @@ nic_default <- jsonlite::fromJSON(
 )
 
 
-ip_default <- NULL
+ip_default <- jsonlite::fromJSON(
+    '{
+        "apiVersion": "2018-11-01",
+        "type": "Microsoft.Network/publicIPAddresses",
+        "name": "[parameters(\'vmName\')]",
+        "location": "[variables(\'location\')]",
+        "properties": {
+            "publicIPAllocationMethod": "Dynamic",
+            "dnsSettings": {
+                "domainNameLabel": "[parameters(\'vmName\')]"
+            }
+        }
+    }',
+    simplifyVector=FALSE
+)
 
-nsg_default <- NULL
+
+nsg_default <- jsonlite::fromJSON(
+    '{
+        "apiVersion": "2018-11-01",
+        "type": "Microsoft.Network/networkSecurityGroups",
+        "name": "[variables(\'nsgName\')]",
+        "location": "[variables(\'location\')]",
+        "properties": {
+            "securityRules": []
+        }
+    }',             
+    simplifyVector=FALSE
+)
 
 
 tpl_outputs_default <- jsonlite::fromJSON(
