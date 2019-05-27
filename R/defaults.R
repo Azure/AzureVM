@@ -1,14 +1,13 @@
 tpl_parameters_default <- jsonlite::fromJSON(
     '{
         "adminUsername": {
-            "type": "string",
+            "type": "string"
         },
         "vmName": {
-            "type": "string",
+            "type": "string"
         },
         "vmSize": {
-            "type": "string",
-            "defaultValue": "Standard_DS3_v2",
+            "type": "string"
         },
         "imagePublisher": {
             "type": "string"
@@ -30,11 +29,12 @@ tpl_variables_default <- jsonlite::fromJSON(
         "DataDiskName0": "[concat(parameters(\'vmName\'), \'-data-0\')]",
         "DataDiskName1": "[concat(parameters(\'vmName\'), \'-data-1\')]",
         "nsgName": "[concat(parameters(\'vmName\'), \'-nsg\')]",
-        "nsgId": "[resourceId(resourceGroup().name, \'Microsoft.Network/networkSecurityGroups\', variables(\'nsgName\'))]",
+        "nsgId": "[resourceId(\'Microsoft.Network/networkSecurityGroups\', variables(\'nsgName\'))]",
         "nicId": "[resourceId(\'Microsoft.Network/networkInterfaces\', parameters(\'vmName\'))]",
         "ipId": "[resourceId(\'Microsoft.Network/publicIPAddresses\', parameters(\'vmName\'))]",
         "vnetId": "[resourceId(\'Microsoft.Network/virtualNetworks\', parameters(\'vmName\'))]",
-        "subnetRef": "[concat(variables(\'vnetID\'), \'/subnets/Subnet\'))]"
+        "vmId": "[resourceId(\'Microsoft.Compute/virtualMachines\', variables(\'vmName\'))]",
+        "subnet": "Subnet1"
     }',
     simplifyVector=FALSE
 )
@@ -58,7 +58,7 @@ vm_default <- jsonlite::fromJSON(
             },
             "osProfile": {
                 "computerName": "[parameters(\'vmName\')]",
-                "adminUsername": "[parameters(\'adminUsername\')]",
+                "adminUsername": "[parameters(\'adminUsername\')]"
             },
             "storageProfile": {
                 "imageReference": {
@@ -95,7 +95,7 @@ vm_default <- jsonlite::fromJSON(
 
 vnet_default <- jsonlite::fromJSON(
     '{
-        "apiVersion": "2018-01-01",
+        "apiVersion": "2018-11-01",
         "type": "Microsoft.Network/virtualNetworks",
         "name": "[parameters(\'vmName\')]",
         "location": "[variables(\'location\')]",
@@ -110,7 +110,7 @@ vnet_default <- jsonlite::fromJSON(
             },
             "subnets": [
                 {
-                    "name": "Subnet",
+                    "name": "[variables(\'Subnet\')]",
                     "properties": {
                         "addressPrefix": "10.0.0.0/24"
                     }
@@ -122,7 +122,40 @@ vnet_default <- jsonlite::fromJSON(
 )
 
 
-nic_default <- NULL
+nic_default <- jsonlite::fromJSON(
+    '{
+        "apiVersion": "2018-11-01",
+        "type": "Microsoft.Network/networkInterfaces",
+        "name": "[variables(\'vmName\')]",
+        "location": "[variables(\'location\')]",
+        "dependsOn": [
+            "[concat(\'Microsoft.Network/publicIPAddresses/\', variables(\'vmName\'))]",
+            "[concat(\'Microsoft.Network/networkSecurityGroups/\', variables(\'vmName\'))]",
+            "[concat(\'Microsoft.Network/virtualNetworks/\', variables(\'vmName\'))]"
+        ],
+        "properties": {
+            "ipConfigurations": [
+                {
+                    "name": "ipconfig1",
+                    "properties": {
+                        "privateIPAllocationMethod": "Dynamic",
+                        "publicIPAddress": {
+                            "id": "[variables(\'ipId\')]"
+                        },
+                        "subnet": {
+                            "id": "[concat(variables(\'vnetId\'), \'/subnets/\', variables(\'Subnet\'))]"
+                        }
+                    }
+                }
+            ],
+            "networkSecurityGroup": {
+                "id": "[variables(\'nsgId\')]"
+            }
+        }
+    }',
+    simplifyVector=FALSE
+)
+
 
 ip_default <- NULL
 
