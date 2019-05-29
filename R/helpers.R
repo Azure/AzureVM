@@ -5,9 +5,13 @@ lapply(list.files("tpl", pattern="\\.json$"), function(f)
 })
 
 
-image_config <- function(publisher, offer, sku, version="latest")
+image_config <- function(publisher=NULL, offer=NULL, sku=NULL, version="latest", id=NULL)
 {
-    list(publisher=publisher, offer=offer, sku=sku, version=version)
+    if(!is.null(publisher) && !is.null(offer) && !is.null(sku))
+        list(publisher=publisher, offer=offer, sku=sku, version=version)
+    else if(!is.null(id))
+        list(id=id)
+    else stop("Invalid image configuration", call.=FALSE)
 }
 
 
@@ -26,7 +30,10 @@ build_template <- function(config)
     }
 
     if(config$msi)
-        config$vm$identity <- "system"
+        config$vm$identity <- list(type="systemAssigned")
+
+    config$vm$properties$osProfile <- c(config$vm$properties$osProfile,
+        if(config$keylogin) vm_key_login else vm_pwd_login)
 
     tpl <- list(
         `$schema`="http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
@@ -49,6 +56,7 @@ build_template <- function(config)
 build_parameters <- function(config, params)
 {
     # add nsrules to params
+    # add datadisks to params
     # fixup datadisk LUNs
 }
 

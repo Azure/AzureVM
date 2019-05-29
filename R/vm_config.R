@@ -11,7 +11,7 @@ vm_config <- function(image, keylogin, msi, datadisks, nsrules,
 
     obj$other <- other_resources
 
-    structure(obj, "vm_config")
+    structure(obj, class="vm_config")
 }
 
 

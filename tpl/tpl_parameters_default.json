@@ -31,5 +31,8 @@
     },
     "datadisksResources": {
         "type": "array"
+    },
+    "nsgRules": {
+        "type": "array"
     }
 }
