@@ -1,0 +1,10 @@
+{
+    "vmName": {
+        "type": "string",
+        "value": "[parameters('vmName')]"
+    },
+    "adminUsername": {
+        "type": "string",
+        "value": "[parameters('adminUsername')]"
+    }
+}

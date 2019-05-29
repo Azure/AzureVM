@@ -1,0 +1,11 @@
+// resources.nsg.properties.securityRules
+{
+    "name": "Allow-JupyterHub",
+    "properties": {
+        "protocol": "Tcp",
+        "access": "Allow",
+        "priority": 101,
+        "direction": "Inbound",
+        "destinationPortRange": "8000"
+    }
+}

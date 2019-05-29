@@ -1,0 +1,17 @@
+{
+    "name": "[parameters('dataDiskResources')[copyIndex()].name]",
+    "type": "Microsoft.Compute/disks",
+    "apiVersion": "2018-09-30",
+    "location": "[variables('location')]",
+    "properties": {
+        "diskSizeGB": "[parameters('dataDiskResources')[copyIndex()].diskSizeGB]",
+        "creationData": "[parameters('dataDiskResources')[copyIndex()].creationData]"
+    },
+    "sku": {
+        "name": "[parameters('dataDiskResources')[copyIndex()].sku]"
+    },
+    "copy": {
+        "name": "managedDiskResources",
+        "count": "[length(parameters('dataDiskResources'))]"
+    }
+}

@@ -1,0 +1,4 @@
+// resources.vm.properties.osProfile
+{
+    "adminPassword": "[parameters('adminPassword')]"
+}

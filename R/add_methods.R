@@ -295,7 +295,7 @@ add_sub_methods <- function()
     })
 
 
-    az_subscription$set("public", "create_vm_cluster", overwrite=TRUE,
+    az_subscription$set("public", "create_vm_scaleset", overwrite=TRUE,
     function(name, location, resource_group=name,
              os=c("Windows", "Ubuntu"), size="Standard_DS3_v2",
              username, passkey, userauth_type=c("password", "key"),
@@ -320,7 +320,7 @@ add_sub_methods <- function()
         }
         else mode <- "Incremental" # if passed a resource group object, assume it already exists in Azure
 
-        res <- try(resource_group$create_vm_cluster(name, os=os, size=size,
+        res <- try(resource_group$create_vm_scaleset(name, os=os, size=size,
             username=username, passkey=passkey, userauth_type=userauth_type,
             ext_file_uris=ext_file_uris, inst_command=inst_command,
             clust_size=clust_size, template=template, parameters=parameters,
@@ -345,13 +345,13 @@ add_sub_methods <- function()
     })
 
 
-    az_subscription$set("public", "get_vm_cluster", overwrite=TRUE,
+    az_subscription$set("public", "get_vm_scaleset", overwrite=TRUE,
     function(name, resource_group=name)
     {
         if(!is_resource_group(resource_group))
             resource_group <- self$get_resource_group(resource_group)
 
-        resource_group$get_vm_cluster(name)
+        resource_group$get_vm_scaleset(name)
     })
 
     az_subscription$set("public", "delete_vm", overwrite=TRUE,
@@ -364,13 +364,13 @@ add_sub_methods <- function()
     })
 
 
-    az_subscription$set("public", "delete_vm_cluster", overwrite=TRUE,
+    az_subscription$set("public", "delete_vm_scaleset", overwrite=TRUE,
     function(name, confirm=TRUE, free_resources=TRUE, resource_group=name)
     {
         if(!is_resource_group(resource_group))
             resource_group <- self$get_resource_group(resource_group)
 
-        resource_group$delete_vm_cluster(name, confirm=confirm, free_resources=free_resources)
+        resource_group$delete_vm_scaleset(name, confirm=confirm, free_resources=free_resources)
     })
 
 
@@ -411,23 +411,26 @@ add_rg_methods <- function()
     {
         # namespace shenanigans: get unexported function from AzureVM
         if(is.character(image))
-            image <- get(image, getNamespace("AzureVM"))()
+        {
+            image <- get(image, getNamespace("AzureVM"))
+            image(!is_empty(login_user$key), msi, datadisks)
+        }
 
         stopifnot(inherits(image, "vm_config"))
 
         if(missing(template))
-            template <- image$build_template(!is_empty(login_user$key), msi, datadisks, ...)
+            template <- build_template(image)
 
         if(missing(parameters))
-            parameters <- image$build_parameters(name, login_user, size)
+            parameters <- build_parameters(image, name, login_user, size)
 
         AzureVM::az_vm_template$new(self$token, self$subscription, self$name, name,
             template=template, parameters=parameters, wait=wait)
     })
 
 
-    az_resource_group$set("public", "create_vm_cluster", overwrite=TRUE,
-    function(name, login_user, image="ubuntu_dsvm_cluster", size="Standard_DS3_v2", datadisks=0,
+    az_resource_group$set("public", "create_vm_scaleset", overwrite=TRUE,
+    function(name, login_user, image="ubuntu_dsvm_scaleset", size="Standard_DS3_v2", datadisks=0,
              cluster_config, template, parameters, ..., wait=TRUE)
     {
         # namespace shenanigans: get unexported function from AzureVM
@@ -447,6 +450,13 @@ add_rg_methods <- function()
     })
 
 
+    az_resource_group$set("public", "create_vm_cluster", overwrite=TRUE,
+    function(...)
+    {
+        .Defunct(msg="The 'create_vm_cluster' method is defunct.\nUse 'create_vm_scaleset' instead.")
+    })
+
+
     az_resource_group$set("public", "get_vm", overwrite=TRUE,
     function(name)
     {
@@ -463,10 +473,17 @@ add_rg_methods <- function()
     })
 
 
-    az_resource_group$set("public", "get_vm_cluster", overwrite=TRUE,
+    az_resource_group$set("public", "get_vm_scaleset", overwrite=TRUE,
     function(name)
     {
-        AzureVM::az_vm_template$new(self$token, self$subscription, self$name, name)
+        AzureVM::az_vmss_template$new(self$token, self$subscription, self$name, name)
+    })
+
+
+    az_resource_group$set("public", "get_vm_cluster", overwrite=TRUE,
+    function(...)
+    {
+        .Defunct(msg="The 'get_vm_cluster' method is defunct.\nUse 'get_vm_scaleset' instead.")
     })
 
 
@@ -480,10 +497,17 @@ add_rg_methods <- function()
     })
 
 
-    az_resource_group$set("public", "delete_vm_cluster", overwrite=TRUE,
+    az_resource_group$set("public", "delete_vm_scaleset", overwrite=TRUE,
     function(name, confirm=TRUE, free_resources=TRUE)
     {
-        self$get_vm_cluster(name)$delete(confirm=confirm, free_resources=free_resources)
+        self$get_vmss_cluster(name)$delete(confirm=confirm, free_resources=free_resources)
+    })
+
+
+    az_resource_group$set("public", "delete_vm_cluster", overwrite=TRUE,
+    function(...)
+    {
+        .Defunct(msg="The 'delete_vm_cluster' method is defunct.\nUse 'delete_vm_scaleset' instead.")
     })
 
 

@@ -1,0 +1,43 @@
+{
+    "apiVersion": "2019-03-01",
+    "type": "Microsoft.Compute/virtualMachines",
+    "name": "[parameters('vmName')]",
+    "location": "[variables('location')]",         
+    "tags": {
+        "CreatedBy": "AzureR/AzureVM"
+    },
+    "dependsOn": [
+        "[variables('nicRef')]"
+    ],
+    "properties": {
+        "hardwareProfile": {
+            "vmSize": "[parameters('vmSize')]"
+        },
+        "osProfile": {
+            "computerName": "[parameters('vmName')]",
+            "adminUsername": "[parameters('adminUsername')]"
+        },
+        "storageProfile": {
+            "imageReference": {
+                "publisher": "[parameters('imagePublisher')]",
+                "offer": "[parameters('imageOffer')]",
+                "sku": "[parameters('imageSku')]",
+                "version": "[parameters('imageVersion')]"
+            },
+            "osDisk": {
+                "name": "[parameters('OSDiskName')]",
+                "managedDisk": {
+                    "storageAccountType": "Standard_LRS"           
+                },
+                "createOption": "FromImage"
+            }
+        },
+        "networkProfile": {
+            "networkInterfaces": [
+                {
+                    "id": "[parameters('nicId')]"
+                }
+            ]
+        }
+    }
+}

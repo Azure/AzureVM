@@ -1,0 +1,11 @@
+// resources.nsg.properties.securityRules
+{
+    "name": "Allow-RDP",
+    "properties": {
+        "protocol": "Tcp",
+        "access": "Allow",
+        "priority": 102,
+        "direction": "Inbound",
+        "destinationPortRange": "3389"
+    }
+}

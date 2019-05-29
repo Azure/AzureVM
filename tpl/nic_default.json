@@ -1,0 +1,30 @@
+{
+    "apiVersion": "2018-11-01",
+    "type": "Microsoft.Network/networkInterfaces",
+    "name": "[variables('vmName')]",
+    "location": "[variables('location')]",
+    "dependsOn": [
+        "[variables('ipRef')]",
+        "[variables('nsgRef')]",
+        "[variables('vnetRef')]"
+    ],
+    "properties": {
+        "ipConfigurations": [
+            {
+                "name": "ipconfig1",
+                "properties": {
+                    "privateIPAllocationMethod": "Dynamic",
+                    "publicIPAddress": {
+                        "id": "[variables('ipId')]"
+                    },
+                    "subnet": {
+                        "id": "[concat(variables('vnetId'), '/subnets/', variables('Subnet'))]"
+                    }
+                }
+            }
+        ],
+        "networkSecurityGroup": {
+            "id": "[variables('nsgId')]"
+        }
+    }
+}
