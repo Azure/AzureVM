@@ -132,6 +132,10 @@ build_parameters.vm_config <- function(config, name, login_user, size)
     params <- list()
     add_parameters(vmName=name, vmSize=size, adminUsername=login_user$user)
 
+    if(config$keylogin && !is_empty(login_user$key))
+        add_parameters(sshKeyData=login_user$key)
+    else add_parameters(adminPassword=login_user$pwd)
+
     # add nsrules to params
     if(!is_empty(config$nsrules))
         add_parameters(nsgRules=config$nsrules)

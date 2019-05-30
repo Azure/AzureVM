@@ -289,19 +289,8 @@ add_sub_methods <- function()
     })
 
 
-    az_subscription$set("public", "create_vm", overwrite=TRUE, function(...)
-    {
-        self$create_vm_cluster(..., clust_size=1)
-    })
-
-
-    az_subscription$set("public", "create_vm_scaleset", overwrite=TRUE,
-    function(name, location, resource_group=name,
-             os=c("Windows", "Ubuntu"), size="Standard_DS3_v2",
-             username, passkey, userauth_type=c("password", "key"),
-             ext_file_uris=NULL, inst_command=NULL,
-             clust_size, template, parameters,
-             ..., wait=TRUE)
+    az_subscription$set("public", "create_vm", overwrite=TRUE,
+    function(name, location, resource_group=name, ...)
     {
         if(!is_resource_group(resource_group))
         {
@@ -320,16 +309,43 @@ add_sub_methods <- function()
         }
         else mode <- "Incremental" # if passed a resource group object, assume it already exists in Azure
 
-        res <- try(resource_group$create_vm_scaleset(name, os=os, size=size,
-            username=username, passkey=passkey, userauth_type=userauth_type,
-            ext_file_uris=ext_file_uris, inst_command=inst_command,
-            clust_size=clust_size, template=template, parameters=parameters,
-            ..., wait=wait, mode=mode))
+        res <- try(resource_group$create_vm(..., mode=mode))
 
         if(inherits(res, "try-error") && mode == "Complete")
         {
             resource_group$delete(confirm=FALSE)
             stop("Unable to create VM", call.=FALSE)
+        }
+        res
+    })
+
+
+    az_subscription$set("public", "create_vm_scaleset", overwrite=TRUE,
+    function(name, location, resource_group=name, ...)
+    {
+        if(!is_resource_group(resource_group))
+        {
+            rgnames <- names(self$list_resource_groups())
+            if(resource_group %in% rgnames)
+            {
+                resource_group <- self$get_resource_group(resource_group)
+                mode <- "Incremental"
+            }
+            else
+            {
+                message("Creating resource group '", resource_group, "'")
+                resource_group <- self$create_resource_group(resource_group, location=location)
+                mode <- "Complete"
+            }
+        }
+        else mode <- "Incremental" # if passed a resource group object, assume it already exists in Azure
+
+        res <- try(resource_group$create_vm_scaleset(..., mode=mode))
+
+        if(inherits(res, "try-error") && mode == "Complete")
+        {
+            resource_group$delete(confirm=FALSE)
+            stop("Unable to create VM scaleset", call.=FALSE)
         }
         res
     })
@@ -407,7 +423,7 @@ add_rg_methods <- function()
 {
     az_resource_group$set("public", "create_vm", overwrite=TRUE,
     function(name, login_user, size="Standard_DS3_v2", config="ubuntu_dsvm", managed=TRUE, datadisks=numeric(0),
-             ..., template, parameters, wait=TRUE)
+             ..., template, parameters, mode="Incremental", wait=TRUE)
     {
         # namespace shenanigans: get unexported function from AzureVM
         if(is.character(config))
@@ -424,7 +440,7 @@ add_rg_methods <- function()
             parameters <- build_parameters(config, name, login_user, size)
 
         AzureVM::az_vm_template$new(self$token, self$subscription, self$name, name,
-            template=template, parameters=parameters, wait=wait)
+            template=template, parameters=parameters, mode=mode, wait=wait)
     })
 
 
