@@ -142,6 +142,9 @@ build_template.vm_config <- function(config)
     if(!is_empty(config$datadisks) && any(sapply(config$datadisks, function(x) !is.null(x$res_spec))))
         tpl$resources <- c(tpl$resources, list(disk_default))
 
+    if(!is_empty(config$other))
+        tpl$resources <- c(tpl$resources, config$other)
+
     jsonlite::toJSON(tpl, pretty=TRUE, auto_unbox=TRUE)
 }
 
