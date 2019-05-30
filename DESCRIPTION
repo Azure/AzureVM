@@ -15,7 +15,8 @@ Depends:
     R (>= 3.3),
 Imports: 
     R6,
-    AzureRMR
+    AzureRMR,
+    jsonlite
 Suggests:
     knitr,
     testthat

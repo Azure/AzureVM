@@ -52,7 +52,6 @@ image_config <- function(publisher=NULL, offer=NULL, sku=NULL, version="latest",
                   class=c("image_custom", "image_config"))
     }
     else stop("Invalid image configuration", call.=FALSE)
-
 }
 
 
@@ -72,7 +71,7 @@ nsg_rule_config <- function(name, dest_port="*", dest_addr="*", dest_asgs=NULL,
         access=access,
         direction=direction,
         sourceApplicationSecurityGroups=source_asgs,
-        destinationApplicationSecurityGroups=dest_ags,
+        destinationApplicationSecurityGroups=dest_asgs,
         sourceAddressPrefix=source_addr,
         sourcePortRange=source_port,
         destinationAddressPrefix=dest_addr,

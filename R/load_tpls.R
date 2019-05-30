@@ -1,8 +1,10 @@
-lapply(list.files("tpl", pattern="\\.json$"), function(f)
+for(f in list.files("tpl", pattern="\\.json$"))
 {
-    obj <- sub("\\.json$", "", f)
-    assign(obj, jsonlite::fromJSON(file.path("tpl", f), simplifyVector=FALSE), parent.env(environment()))
-})
+    objname <- sub("\\.json$", "", f)
+    obj <- jsonlite::fromJSON(file.path("tpl", f), simplifyVector=FALSE)
 
-class(nsg_rule_allow_ssh) <- class(nsg_rule_allow_jupyter) <-
-    class(nsg_rule_allow_rstudio) <- class(nsg_rule_allow_rdp) <- "nsg_rule_config"
+    if(grepl("nsg_rule", objname, fixed=TRUE))
+        class(obj) <- "nsg_rule_config"
+
+    assign(objname, obj)
+}
