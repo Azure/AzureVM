@@ -57,6 +57,36 @@ image_config <- function(publisher=NULL, offer=NULL, sku=NULL, version="latest",
 
 
 #' @export
+nsg_rule_config <- function(name, dest_port="*", dest_addr="*", dest_asgs=NULL,
+                            source_port="*", source_addr="*", source_asgs=NULL,
+                            access="allow", direction="inbound",
+                            protocol="TCP", priority=NULL)
+{
+    if(is_empty(dest_asgs))
+        dest_asgs <- logical(0)
+    if(is_empty(source_asgs))
+        source_asgs <- logical(0)
+
+    properties <- list(
+        protocol=protocol,
+        access=access,
+        direction=direction,
+        sourceApplicationSecurityGroups=source_asgs,
+        destinationApplicationSecurityGroups=dest_ags,
+        sourceAddressPrefix=source_addr,
+        sourcePortRange=source_port,
+        destinationAddressPrefix=dest_addr,
+        destinationPortRange=dest_port,
+    )
+
+    if(!is_empty(priority))
+        properties$priority <- priority
+
+    structure(list(name=name, properties=properties), class="nsg_rule_config")
+}
+
+
+#' @export
 build_template <- function(config)
 {
     UseMethod("build_template")
@@ -153,19 +183,23 @@ build_parameters.vm_config <- function(config, name, login_user, size)
     # add nsrules to params
     if(!is_empty(config$nsrules))
     {
+        # fixup rule priorities (if not specified)
         for(i in seq_along(config$nsrules))
-            config$nsrules[[i]]$properties$priority <- 999 + i
-        add_parameters(nsgRules=config$nsrules)
+        {
+            if(is_empty(config$nsrules[[i]]$properties$priority))
+                config$nsrules[[i]]$properties$priority <- 1000 + 10 * i
+        }
+        add_parameters(nsgRules=lapply(config$nsrules, unclass))
     }
     else add_parameters(nsgRules=logical(0))
-
-    # fixup datadisk LUNs
-    for(i in seq_along(config$datadisks))
-        config$datadisks[[i]]$vm_spec$lun <- i - 1
 
     # add datadisks to params
     if(!is_empty(config$datadisks))
     {
+        # fixup datadisk LUNs
+        for(i in seq_along(config$datadisks))
+            config$datadisks[[i]]$vm_spec$lun <- i - 1
+
         disk_res_spec <- lapply(config$datadisks, `[[`, "res_spec")
         null <- sapply(disk_res_spec, is.null)
 

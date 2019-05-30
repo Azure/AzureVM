@@ -4,6 +4,7 @@ vm_config <- function(image, keylogin, managed=TRUE, datadisks=list(), nsrules=l
 {
     stopifnot(inherits(image, "image_config"))
     stopifnot(is.list(datadisks) && all(sapply(datadisks, inherits, "datadisk_config")))
+    stopifnot(is.list(nsrules) && all(sapply(datadisks, inherits, "nsg_rule_config")))
 
     obj <- list(image=image, keylogin=keylogin, managed=managed, datadisks=datadisks, nsrules=nsrules)
 
