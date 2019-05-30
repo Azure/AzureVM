@@ -101,7 +101,7 @@ build_template.vm_config <- function(config)
         params <<- c(params, new_params)
     }
 
-    params <- tpl_parameters_default
+    params <- tpl_env$tpl_parameters_default
 
     if(config$keylogin)
         add_template_parameters(sshKeyData="string")
@@ -118,28 +118,28 @@ build_template.vm_config <- function(config)
     {
         add_template_parameters(dataDisks="array", dataDiskResources="array")
         config$vm$dependsOn <- c(config$vm$dependsOn, "managedDisks")
-        config$vm$storageProfile$copy <- vm_datadisk
+        config$vm$storageProfile$copy <- tpl_env$vm_datadisk
     }
 
     if(config$managed)
         config$vm$identity <- list(type="systemAssigned")
 
     config$vm$properties$osProfile <- c(config$vm$properties$osProfile,
-        if(config$keylogin) vm_key_login else vm_pwd_login)
+        if(config$keylogin) tpl_env$vm_key_login else tpl_env$vm_pwd_login)
 
     tpl <- list(
         `$schema`="http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
         contentVersion="1.0.0.0",
         parameters=params,
-        variables=tpl_variables_default,
+        variables=tpl_env$tpl_variables_default,
         resources=list(
             config$nic, config$nsg, config$vnet, config$ip, config$vm
         ),
-        outputs=tpl_outputs_default
+        outputs=tpl_env$tpl_outputs_default
     )
 
     if(!is_empty(config$datadisks) && any(sapply(config$datadisks, function(x) !is.null(x$res_spec))))
-        tpl$resources <- c(tpl$resources, list(disk_default))
+        tpl$resources <- c(tpl$resources, list(tpl_env$disk_default))
 
     if(!is_empty(config$other))
         tpl$resources <- c(tpl$resources, config$other)

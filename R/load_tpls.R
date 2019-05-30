@@ -1,3 +1,6 @@
+#' @export
+tpl_env <- new.env()
+
 for(f in list.files("tpl", pattern="\\.json$"))
 {
     objname <- sub("\\.json$", "", f)
@@ -6,5 +9,5 @@ for(f in list.files("tpl", pattern="\\.json$"))
     if(grepl("nsg_rule", objname, fixed=TRUE))
         class(obj) <- "nsg_rule_config"
 
-    assign(objname, obj)
+    assign(objname, obj, tpl_env)
 }

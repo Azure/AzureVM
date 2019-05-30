@@ -4,15 +4,15 @@ vm_config <- function(image, keylogin, managed=TRUE, datadisks=list(), nsg_rules
 {
     stopifnot(inherits(image, "image_config"))
     stopifnot(is.list(datadisks) && all(sapply(datadisks, inherits, "datadisk_config")))
-    stopifnot(is.list(nsg_rules) && all(sapply(datadisks, inherits, "nsg_rule_config")))
+    stopifnot(is.list(nsg_rules) && all(sapply(nsg_rules, inherits, "nsg_rule_config")))
 
     obj <- list(image=image, keylogin=keylogin, managed=managed, datadisks=datadisks, nsg_rules=nsg_rules)
 
-    obj$nic <- resource_config(nic_default, nic)
-    obj$nsg <- resource_config(nsg_default, nsg)
-    obj$vnet <- resource_config(vnet_default, vnet)
-    obj$ip <- resource_config(ip_default, ip)
-    obj$vm <- resource_config(vm_default, vm)
+    obj$nic <- resource_config(tpl_env$nic_default, nic)
+    obj$nsg <- resource_config(tpl_env$nsg_default, nsg)
+    obj$vnet <- resource_config(tpl_env$vnet_default, vnet)
+    obj$ip <- resource_config(tpl_env$ip_default, ip)
+    obj$vm <- resource_config(tpl_env$vm_default, vm)
 
     obj$other <- other_resources
 
@@ -22,7 +22,8 @@ vm_config <- function(image, keylogin, managed=TRUE, datadisks=list(), nsg_rules
 
 #' @export
 ubuntu_dsvm <- function(keylogin=TRUE, managed=TRUE, datadisks=numeric(0),
-                        nsg_rules=list(nsg_rule_allow_ssh, nsg_rule_allow_jupyter, nsg_rule_allow_rstudio),
+                        nsg_rules=list(
+                            tpl_env$nsg_rule_allow_ssh, tpl_env$nsg_rule_allow_jupyter, tpl_env$nsg_rule_allow_rstudio),
                         ...)
 {
     disk0 <- datadisk_config(NULL, "fromImage", "Premium_LRS")
@@ -33,7 +34,8 @@ ubuntu_dsvm <- function(keylogin=TRUE, managed=TRUE, datadisks=numeric(0),
 }
 
 #' @export
-windows_dsvm <- function(keylogin=FALSE, managed=TRUE, datadisks=numeric(0), nsg_rules=list(nsg_rule_allow_rdp), ...)
+windows_dsvm <- function(keylogin=FALSE, managed=TRUE, datadisks=numeric(0),
+                         nsg_rules=list(tpl_env$nsg_rule_allow_rdp), ...)
 {
     if(keylogin)
         warning("Windows does not support SSH key logins", call.=FALSE)
@@ -43,7 +45,8 @@ windows_dsvm <- function(keylogin=FALSE, managed=TRUE, datadisks=numeric(0), nsg
 }
 
 #' @export
-ubuntu_1604 <- function(keylogin=TRUE, managed=TRUE, datadisks=numeric(0), nsg_rules=list(nsg_rule_allow_ssh), ...)
+ubuntu_1604 <- function(keylogin=TRUE, managed=TRUE, datadisks=numeric(0),
+                        nsg_rules=list(tpl_env$nsg_rule_allow_ssh), ...)
 {
     if(is.numeric(datadisks))
         datadisks <- lapply(datadisks, datadisk_config)
@@ -51,7 +54,8 @@ ubuntu_1604 <- function(keylogin=TRUE, managed=TRUE, datadisks=numeric(0), nsg_r
 }
 
 #' @export
-ubuntu_1804 <- function(keylogin=TRUE, managed=TRUE, datadisks=numeric(0), nsg_rules=list(nsg_rule_allow_ssh), ...)
+ubuntu_1804 <- function(keylogin=TRUE, managed=TRUE, datadisks=numeric(0),
+                        nsg_rules=list(tpl_env$nsg_rule_allow_ssh), ...)
 {
     if(is.numeric(datadisks))
         datadisks <- lapply(datadisks, datadisk_config)
@@ -59,7 +63,8 @@ ubuntu_1804 <- function(keylogin=TRUE, managed=TRUE, datadisks=numeric(0), nsg_r
 }
 
 #' @export
-windows_2016 <- function(keylogin=FALSE, managed=TRUE, datadisks=numeric(0), nsg_rules=list(nsg_rule_allow_rdp), ...)
+windows_2016 <- function(keylogin=FALSE, managed=TRUE, datadisks=numeric(0),
+                         nsg_rules=list(tpl_env$nsg_rule_allow_rdp), ...)
 {
     if(keylogin)
         warning("Windows does not support SSH key logins", call.=FALSE)
@@ -70,7 +75,8 @@ windows_2016 <- function(keylogin=FALSE, managed=TRUE, datadisks=numeric(0), nsg
 }
 
 #' @export
-windows_2019 <- function(keylogin=FALSE, managed=TRUE, datadisks=numeric(0), nsg_rules=list(nsg_rule_allow_rdp), ...)
+windows_2019 <- function(keylogin=FALSE, managed=TRUE, datadisks=numeric(0),
+                         nsg_rules=list(tpl_env$nsg_rule_allow_rdp), ...)
 {
     if(keylogin)
         warning("Windows does not support SSH key logins", call.=FALSE)
