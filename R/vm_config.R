@@ -26,7 +26,7 @@ ubuntu_dsvm <- function(keylogin=TRUE, managed=TRUE, datadisks=numeric(0),
                             tpl_env$nsg_rule_allow_ssh, tpl_env$nsg_rule_allow_jupyter, tpl_env$nsg_rule_allow_rstudio),
                         ...)
 {
-    disk0 <- datadisk_config(NULL, "fromImage", "Premium_LRS")
+    disk0 <- datadisk_config(NULL, NULL, "fromImage", "Premium_LRS")
     if(is.numeric(datadisks))
         datadisks <- lapply(datadisks, datadisk_config)
     vm_config(image_config("microsoft-dsvm", "linux-data-science-vm-ubuntu", "linuxdsvmubuntu"), keylogin, managed,
@@ -70,7 +70,7 @@ windows_2016 <- function(keylogin=FALSE, managed=TRUE, datadisks=numeric(0),
         warning("Windows does not support SSH key logins", call.=FALSE)
     if(is.numeric(datadisks))
         datadisks <- lapply(datadisks, datadisk_config)
-    vm_config(image_config("MicrosoftWindowsServer", "WindowsServer", "windows_2016"), FALSE, managed,
+    vm_config(image_config("MicrosoftWindowsServer", "WindowsServer", "2016-Datacenter"), FALSE, managed,
               datadisks, nsg_rules, ...)
 }
 
@@ -82,7 +82,7 @@ windows_2019 <- function(keylogin=FALSE, managed=TRUE, datadisks=numeric(0),
         warning("Windows does not support SSH key logins", call.=FALSE)
     if(is.numeric(datadisks))
         datadisks <- lapply(datadisks, datadisk_config)
-    vm_config(image_config("MicrosoftWindowsServer", "WindowsServer", "windows_2019"), FALSE, managed,
+    vm_config(image_config("MicrosoftWindowsServer", "WindowsServer", "2019-Datacenter"), FALSE, managed,
               datadisks, nsg_rules, ...)
 }
 

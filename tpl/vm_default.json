@@ -25,7 +25,6 @@
                 "version": "[parameters('imageVersion')]"
             },
             "osDisk": {
-                "name": "[parameters('OSDiskName')]",
                 "managedDisk": {
                     "storageAccountType": "Standard_LRS"           
                 },
@@ -35,7 +34,7 @@
         "networkProfile": {
             "networkInterfaces": [
                 {
-                    "id": "[parameters('nicId')]"
+                    "id": "[variables('nicId')]"
                 }
             ]
         }

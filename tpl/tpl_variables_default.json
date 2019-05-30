@@ -7,10 +7,10 @@
     "nicId": "[resourceId('Microsoft.Network/networkInterfaces', parameters('vmName'))]",
     "ipId": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('vmName'))]",
     "vnetId": "[resourceId('Microsoft.Network/virtualNetworks', parameters('vmName'))]",
-    "vmId": "[resourceId('Microsoft.Compute/virtualMachines', variables('vmName'))]",
+    "vmId": "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]",
     "nsgRef": "[concat('Microsoft.Network/networkSecurityGroups/', variables('nsgName'))]",
-    "nicRef": "[concat('Microsoft.Network/networkInterfaces/', variables('vmName'))]",
-    "ipRef": "[concat('Microsoft.Network/publicIPAddresses/', variables('vmName'))]",
-    "vnetRef": "[concat('Microsoft.Network/virtualNetworks/', variables('vmName'))]",
-    "vmRef": "[concat('Microsoft.Compute/virtualMachines/', variables('vmName'))]"
+    "nicRef": "[concat('Microsoft.Network/networkInterfaces/', parameters('vmName'))]",
+    "ipRef": "[concat('Microsoft.Network/publicIPAddresses/', parameters('vmName'))]",
+    "vnetRef": "[concat('Microsoft.Network/virtualNetworks/', parameters('vmName'))]",
+    "vmRef": "[concat('Microsoft.Compute/virtualMachines/', parameters('vmName'))]"
 }

@@ -5,6 +5,11 @@
         "protocol": "Tcp",
         "access": "Allow",
         "direction": "Inbound",
-        "destinationPortRange": "8000"
+        "destinationPortRange": "8000",
+        "destinationAddressPrefix": "*",
+        "destinationApplicationSecurityGroups": [],
+        "sourcePortRange": "*",
+        "sourceAddressPrefix": "*",
+        "sourceApplicationSecurityGroups": []
     }
 }
