@@ -77,9 +77,9 @@ nsg_rule_config <- function(name, dest_port="*", dest_addr="*", dest_asgs=NULL,
         sourceApplicationSecurityGroups=source_asgs,
         destinationApplicationSecurityGroups=dest_asgs,
         sourceAddressPrefix=source_addr,
-        sourcePortRange=source_port,
+        sourcePortRange=as.character(source_port),
         destinationAddressPrefix=dest_addr,
-        destinationPortRange=dest_port
+        destinationPortRange=as.character(dest_port)
     )
 
     if(!is_empty(priority))

@@ -86,3 +86,30 @@ windows_2019 <- function(keylogin=FALSE, managed=TRUE, datadisks=numeric(0),
               datadisks, nsg_rules, ...)
 }
 
+#' @export
+redhat_7.6 <- function(keylogin=TRUE, managed=TRUE, datadisks=numeric(0),
+                       nsg_rules=list(tpl_env$nsg_rule_allow_ssh), ...)
+{
+    if(is.numeric(datadisks))
+        datadisks <- lapply(datadisks, datadisk_config)
+    vm_config(image_config("RedHat", "RHEL", "7-RAW"), keylogin, managed, datadisks, nsg_rules, ...)
+}
+
+#' @export
+redhat_8 <- function(keylogin=TRUE, managed=TRUE, datadisks=numeric(0),
+                     nsg_rules=list(tpl_env$nsg_rule_allow_ssh), ...)
+{
+    if(is.numeric(datadisks))
+        datadisks <- lapply(datadisks, datadisk_config)
+    vm_config(image_config("RedHat", "RHEL", "8"), keylogin, managed, datadisks, nsg_rules, ...)
+}
+
+#' @export
+debian9_backports <- function(keylogin=TRUE, managed=TRUE, datadisks=numeric(0),
+                              nsg_rules=list(tpl_env$nsg_rule_allow_ssh), ...)
+{
+    if(is.numeric(datadisks))
+        datadisks <- lapply(datadisks, datadisk_config)
+    vm_config(image_config("Credativ", "Debian", "9-backports"), keylogin, managed, datadisks, nsg_rules, ...)
+}
+
