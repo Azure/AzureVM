@@ -41,13 +41,18 @@ datadisk_config <- function(size, create="empty", sku="Standard_LRS", write_acce
 #' @export
 image_config <- function(publisher=NULL, offer=NULL, sku=NULL, version="latest", id=NULL)
 {
-    obj <- if(!is.null(publisher) && !is.null(offer) && !is.null(sku))
-        list(publisher=publisher, offer=offer, sku=sku, version=version)
+    if(!is.null(publisher) && !is.null(offer) && !is.null(sku))
+    {
+        structure(list(publisher=publisher, offer=offer, sku=sku, version=version),
+                  class=c("image_marketplace", "image_config"))
+    }
     else if(!is.null(id))
-        list(id=id)
+    {
+        structure(list(id=id),
+                  class=c("image_custom", "image_config"))
+    }
     else stop("Invalid image configuration", call.=FALSE)
 
-    structure(obj, class="image_config")
 }
 
 
@@ -56,6 +61,7 @@ build_template <- function(config)
 {
     UseMethod("build_template")
 }
+
 
 #' @export
 build_template.vm_config <- function(config)
@@ -72,9 +78,8 @@ build_template.vm_config <- function(config)
         add_template_parameters(sshKeyData="string")
     else add_template_parameters(adminPassword="securestring")
 
-    if(!is_empty(config$image$publisher))
-        add_template_parameters(
-            imagePublisher="string", imageOffer="string", imageSku="string", imageVersion="string")
+    if(inherits(config, "image_marketplace"))
+        add_template_parameters(imagePublisher="string", imageOffer="string", imageSku="string", imageVersion="string")
     else add_template_parameters(imageId="string")
 
     if(!is_empty(config$nsrules))
@@ -104,7 +109,7 @@ build_template.vm_config <- function(config)
         outputs=tpl_outputs_default
     )
 
-    if(!is_empty(config$datadisks))
+    if(!is_empty(config$datadisks) && any(sapply(config$datadisks, function(x) !is.null(x$res_spec))))
         tpl$resources <- c(tpl$resources, list(disk_default))
 
     jsonlite::toJSON(tpl, pretty=TRUE, auto_unbox=TRUE)
@@ -135,6 +140,15 @@ build_parameters.vm_config <- function(config, name, login_user, size)
     if(config$keylogin && !is_empty(login_user$key))
         add_parameters(sshKeyData=login_user$key)
     else add_parameters(adminPassword=login_user$pwd)
+
+    if(inherits(config$image, "image_marketplace"))
+        add_parameters(
+            imagePublisher=config$image$publisher,
+            imageOffer=config$image$offer,
+            imageSku=config$image$sku,
+            imageVersion=config$image$version
+        )
+    else add_parameters(imageId=config$image$id)
 
     # add nsrules to params
     if(!is_empty(config$nsrules))

@@ -2,6 +2,7 @@
 vm_config <- function(image, keylogin, managed=TRUE, datadisks=list(), nsrules=list(),
                       nic=list(), nsg=list(), vnet=list(), ip=list(), vm=list(), other_resources=list())
 {
+    stopifnot(inherits(image, "image_config"))
     stopifnot(is.list(datadisks) && all(sapply(datadisks, inherits, "datadisk_config")))
 
     obj <- list(image=image, keylogin=keylogin, managed=managed, datadisks=datadisks, nsrules=nsrules)
@@ -33,6 +34,8 @@ ubuntu_dsvm <- function(keylogin=TRUE, managed=TRUE, datadisks=numeric(0),
 #' @export
 windows_dsvm <- function(keylogin=FALSE, managed=TRUE, datadisks=numeric(0), nsrules=list(nsg_rule_allow_rdp), ...)
 {
+    if(keylogin)
+        warning("Windows does not support SSH key logins", call.=FALSE)
     if(is.numeric(datadisks))
         datadisks <- lapply(datadisks, datadisk_config)
     vm_config(image_config("microsoft-dsvm", "dsvm-windows", "server-2016"), FALSE, managed, datadisks, nsrules, ...)
@@ -57,6 +60,8 @@ ubuntu_1804 <- function(keylogin=TRUE, managed=TRUE, datadisks=numeric(0), nsrul
 #' @export
 windows_2016 <- function(keylogin=FALSE, managed=TRUE, datadisks=numeric(0), nsrules=list(nsg_rule_allow_rdp), ...)
 {
+    if(keylogin)
+        warning("Windows does not support SSH key logins", call.=FALSE)
     if(is.numeric(datadisks))
         datadisks <- lapply(datadisks, datadisk_config)
     vm_config(image_config("MicrosoftWindowsServer", "WindowsServer", "windows_2016"), FALSE, managed,
@@ -66,6 +71,8 @@ windows_2016 <- function(keylogin=FALSE, managed=TRUE, datadisks=numeric(0), nsr
 #' @export
 windows_2019 <- function(keylogin=FALSE, managed=TRUE, datadisks=numeric(0), nsrules=list(nsg_rule_allow_rdp), ...)
 {
+    if(keylogin)
+        warning("Windows does not support SSH key logins", call.=FALSE)
     if(is.numeric(datadisks))
         datadisks <- lapply(datadisks, datadisk_config)
     vm_config(image_config("MicrosoftWindowsServer", "WindowsServer", "windows_2019"), FALSE, managed,
@@ -73,10 +80,10 @@ windows_2019 <- function(keylogin=FALSE, managed=TRUE, datadisks=numeric(0), nsr
 }
 
 #' @export
-custom_vm <- function(datadisks=numeric(0), nsrules=list(), image, os, ...)
+custom_vm <- function(image, keylogin=FALSE, managed=TRUE, datadisks=numeric(0), nsrules=list(), ...)
 {
     if(is.numeric(datadisks))
         datadisks <- lapply(datadisks, datadisk_config)
-    vm_config(image, os, datadisks, nsrules, ...)
+    vm_config(image, keylogin, managed, datadisks, nsrules, ...)
 }
 
