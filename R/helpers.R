@@ -152,7 +152,11 @@ build_parameters.vm_config <- function(config, name, login_user, size)
 
     # add nsrules to params
     if(!is_empty(config$nsrules))
+    {
+        for(i in seq_along(config$nsrules))
+            config$nsrules[[i]]$properties$priority <- 999 + i
         add_parameters(nsgRules=config$nsrules)
+    }
     else add_parameters(nsgRules=logical(0))
 
     # fixup datadisk LUNs

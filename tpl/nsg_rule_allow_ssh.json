@@ -4,7 +4,6 @@
     "properties": {
         "protocol": "Tcp",
         "access": "Allow",
-        "priority": 100,
         "direction": "Inbound",
         "destinationPortRange": "22"
     }
