@@ -112,7 +112,7 @@ build_template.vm_config <- function(config)
         add_template_parameters(imagePublisher="string", imageOffer="string", imageSku="string", imageVersion="string")
     else add_template_parameters(imageId="string")
 
-    if(!is_empty(config$nsrules))
+    if(!is_empty(config$nsg_rules))
         add_template_parameters(nsgrules="array")
 
     if(!is_empty(config$datadisks))
@@ -180,16 +180,16 @@ build_parameters.vm_config <- function(config, name, login_user, size)
         )
     else add_parameters(imageId=config$image$id)
 
-    # add nsrules to params
-    if(!is_empty(config$nsrules))
+    # add nsg_rules to params
+    if(!is_empty(config$nsg_rules))
     {
         # fixup rule priorities (if not specified)
-        for(i in seq_along(config$nsrules))
+        for(i in seq_along(config$nsg_rules))
         {
-            if(is_empty(config$nsrules[[i]]$properties$priority))
-                config$nsrules[[i]]$properties$priority <- 1000 + 10 * i
+            if(is_empty(config$nsg_rules[[i]]$properties$priority))
+                config$nsg_rules[[i]]$properties$priority <- 1000 + 10 * i
         }
-        add_parameters(nsgRules=lapply(config$nsrules, unclass))
+        add_parameters(nsgRules=lapply(config$nsg_rules, unclass))
     }
     else add_parameters(nsgRules=logical(0))
 
