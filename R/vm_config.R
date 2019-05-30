@@ -80,11 +80,3 @@ windows_2019 <- function(keylogin=FALSE, managed=TRUE, datadisks=numeric(0), nsr
               datadisks, nsrules, ...)
 }
 
-#' @export
-custom_vm <- function(image, keylogin=FALSE, managed=TRUE, datadisks=numeric(0), nsrules=list(), ...)
-{
-    if(is.numeric(datadisks))
-        datadisks <- lapply(datadisks, datadisk_config)
-    vm_config(image, keylogin, managed, datadisks, nsrules, ...)
-}
-
