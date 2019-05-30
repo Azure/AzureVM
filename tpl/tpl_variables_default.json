@@ -1,7 +1,6 @@
 {
     "location": "[resourceGroup().location]",
     "OSDiskName": "[concat(parameters('vmName'), '-osdisk')]",
-    "LinuxDataDiskName": "[concat(parameters('vmName'), '-data-0')]",
     "subnet": "Subnet1",
     "nsgName": "[concat(parameters('vmName'), '-nsg')]",
     "nsgId": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('nsgName'))]",

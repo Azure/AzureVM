@@ -1,7 +1,10 @@
-vm_config <- function(image, keylogin, msi, datadisks, nsrules,
+#' @export
+vm_config <- function(image, keylogin, managed=TRUE, datadisks=list(), nsrules=list(),
                       nic=list(), nsg=list(), vnet=list(), ip=list(), vm=list(), other_resources=list())
 {
-    obj <- list(image=image, keylogin=keylogin, msi=msi, datadisks=datadisks, nsrules=nsrules)
+    stopifnot(is.list(datadisks) && all(sapply(datadisks, inherits, "datadisk_config")))
+
+    obj <- list(image=image, keylogin=keylogin, managed=managed, datadisks=datadisks, nsrules=nsrules)
 
     obj$nic <- resource_config(nic_default, nic)
     obj$nsg <- resource_config(nsg_default, nsg)
@@ -16,56 +19,56 @@ vm_config <- function(image, keylogin, msi, datadisks, nsrules,
 
 
 #' @export
-ubuntu_dsvm <- function(keylogin=TRUE, msi=TRUE, datadisks=numeric(0),
+ubuntu_dsvm <- function(keylogin=TRUE, managed=TRUE, datadisks=numeric(0),
                         nsrules=list(nsg_rule_allow_ssh, nsg_rule_allow_jupyter, nsg_rule_allow_rstudio),
                         ...)
 {
     disk0 <- datadisk_config(NULL, "fromImage", "Premium_LRS")
     if(is.numeric(datadisks))
         datadisks <- lapply(datadisks, datadisk_config)
-    vm_config(image_config("microsoft-dsvm", "linux-data-science-vm-ubuntu", "linuxdsvmubuntu"), keylogin, msi,
-              c(disk0, datadisks), nsrules, ...)
+    vm_config(image_config("microsoft-dsvm", "linux-data-science-vm-ubuntu", "linuxdsvmubuntu"), keylogin, managed,
+              c(list(disk0), datadisks), nsrules, ...)
 }
 
 #' @export
-windows_dsvm <- function(keylogin=FALSE, msi=TRUE, datadisks=numeric(0), nsrules=list(nsg_rule_allow_rdp), ...)
+windows_dsvm <- function(keylogin=FALSE, managed=TRUE, datadisks=numeric(0), nsrules=list(nsg_rule_allow_rdp), ...)
 {
     if(is.numeric(datadisks))
         datadisks <- lapply(datadisks, datadisk_config)
-    vm_config(image_config("microsoft-dsvm", "dsvm-windows", "server-2016"), FALSE, msi, datadisks, nsrules, ...)
+    vm_config(image_config("microsoft-dsvm", "dsvm-windows", "server-2016"), FALSE, managed, datadisks, nsrules, ...)
 }
 
 #' @export
-ubuntu_1604 <- function(keylogin=TRUE, msi=TRUE, datadisks=numeric(0), nsrules=list(nsg_rule_allow_ssh), ...)
+ubuntu_1604 <- function(keylogin=TRUE, managed=TRUE, datadisks=numeric(0), nsrules=list(nsg_rule_allow_ssh), ...)
 {
     if(is.numeric(datadisks))
         datadisks <- lapply(datadisks, datadisk_config)
-    vm_config(image_config("Canonical", "UbuntuServer", "16.04-LTS"), keylogin, msi, datadisks, nsrules, ...)
+    vm_config(image_config("Canonical", "UbuntuServer", "16.04-LTS"), keylogin, managed, datadisks, nsrules, ...)
 }
 
 #' @export
-ubuntu_1804 <- function(keylogin=TRUE, msi=TRUE, datadisks=numeric(0), nsrules=list(nsg_rule_allow_ssh), ...)
+ubuntu_1804 <- function(keylogin=TRUE, managed=TRUE, datadisks=numeric(0), nsrules=list(nsg_rule_allow_ssh), ...)
 {
     if(is.numeric(datadisks))
         datadisks <- lapply(datadisks, datadisk_config)
-    vm_config(image_config("Canonical", "UbuntuServer", "18.04-LTS"), keylogin, msi, datadisks, nsrules, ...)
+    vm_config(image_config("Canonical", "UbuntuServer", "18.04-LTS"), keylogin, managed, datadisks, nsrules, ...)
 }
 
 #' @export
-windows_2016 <- function(keylogin=FALSE, msi=TRUE, datadisks=numeric(0), nsrules=list(nsg_rule_allow_rdp), ...)
+windows_2016 <- function(keylogin=FALSE, managed=TRUE, datadisks=numeric(0), nsrules=list(nsg_rule_allow_rdp), ...)
 {
     if(is.numeric(datadisks))
         datadisks <- lapply(datadisks, datadisk_config)
-    vm_config(image_config("MicrosoftWindowsServer", "WindowsServer", "windows_2016"), FALSE, msi,
+    vm_config(image_config("MicrosoftWindowsServer", "WindowsServer", "windows_2016"), FALSE, managed,
               datadisks, nsrules, ...)
 }
 
 #' @export
-windows_2019 <- function(keylogin=FALSE, msi=TRUE, datadisks=numeric(0), nsrules=list(nsg_rule_allow_rdp), ...)
+windows_2019 <- function(keylogin=FALSE, managed=TRUE, datadisks=numeric(0), nsrules=list(nsg_rule_allow_rdp), ...)
 {
     if(is.numeric(datadisks))
         datadisks <- lapply(datadisks, datadisk_config)
-    vm_config(image_config("MicrosoftWindowsServer", "WindowsServer", "windows_2019"), FALSE, msi,
+    vm_config(image_config("MicrosoftWindowsServer", "WindowsServer", "windows_2019"), FALSE, managed,
               datadisks, nsrules, ...)
 }
 

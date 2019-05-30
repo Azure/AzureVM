@@ -1,35 +1,93 @@
-lapply(list.files("tpl", pattern="\\.json$"), function(f)
+#' @export
+user_config <- function(username, password=NULL, sshkey=NULL)
 {
-    obj <- sub("\\.json$", "", f)
-    assign(obj, jsonlite::fromJSON(file.path("tpl", f), simplifyVector=FALSE), parent.env(environment()))
-})
+    pwd <- is.character(password)
+    key <- is.character(sshkey)
+    if(!pwd && !key)
+        stop("Must supply either a login password or SSH key", call.=FALSE)
+    if(pwd && key)
+        stop("Supply either a login password or SSH key, but not both", call.=FALSE)
+
+    structure(list(user=username, pwd=password, key=sshkey), class="user_config")
+}
 
 
+#' @export
+datadisk_config <- function(size, create="empty", sku="Standard_LRS", write_accelerator=FALSE)
+{
+    vm_caching <- if(sku == "Premium_LRS") "ReadOnly" else "None"
+    vm_create <- if(create == "empty") "attach" else "fromImage"
+    vm_storage <- if(create == "empty") NULL else sku
+
+    vm_spec <- list(
+        createOption=vm_create,
+        caching=vm_caching,
+        writeAcceleratorEnabled=write_accelerator,
+        storageAccountType=vm_storage
+    )
+
+    res_spec <- if(!is.null(size))
+        list(
+            diskSizeGB=size,
+            sku=sku,
+            creationData=list(createOption=create)
+        )
+    else NULL
+
+    structure(list(res_spec=res_spec, vm_spec=vm_spec), class="datadisk_config")
+}
+
+
+#' @export
 image_config <- function(publisher=NULL, offer=NULL, sku=NULL, version="latest", id=NULL)
 {
-    if(!is.null(publisher) && !is.null(offer) && !is.null(sku))
+    obj <- if(!is.null(publisher) && !is.null(offer) && !is.null(sku))
         list(publisher=publisher, offer=offer, sku=sku, version=version)
     else if(!is.null(id))
         list(id=id)
     else stop("Invalid image configuration", call.=FALSE)
+
+    structure(obj, class="image_config")
 }
 
 
-resource_config <- function(resource, properties)
-{
-    modifyList(resource, list(properties=properties))
-}
-
-
+#' @export
 build_template <- function(config)
 {
+    UseMethod("build_template")
+}
+
+#' @export
+build_template.vm_config <- function(config)
+{
+    add_template_parameters <- function(...)
+    {
+        new_params <- lapply(list(...), function(obj) list(type=obj))
+        params <<- c(params, new_params)
+    }
+
+    params <- tpl_parameters_default
+
+    if(config$keylogin)
+        add_template_parameters(sshKeyData="string")
+    else add_template_parameters(adminPassword="securestring")
+
+    if(!is_empty(config$image$publisher))
+        add_template_parameters(
+            imagePublisher="string", imageOffer="string", imageSku="string", imageVersion="string")
+    else add_template_parameters(imageId="string")
+
+    if(!is_empty(config$nsrules))
+        add_template_parameters(nsgrules="array")
+
     if(!is_empty(config$datadisks))
     {
+        add_template_parameters(dataDisks="array", dataDiskResources="array")
         config$vm$dependsOn <- c(config$vm$dependsOn, "managedDisks")
         config$vm$storageProfile$copy <- vm_datadisk
     }
 
-    if(config$msi)
+    if(config$managed)
         config$vm$identity <- list(type="systemAssigned")
 
     config$vm$properties$osProfile <- c(config$vm$properties$osProfile,
@@ -38,7 +96,7 @@ build_template <- function(config)
     tpl <- list(
         `$schema`="http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
         contentVersion="1.0.0.0",
-        parameters=tpl_parameters_default,
+        parameters=params,
         variables=tpl_variables_default,
         resources=list(
             config$nic, config$nsg, config$vnet, config$ip, config$vm
@@ -53,34 +111,61 @@ build_template <- function(config)
 }
 
 
-build_parameters <- function(config, params)
+#' @export
+build_parameters <- function(config, name, login_user, size)
 {
-    # add nsrules to params
-    # add datadisks to params
-    # fixup datadisk LUNs
+    UseMethod("build_parameters")
 }
 
 
-datadisk_config <- function(size, create="empty", sku="Standard_LRS", write_accelerator=FALSE)
+#' @export
+build_parameters.vm_config <- function(config, name, login_user, size)
 {
-    vm_caching <- if(sku == "Premium_LRS") "ReadOnly" else "None"
-    vm_create <- if(create == "empty") "attach" else "fromImage"
-    vm_storage <- if(create == "empty") NULL else sku
+    add_parameters <- function(...)
+    {
+        new_params <- lapply(list(...), function(obj) list(value=obj))
+        params <<- c(params, new_params)
+    }
 
-    disk_vm_spec <- list(
-        createOption=vm_create,
-        caching=vm_caching,
-        writeAcceleratorEnabled=write_accelerator,
-        storageAccountType=vm_storage
+    stopifnot(inherits(login_user, "user_config"))
+
+    params <- list()
+    add_parameters(vmName=name, vmSize=size, adminUsername=login_user$user)
+
+    # add nsrules to params
+    if(!is_empty(config$nsrules))
+        add_parameters(nsgRules=config$nsrules)
+    else add_parameters(nsgRules=logical(0))
+
+    # fixup datadisk LUNs
+    for(i in seq_along(config$datadisks))
+        config$datadisks[[i]]$vm_spec$lun <- i - 1
+
+    # add datadisks to params
+    if(!is_empty(config$datadisks))
+    {
+        disk_res_spec <- lapply(config$datadisks, `[[`, "res_spec")
+        null <- sapply(disk_res_spec, is.null)
+
+        add_parameters(
+            dataDisks=lapply(config$datadisks, `[[`, "vm_spec"),
+            dataDiskResources=disk_res_spec[!null]
+        )
+    }
+
+    out <- list(
+        `$schema`="https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+        contentVersion="1.0.0.0",
+        parameters=params
     )
 
-    disk_resource_spec <- if(!is.null(size))
-        list(
-            diskSizeGB=size,
-            sku=sku,
-            creationData=list(createOption=create)
-        )
-    else NULL
-
-    structure(list(disk_resource_spec, disk_vm_spec), class="datadisk_config")
+    jsonlite::toJSON(out, pretty=TRUE, auto_unbox=TRUE)
 }
+
+
+resource_config <- function(resource, properties)
+{
+    modifyList(resource, list(properties=properties))
+}
+
+

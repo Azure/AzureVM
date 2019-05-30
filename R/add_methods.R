@@ -406,23 +406,22 @@ add_sub_methods <- function()
 add_rg_methods <- function()
 {
     az_resource_group$set("public", "create_vm", overwrite=TRUE,
-    function(name, login_user, image="ubuntu_dsvm", size="Standard_DS3_v2", msi=TRUE, datadisks=numeric(0),
+    function(name, login_user, size="Standard_DS3_v2", config="ubuntu_dsvm", managed=TRUE, datadisks=numeric(0),
              ..., template, parameters, wait=TRUE)
     {
         # namespace shenanigans: get unexported function from AzureVM
-        if(is.character(image))
-        {
-            image <- get(image, getNamespace("AzureVM"))
-            image(!is_empty(login_user$key), msi, datadisks)
-        }
+        if(is.character(config))
+            config <- get(config, getNamespace("AzureVM"))
+        if(is.function(config))
+            config <- image(!is_empty(login_user$key), managed, datadisks, ...)
 
-        stopifnot(inherits(image, "vm_config"))
+        stopifnot(inherits(config, "vm_config"))
 
         if(missing(template))
-            template <- build_template(image)
+            template <- build_template(config)
 
         if(missing(parameters))
-            parameters <- build_parameters(image, name, login_user, size)
+            parameters <- build_parameters(config, name, login_user, size)
 
         AzureVM::az_vm_template$new(self$token, self$subscription, self$name, name,
             template=template, parameters=parameters, wait=wait)
@@ -430,7 +429,7 @@ add_rg_methods <- function()
 
 
     az_resource_group$set("public", "create_vm_scaleset", overwrite=TRUE,
-    function(name, login_user, image="ubuntu_dsvm_scaleset", size="Standard_DS3_v2", datadisks=0,
+    function(name, login_user, size="Standard_DS3_v2", image="ubuntu_dsvm_scaleset", datadisks=numeric(0),
              cluster_config, template, parameters, ..., wait=TRUE)
     {
         # namespace shenanigans: get unexported function from AzureVM

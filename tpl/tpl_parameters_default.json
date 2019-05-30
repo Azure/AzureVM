@@ -1,38 +1,11 @@
 {
-    "adminUsername": {
-        "type": "string"
-    },
-    "adminPassword": {
-        "type": "securestring"
-    },
-    "sshKeyData": {
-        "type": "string"
-    },
     "vmName": {
         "type": "string"
     },
     "vmSize": {
         "type": "string"
     },
-    "imagePublisher": {
+    "adminUsername": {
         "type": "string"
-    },
-    "imageOffer": {
-        "type": "string"
-    },
-    "imageSku": {
-        "type": "string"
-    },
-    "imageVersion": {
-        "type": "string"
-    },
-    "datadisks": {
-        "type": "array"
-    },
-    "datadisksResources": {
-        "type": "array"
-    },
-    "nsgRules": {
-        "type": "array"
     }
 }
