@@ -425,6 +425,8 @@ add_rg_methods <- function()
     function(name, login_user, size="Standard_DS3_v2", config="ubuntu_dsvm", managed=TRUE, datadisks=numeric(0),
              ..., template, parameters, mode="Incremental", wait=TRUE)
     {
+        stopifnot(inherits(login_user, "user_config"))
+
         if(is.character(config))
             config <- get(config, getNamespace("AzureVM"))
         if(is.function(config))
@@ -445,12 +447,12 @@ add_rg_methods <- function()
 
     az_resource_group$set("public", "create_vm_scaleset", overwrite=TRUE,
     function(name, login_user, size="Standard_DS3_v2", config="ubuntu_dsvm_ss", managed=TRUE, datadisks=numeric(0),
-             cluster_config, template, parameters, ..., wait=TRUE)
+             scaleset, ..., template, parameters, mode="Incremental", wait=TRUE)
     {
         if(is.character(config))
             config <- get(config, getNamespace("AzureVM"))
         if(is.function(config))
-            config <- config(!is_empty(login_user$key), managed, datadisks, ...)
+            config <- config(!is_empty(login_user$key), managed, datadisks, scaleset, ...)
 
         stopifnot(inherits(config, "vmss_config"))
 
@@ -458,7 +460,7 @@ add_rg_methods <- function()
             template <- build_template(config)
 
         if(missing(parameters))
-            parameters <- build_parameters(config, name, login_user, size)
+            parameters <- build_parameters(config, name, login_user, size, scaleset)
 
         AzureVM::az_vmss_template$new(self$token, self$subscription, self$name, name,
             template=template, parameters=parameters, mode=mode, wait=wait)

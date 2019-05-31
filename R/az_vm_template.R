@@ -73,16 +73,14 @@
 az_vm_template <- R6::R6Class("az_vm_template", inherit=az_template,
 
 public=list(
-    disks=NULL,
-    status=NULL,
     ip_address=NULL,
     dns_name=NULL,
-    clust_size=NULL,
 
     initialize=function(token, subscription, resource_group, name, ..., wait=TRUE)
     {
         super$initialize(token, subscription, resource_group, name, ..., wait=wait)
 
+        vmname <- self$name
         # fill in fields that don't require querying the host
         num_instances <- self$properties$outputs$numInstances
         if(is_empty(num_instances))
@@ -98,89 +96,20 @@ public=list(
 
         if(wait)
         {
-            private$vm <- sapply(vmnames, function(name)
-            {
-                az_vm_resource$new(self$token, self$subscription, self$resource_group,
-                type="Microsoft.Compute/virtualMachines", name=name)
-            }, simplify=FALSE)
+            private$vm <- az_vm_resource$new(self$token, self$subscription, id=self$properties$outputs$vmResource)
 
             # get the hostname/IP address for the VM
             outputs <- unlist(self$properties$outputResources)
             ip_id <- grep("publicIPAddresses/.+$", outputs, ignore.case=TRUE, value=TRUE)
-            ip <- lapply(ip_id, function(id)
-                az_resource$new(self$token, self$subscription, id=id)$properties)
+            ip <- az_resource$new(self$token, self$subscription, id=ip_id)$properties
 
-            self$ip_address <- sapply(ip, function(x) x$ipAddress)
-            self$dns_name <- sapply(ip, function(x) x$dnsSettings$fqdn)
-
-            lapply(private$vm, function(obj) obj$sync_vm_status())
-            self$disks <- lapply(private$vm, "[[", "disks")
-            self$status <- lapply(private$vm, "[[", "status")
+            self$ip_address <- ip$ipAddress
+            self$dns_name <- ip$dnsSettings$fqdn
             NULL
         }
-        else message("Deployment started. Call the sync_vm_status() method to track the status of the deployment.")
+        else message("Deployment started. Call the get_vm_status() method to track the status of the deployment.")
 
         NULL
-    },
-
-    sync_vm_status=function()
-    {
-        if(is_empty(private$vm) || is_empty(self$status) || tolower(self$status[[1]][1]) != "succeeded")
-        {
-            res <- try(self$initialize(self$token, self$subscription, self$resource_group, self$name), silent=TRUE)
-            if(inherits(res, "try-error"))
-            {
-                message("VM deployment in progress")
-                return(invisible(NULL))
-            }
-        }
-
-        lapply(private$vm, function(obj) obj$sync_vm_status())
-        self$disks <- lapply(private$vm, "[[", "disks")
-        self$status <- lapply(private$vm, "[[", "status")
-        self$status
-    },
-
-    start=function(wait=TRUE)
-    {
-        lapply(private$get_vm(), function(obj) obj$start(wait=wait))
-        self$sync_vm_status()
-    },
-
-    stop=function(deallocate=TRUE, wait=TRUE)
-    {
-        lapply(private$get_vm(), function(obj) obj$stop(deallocate=deallocate, wait=wait))
-        self$sync_vm_status()
-    },
-
-    restart=function(wait=TRUE)
-    {
-        lapply(private$get_vm(), function(obj) obj$restart(wait=wait))
-        self$sync_vm_status()
-    },
-
-    add_extension=function(...)
-    {
-        lapply(private$get_vm(), function(obj) obj$add_extension(...))
-        invisible(NULL)
-    },
-
-    resize=function(size, deallocate=FALSE, wait=FALSE)
-    {
-        lapply(private$get_vm(), function(obj) obj$resize(size, deallocate=deallocate, wait=wait))
-        invisible(NULL)
-    },
-
-    run_deployed_command=function(...)
-    {
-        lapply(private$get_vm(), function(obj) obj$run_deployed_command(...))
-        invisible(NULL)
-    },
-
-    run_script=function(...)
-    {
-        lapply(private$get_vm(), function(obj) obj$run_script(...))
-        invisible(NULL)
     },
 
     delete=function(confirm=TRUE, free_resources=TRUE)
@@ -188,8 +117,7 @@ public=list(
         # delete the resource group -- customised confirmation message
         if(self$properties$mode == "Complete" && confirm && interactive())
         {
-            vmtype <- if(self$clust_size == 1) "VM" else "VM cluster"
-            msg <- paste0("Do you really want to delete ", vmtype, " and resource group '", self$name, "'? (y/N) ")
+            msg <- paste0("Do you really want to delete VM and resource group '", self$name, "'? (y/N) ")
             yn <- readline(msg)
             if(tolower(substr(yn, 1, 1)) != "y")
                 return(invisible(NULL))
@@ -197,10 +125,8 @@ public=list(
         }
         else
         {
-            if(free_resources)
+            if(free_resources)  # delete individual resources
             {
-                # delete individual resources
-
                 if(confirm && interactive())
                 {
                     vmtype <- if(self$clust_size == 1) "VM" else "VM cluster"
@@ -210,7 +136,7 @@ public=list(
                         return(invisible(NULL))
                 }
 
-                lapply(private$vm, function(obj) obj$delete(confirm=FALSE, wait=TRUE))
+                private$vm$delete(confirm=FALSE, wait=TRUE)
                 super$delete(confirm=FALSE, free_resources=TRUE)
             }
             else super$delete(confirm=confirm, free_resources=FALSE)
@@ -224,73 +150,53 @@ public=list(
             header <- paste0(header, "cluster ")
         cat(header, self$name, ">\n", sep="")
 
-        osProf <- names(private$vm[[1]]$properties$osProfile)
+        osProf <- names(private$vm$properties$osProfile)
         os <- if(any(grepl("linux", osProf))) "Linux" else if(any(grepl("windows", osProf))) "Windows" else "<unknown>"
         exclusive <- self$properties$mode == "Complete"
-        dns_label <- if(self$clust_size == 1) "Domain name:" else "Domain names:"
-        dns_names <- if(is_empty(self$dns_name))
-            paste0("  ", dns_label, " <none>")
-        else strwrap(paste(dns_label, paste0(self$dns_name, collapse=", ")),
-                     width=0.8*getOption("width"), indent=2, exdent=4)
 
         cat("  Operating system:", os, "\n")
         cat("  Exclusive resource group:", exclusive, "\n")
-        cat(paste0(dns_names, collapse="\n"), "\n", sep="")
-        cat("  Status:")
-
-        if(is_empty(self$status) || is_empty(self$status[[1]]))
-            cat(" <unknown>\n")
-        else
-        {
-            prov_status <- as.data.frame(do.call(rbind, self$status))
-            row.names(prov_status) <- paste0("    ", row.names(prov_status))
-            cat("\n")
-            print(prov_status)
-        }
-
+        cat("  Domain name:", self$dns_name, "\n")
         cat("---\n")
 
         exclude <- c("subscription", "resource_group", "name", "dns_name", "status")
-        if(self$clust_size == 1)
-            exclude <- c(exclude, "clust_size")
+
         cat(AzureRMR::format_public_fields(self, exclude=exclude))
         cat(AzureRMR::format_public_methods(self))
         invisible(NULL)
     }
 ),
 
+# reflect VM methods up to template
+active=list(
+
+    get_vm_status=function()
+    private$vm$get_vm_status,
+
+    start=function()
+    private$vm$start,
+
+    stop=function()
+    private$vm$stop,
+
+    restart=function()
+    private$vm$restart,
+
+    add_extension=function()
+    private$vm$add_extension,
+
+    resize=function()
+    private$vm$resize,
+
+    run_deployed_command=function()
+    private$vm$run_deployed_command,
+
+    run_script=function()
+    private$vm$run_script
+),
+
 private=list(
-    vm=list(NULL),
-
-    get_vm=function()
-    {
-        if(is_empty(private$vm))
-            stop("VM deployment in progress", call.=FALSE)
-        private$vm
-    },
-
-    sync_vm_resources=function()
-    {
-        private$vm <- sapply(vmnames, function(name)
-        {
-            az_vm_resource$new(self$token, self$subscription, self$resource_group,
-                type="Microsoft.Compute/virtualMachines", name=name)
-        }, simplify=FALSE)
-
-        # get the hostname/IP address for the VM
-        outputs <- unlist(self$properties$outputResources)
-        ip_id <- grep("publicIPAddresses/.+$", outputs, ignore.case=TRUE, value=TRUE)
-        ip <- lapply(ip_id, function(id)
-            az_resource$new(self$token, self$subscription, id=id)$properties)
-
-        self$ip_address <- sapply(ip, function(x) x$ipAddress)
-        self$dns_name <- sapply(ip, function(x) x$dnsSettings$fqdn)
-
-        lapply(private$vm, function(obj) obj$sync_vm_status())
-        self$disks <- lapply(private$vm, "[[", "disks")
-        self$status <- lapply(private$vm, "[[", "status")
-        NULL
-    }
+    vm=NULL
 ))
 
 
@@ -310,41 +216,3 @@ is_vm_template <- function(object)
 }
 
 
-# arguments to this must be named
-make_dsvm_param_list=function(...)
-{
-    params <- list(...)
-
-    template <- tools::file_path_sans_ext(basename(params$template))
-    parm_map <- param_mappings[[template]]
-
-    # match supplied arguments to those expected by template
-    params <- params[names(params) %in% names(parm_map)]
-    names(params) <- parm_map[match(names(parm_map), names(params))]
-
-    lapply(params, function(x) list(value=as.character(x)))
-}
-
-
-get_dsvm_template=function(os, userauth_type, clust_size, ext_file_uris, inst_command)
-{
-    if(os == "Ubuntu")
-        template <- "ubuntu_dsvm"
-    else if(os == "Windows")
-        template <- "win2016_dsvm"
-    else stop("Unknown OS: ", os, call.=FALSE)
-
-    if(clust_size > 1)
-        template <- paste0(template, "_cl")
-
-    if(userauth_type == "key")
-        template <- paste0(template, "_key")
-
-    if(!is_empty(ext_file_uris) || !is_empty(inst_command))
-        template <- paste0(template, "_ext")
-
-    template <- system.file("templates", paste0(template, ".json"), package="AzureVM")
-    if(template == "")
-        stop("Unsupported combination of parameters", call.=FALSE)
-    template
-}
