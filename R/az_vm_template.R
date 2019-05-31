@@ -80,20 +80,6 @@ public=list(
     {
         super$initialize(token, subscription, resource_group, name, ..., wait=wait)
 
-        vmname <- self$name
-        # fill in fields that don't require querying the host
-        num_instances <- self$properties$outputs$numInstances
-        if(is_empty(num_instances))
-        {
-            self$clust_size <- 1
-            vmnames <- self$name
-        }
-        else
-        {
-            self$clust_size <- as.numeric(num_instances$value)
-            vmnames <- paste0(self$name, seq_len(self$clust_size) - 1)
-        }
-
         if(wait)
         {
             private$vm <- az_vm_resource$new(self$token, self$subscription, id=self$properties$outputs$vmResource)
@@ -129,8 +115,7 @@ public=list(
             {
                 if(confirm && interactive())
                 {
-                    vmtype <- if(self$clust_size == 1) "VM" else "VM cluster"
-                    msg <- paste0("Do you really want to delete ", vmtype, " '", self$name, "'? (y/N) ")
+                    msg <- paste0("Do you really want to delete VM '", self$name, "'? (y/N) ")
                     yn <- readline(msg)
                     if(tolower(substr(yn, 1, 1)) != "y")
                         return(invisible(NULL))
@@ -145,10 +130,7 @@ public=list(
 
     print=function(...)
     {
-        header <- "<Azure virtual machine "
-        if(self$clust_size > 1)
-            header <- paste0(header, "cluster ")
-        cat(header, self$name, ">\n", sep="")
+        cat("<Azure virtual machine ", self$name, ">\n", sep="")
 
         osProf <- names(private$vm$properties$osProfile)
         os <- if(any(grepl("linux", osProf))) "Linux" else if(any(grepl("windows", osProf))) "Windows" else "<unknown>"
@@ -167,7 +149,7 @@ public=list(
     }
 ),
 
-# reflect VM methods up to template
+# propagate VM methods up to template
 active=list(
 
     get_vm_status=function()
@@ -214,5 +196,3 @@ is_vm_template <- function(object)
 {
     R6::is.R6(object) && inherits(object, "az_vm_template")
 }
-
-
