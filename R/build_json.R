@@ -1,12 +1,5 @@
 #' @export
-build_template <- function(config)
-{
-    UseMethod("build_template")
-}
-
-
-#' @export
-build_template.vm_config <- function(config)
+build_template_definition.vm_config <- function(config)
 {
     add_template_parameters <- function(...)
     {
@@ -68,14 +61,7 @@ build_template.vm_config <- function(config)
 
 
 #' @export
-build_parameters <- function(config, name, login_user, size)
-{
-    UseMethod("build_parameters")
-}
-
-
-#' @export
-build_parameters.vm_config <- function(config, name, login_user, size)
+build_template_parameters.vm_config <- function(config, name, login_user, size)
 {
     add_parameters <- function(...)
     {

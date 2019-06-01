@@ -120,7 +120,7 @@ public=list(
                     if(tolower(substr(yn, 1, 1)) != "y")
                         return(invisible(NULL))
                 }
-
+                # must delete VM resource first, to ensure managed disks are properly handled
                 private$vm$delete(confirm=FALSE, wait=TRUE)
                 super$delete(confirm=FALSE, free_resources=TRUE)
             }
@@ -139,9 +139,10 @@ public=list(
         cat("  Operating system:", os, "\n")
         cat("  Exclusive resource group:", exclusive, "\n")
         cat("  Domain name:", self$dns_name, "\n")
+        cat("  IP address:", self$ip_address, "\n")
         cat("---\n")
 
-        exclude <- c("subscription", "resource_group", "name", "dns_name", "status")
+        exclude <- c("subscription", "resource_group", "name", "dns_name")
 
         cat(AzureRMR::format_public_fields(self, exclude=exclude))
         cat(AzureRMR::format_public_methods(self))

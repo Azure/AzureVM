@@ -435,10 +435,10 @@ add_rg_methods <- function()
         stopifnot(inherits(config, "vm_config"))
 
         if(missing(template))
-            template <- build_template(config)
+            template <- build_template_definition(config)
 
         if(missing(parameters))
-            parameters <- build_parameters(config, name, login_user, size)
+            parameters <- build_template_parameters(config, name, login_user, size)
 
         AzureVM::az_vm_template$new(self$token, self$subscription, self$name, name,
             template=template, parameters=parameters, mode=mode, wait=wait)
@@ -457,10 +457,10 @@ add_rg_methods <- function()
         stopifnot(inherits(config, "vmss_config"))
 
         if(missing(template))
-            template <- build_template(config)
+            template <- build_template_definition(config)
 
         if(missing(parameters))
-            parameters <- build_parameters(config, name, login_user, size, scaleset)
+            parameters <- build_template_parameters(config, name, login_user, size, scaleset)
 
         AzureVM::az_vmss_template$new(self$token, self$subscription, self$name, name,
             template=template, parameters=parameters, mode=mode, wait=wait)

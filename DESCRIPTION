@@ -15,7 +15,7 @@ Depends:
     R (>= 3.3),
 Imports: 
     R6,
-    AzureRMR,
+    AzureRMR (>= 2.1.2),
     jsonlite
 Suggests:
     knitr,
