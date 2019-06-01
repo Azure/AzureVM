@@ -1,5 +1,5 @@
 #' @export
-build_template_definition.vm_config <- function(config)
+build_template_definition.vm_config <- function(config, ...)
 {
     add_template_parameters <- function(...)
     {
@@ -7,7 +7,7 @@ build_template_definition.vm_config <- function(config)
         params <<- c(params, new_params)
     }
 
-    params <- tpl_env$tpl_parameters_default
+    params <- tpl_parameters_default
 
     if(config$keylogin)
         add_template_parameters(sshKeyData="string")
@@ -28,7 +28,7 @@ build_template_definition.vm_config <- function(config)
     if(n_disks > 0)
     {
         add_template_parameters(dataDisks="array", dataDiskResources="array")
-        config$vm$properties$storageProfile$copy <- tpl_env$vm_datadisk
+        config$vm$properties$storageProfile$copy <- vm_datadisk
         if(n_disk_resources > 0)
             config$vm$dependsOn <- c(config$vm$dependsOn, "managedDiskResources")
     }
@@ -37,21 +37,21 @@ build_template_definition.vm_config <- function(config)
         config$vm$identity <- list(type="systemAssigned")
 
     config$vm$properties$osProfile <- c(config$vm$properties$osProfile,
-        if(config$keylogin) tpl_env$vm_key_login else tpl_env$vm_pwd_login)
+        if(config$keylogin) vm_key_login else vm_pwd_login)
 
     tpl <- list(
         `$schema`="http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
         contentVersion="1.0.0.0",
         parameters=params,
-        variables=tpl_env$tpl_variables_default,
+        variables=tpl_variables_default,
         resources=list(
             config$nic, config$nsg, config$vnet, config$ip, config$vm
         ),
-        outputs=tpl_env$tpl_outputs_default
+        outputs=tpl_outputs_default
     )
 
     if(n_disk_resources > 0)
-        tpl$resources <- c(tpl$resources, list(tpl_env$disk_default))
+        tpl$resources <- c(tpl$resources, list(disk_default))
 
     if(!is_empty(config$other))
         tpl$resources <- c(tpl$resources, config$other)
@@ -61,7 +61,7 @@ build_template_definition.vm_config <- function(config)
 
 
 #' @export
-build_template_parameters.vm_config <- function(config, name, login_user, size)
+build_template_parameters.vm_config <- function(config, name, login_user, size, ...)
 {
     add_parameters <- function(...)
     {
