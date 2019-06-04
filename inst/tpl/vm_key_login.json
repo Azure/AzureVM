@@ -1,4 +1,3 @@
-// resources.vm.properties.osProfile
 {
     "linuxConfiguration": {
         "disablePasswordAuthentication": true,

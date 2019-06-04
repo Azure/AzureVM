@@ -1,4 +1,3 @@
-// resources.vm.properties.storageProfile.copy
 [
     {
         "name": "dataDisks",

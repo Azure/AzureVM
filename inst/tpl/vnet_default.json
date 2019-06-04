@@ -1,7 +1,7 @@
 {
     "apiVersion": "2018-11-01",
     "type": "Microsoft.Network/virtualNetworks",
-    "name": "[parameters('vmName')]",
+    "name": "[variables('vnetName')]",
     "location": "[variables('location')]",
     "dependsOn": [
         "[variables('nsgRef')]"
@@ -16,6 +16,9 @@
             {
                 "name": "[variables('subnet')]",
                 "properties": {
+                    "networkSecurityGroup": {
+                        "id": "[variables('nsgId')]"
+                    },
                     "addressPrefix": "10.0.0.0/24"
                 }
             }

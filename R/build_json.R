@@ -1,62 +1,16 @@
 #' @export
 build_template_definition.vm_config <- function(config, ...)
 {
-    add_template_parameters <- function(...)
-    {
-        new_params <- lapply(list(...), function(obj) list(type=obj))
-        params <<- c(params, new_params)
-    }
-
-    params <- tpl_parameters_default
-
-    if(config$keylogin)
-        add_template_parameters(sshKeyData="string")
-    else add_template_parameters(adminPassword="securestring")
-
-    if(inherits(config$image, "image_marketplace"))
-        add_template_parameters(imagePublisher="string", imageOffer="string", imageSku="string", imageVersion="string")
-    else add_template_parameters(imageId="string")
-
-    if(!is_empty(config$nsg_rules))
-        add_template_parameters(nsgrules="array")
-
-    n_disks <- length(config$datadisks)
-    n_disk_resources <- if(n_disks > 0)
-        sum(sapply(config$datadisks, function(x) !is.null(x$res_spec)))
-    else 0
-
-    if(n_disks > 0)
-    {
-        add_template_parameters(dataDisks="array", dataDiskResources="array")
-        config$vm$properties$storageProfile$copy <- vm_datadisk
-        if(n_disk_resources > 0)
-            config$vm$dependsOn <- c(config$vm$dependsOn, "managedDiskResources")
-    }
-
-    if(config$managed)
-        config$vm$identity <- list(type="systemAssigned")
-
-    config$vm$properties$osProfile <- c(config$vm$properties$osProfile,
-        if(config$keylogin) vm_key_login else vm_pwd_login)
-
     tpl <- list(
         `$schema`="http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
         contentVersion="1.0.0.0",
-        parameters=params,
-        variables=tpl_variables_default,
-        resources=list(
-            config$nic, config$nsg, config$vnet, config$ip, config$vm
-        ),
+        parameters=add_template_parameters(config),
+        variables=add_template_variables(config),
+        resources=add_template_resources(config),
         outputs=tpl_outputs_default
     )
 
-    if(n_disk_resources > 0)
-        tpl$resources <- c(tpl$resources, list(disk_default))
-
-    if(!is_empty(config$other))
-        tpl$resources <- c(tpl$resources, config$other)
-
-    jsonlite::toJSON(tpl, pretty=TRUE, auto_unbox=TRUE, null="null")
+    jsonlite::prettify(jsonlite::toJSON(tpl, auto_unbox=TRUE, null="null"))
 }
 
 
@@ -114,7 +68,6 @@ build_template_parameters.vm_config <- function(config, name, login_user, size, 
                 config$datadisks[[i]]$res_spec$name <- newdiskname
                 config$datadisks[[i]]$vm_spec$name <- newdiskname
             }
-            
         }
 
         disk_res_spec <- lapply(config$datadisks, `[[`, "res_spec")
@@ -126,6 +79,7 @@ build_template_parameters.vm_config <- function(config, name, login_user, size, 
         )
     }
 
-    jsonlite::toJSON(params, pretty=TRUE, auto_unbox=TRUE, null="null")
+    jsonlite::prettify(jsonlite::toJSON(params, auto_unbox=TRUE, null="null"))
 }
+
 

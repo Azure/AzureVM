@@ -19,6 +19,7 @@ Imports:
     jsonlite
 Suggests:
     knitr,
-    testthat
+    testthat,
+    iptools
 Roxygen: list(markdown=TRUE)
 RoxygenNote: 6.1.1

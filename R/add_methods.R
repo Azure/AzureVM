@@ -449,6 +449,8 @@ add_rg_methods <- function()
     function(name, login_user, size="Standard_DS3_v2", config="ubuntu_dsvm_ss", managed=TRUE, datadisks=numeric(0),
              scaleset, ..., template, parameters, mode="Incremental", wait=TRUE)
     {
+        stopifnot(inherits(login_user, "user_config"))
+
         if(is.character(config))
             config <- get(config, getNamespace("AzureVM"))
         if(is.function(config))

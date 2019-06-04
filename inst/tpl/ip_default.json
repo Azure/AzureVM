@@ -1,7 +1,7 @@
 {
     "apiVersion": "2018-11-01",
     "type": "Microsoft.Network/publicIPAddresses",
-    "name": "[parameters('vmName')]",
+    "name": "[variables('ipName')]",
     "location": "[variables('location')]",
     "properties": {
         "publicIPAllocationMethod": "Dynamic",

@@ -1,4 +1,3 @@
-// resources.nsg.properties.securityRules
 {
     "name": "Allow-RStudio-Server",
     "properties": {
