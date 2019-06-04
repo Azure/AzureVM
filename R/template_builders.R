@@ -109,19 +109,23 @@ add_template_resources.vm_config <- function(config, ...)
 
     existing <- sapply(config[c("nsg", "ip", "vnet", "nic")], existing_resource)
     dontcreate <- sapply(config[c("nsg", "ip", "vnet", "nic")], is.null)
-    created <- !existing && !dontcreate
+    created <- !existing & !dontcreate
 
     ## fixup dependencies between resources
     # vnet depends on nsg
     # nic depends on ip, vnet (possibly nsg)
     # vm depends on nic (but nic should always be created)
+
     if(!created["nsg"])
         vnet$depends <- list()
 
     nic_created_depends <- created[c("ip", "vnet")]
     nic$depends <- nic$depends[nic_created_depends]
 
-    resources <- list(nsg, ip, vnet, nic)[created]
+    resources <- mapply(utils::modifyList,
+        list(nsg, ip, vnet, nic)[created],
+        config[c("nsg", "ip", "vnet", "nic")][created],
+        SIMPLIFY=FALSE)
 
     if(n_disk_resources > 0)
         resources <- c(resources, list(disk_default))

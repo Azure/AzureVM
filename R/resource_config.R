@@ -102,7 +102,7 @@ nsg_config <- function(rules=list(), ...)
 ip_config <- function(allocation="dynamic", ipv6=FALSE, ...)
 {
     version <- if(ipv6) "IPv6" else "IPv4"
-    props <- list(publicIPAllocationMethod=allocation, publicIPAddressVersion=version)
+    props <- list(publicIPAllocationMethod=allocation, publicIPAddressVersion=version, ...)
     structure(list(properties=props), class="ip_config")
 }
 
