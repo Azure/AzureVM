@@ -41,19 +41,6 @@ build_template_parameters.vm_config <- function(config, name, login_user, size, 
         )
     else add_parameters(imageId=config$image$id)
 
-    # add nsg_rules to params
-    if(!is_empty(config$nsg_rules))
-    {
-        # fixup rule priorities (if not specified)
-        for(i in seq_along(config$nsg_rules))
-        {
-            if(is_empty(config$nsg_rules[[i]]$properties$priority))
-                config$nsg_rules[[i]]$properties$priority <- 1000 + 10 * i
-        }
-        add_parameters(nsgRules=lapply(config$nsg_rules, unclass))
-    }
-    else add_parameters(nsgRules=logical(0))
-
     # add datadisks to params
     if(!is_empty(config$datadisks))
     {

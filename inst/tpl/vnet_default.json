@@ -6,22 +6,5 @@
     "dependsOn": [
         "[variables('nsgRef')]"
     ],
-    "properties": {
-        "addressSpace": {
-            "addressPrefixes": [
-                "10.0.0.0/16"
-            ]
-        },
-        "subnets": [
-            {
-                "name": "[variables('subnet')]",
-                "properties": {
-                    "networkSecurityGroup": {
-                        "id": "[variables('nsgId')]"
-                    },
-                    "addressPrefix": "10.0.0.0/24"
-                }
-            }
-        ]
-    }
+    "properties": {}
 }

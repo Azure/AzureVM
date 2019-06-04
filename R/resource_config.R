@@ -93,16 +93,19 @@ nsg_rule_config <- function(name, dest_port="*", dest_addr="*", dest_asgs=NULL,
 nsg_config <- function(rules=list(), ...)
 {
     stopifnot(is.list(rules))
-    props <- list(securityRules=rules, ...)
+    props <- list(securityRules=lapply(rules, unclass), ...)
     structure(list(properties=props), class="nsg_config")
 }
 
 
 #' @export
-ip_config <- function(allocation="dynamic", ipv6=FALSE, ...)
+ip_config <- function(allocation="dynamic", ipv6=FALSE, domain_name="[parameters('vmName')]", ...)
 {
     version <- if(ipv6) "IPv6" else "IPv4"
     props <- list(publicIPAllocationMethod=allocation, publicIPAddressVersion=version, ...)
+    if(!is.null(domain_name))
+        props$dnsSettings$domainNameLabel <- domain_name
+
     structure(list(properties=props), class="ip_config")
 }
 
@@ -125,7 +128,7 @@ vnet_config <- function(address_space="10.0.0.0/16", subnets=list(subnet_config(
             stop("Not a subnet object", call.=FALSE)
 
         if(!is_empty(sn$properties$addressPrefix))
-            sn$properties$addressPrefix <- I(fixaddr(sn$properties$addressPrefix))
+            sn$properties$addressPrefix <- fixaddr(sn$properties$addressPrefix)
         if(!is_empty(sn$properties$addressPrefixes))
             sn$properties$addressPrefixes <- sapply(sn$properties$addressPrefixes, fixaddr)
 
@@ -136,15 +139,14 @@ vnet_config <- function(address_space="10.0.0.0/16", subnets=list(subnet_config(
     if(length(subnets) > 1)
     {
         sn_names <- make.unique(sapply(subnets, `[[`, "name"))
+        sn_names[1] <- paste0(sn_names[1], "0")
         for(i in seq_along(subnets))
             subnets[[i]]$name <- sn_names[i]
     }
 
     props <- list(
-        addressSpace=list(
-            addressPrefixes=I(address_space),
-            subnets=subnets
-        ),
+        addressSpace=list(addressPrefixes=I(address_space)),
+        subnets=subnets,
         ...
     )
     structure(list(properties=props), class="vnet_config")
@@ -152,10 +154,10 @@ vnet_config <- function(address_space="10.0.0.0/16", subnets=list(subnet_config(
 
 
 #' @export
-subnet_config <- function(name="subnet", addresses="10.0.0.0/24", nsg=NULL, ...)
+subnet_config <- function(name="subnet", addresses="10.0.0.0/24", nsg="[variables('nsgId')]", ...)
 {
     properties <- if(length(addresses) < 2)
-        list(addressPrefix=I(addresses), ...)
+        list(addressPrefix=addresses, ...)
     else list(addressPrefixes=addresses, ...)
 
     # check if supplied a network security group resource ID or object
@@ -172,9 +174,15 @@ subnet_config <- function(name="subnet", addresses="10.0.0.0/24", nsg=NULL, ...)
 
 
 #' @export
-nic_ip_config <- function(name="ipconfig", private_alloc="dynamic", ...)
+nic_ip_config <- function(name="ipconfig", private_alloc="dynamic", subnet="[variables('subnetId')]", 
+                          public_address="[variables('ipId')]", ...)
 {
-    props <- list(privateIPAllocationMethod=private_alloc, ...)
+    props <- list(
+        privateIPAllocationMethod=private_alloc,
+        subnet=list(id=subnet),
+        publicIPAddress=list(id=public_address),
+        ...
+    )
     structure(list(name=name, properties=props), class="nic_ip_config")
 }
 
@@ -186,10 +194,11 @@ nic_config <- function(nic_ip=list(nic_ip_config()), ...)
     if(length(nic_ip) > 1)
     {
         ip_names <- make.unique(sapply(nic_ip, `[[`, "name"))
+        ip_names[1] <- paste0(ip_names[1], "0")
         for(i in seq_along(nic_ip))
             nic_ip[[i]]$name <- ip_names[i]
     }
 
     props <- list(ipConfigurations=lapply(nic_ip, unclass), ...)
-    structure(props, class="nic_config")
+    structure(list(properties=props), class="nic_config")
 }

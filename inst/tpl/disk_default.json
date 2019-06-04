@@ -1,7 +1,7 @@
 {
+    "apiVersion": "2018-09-30",
     "name": "[parameters('dataDiskResources')[copyIndex()].name]",
     "type": "Microsoft.Compute/disks",
-    "apiVersion": "2018-09-30",
     "location": "[variables('location')]",
     "properties": {
         "diskSizeGB": "[parameters('dataDiskResources')[copyIndex()].diskSizeGB]",

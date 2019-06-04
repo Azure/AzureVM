@@ -26,7 +26,7 @@ add_template_parameters.vm_config <- function(config, ...)
         add_param(nsgrules="array")
 
     if(length(config$datadisks) > 0)
-        add_template_parameters(dataDisks="array", dataDiskResources="array")
+        add_param(dataDisks="array", dataDiskResources="array")
 
     params
 }
@@ -63,10 +63,10 @@ add_template_variables.vm_config <- function(config, ...)
         }
     }
 
-    # if we were passed a vnet resource object, extract the 1st subnet name
-    if(is_resource(config$vnet))
+    # if we have a vnet, extract the 1st subnet name
+    if(inherits(config$vnet, "vnet_config") || is_resource(config$vnet))
         vars$subnet <- config$vnet$properties$subnets[[1]]$name
-
+    
     vars
 }
 
@@ -108,8 +108,14 @@ add_template_resources.vm_config <- function(config, ...)
         vm$properties$storageProfile$imageReference <- list(id="[parameters('imageId')]")
 
     existing <- sapply(config[c("nsg", "ip", "vnet", "nic")], existing_resource)
-    dontcreate <- sapply(config[c("nsg", "ip", "vnet", "nic")], is.null)
-    created <- !existing & !dontcreate
+    unused <- sapply(config[c("nsg", "ip", "vnet", "nic")], is.null)
+    created <- !existing & !unused
+
+    # fixup nsg security rule priorities
+    for(i in seq_along(config$nsg$properties$securityRules))
+    {
+        config$nsg$properties$securityRules[[i]]$properties$priority <- 1000 + 10 * i
+    }
 
     ## fixup dependencies between resources
     # vnet depends on nsg
@@ -117,10 +123,15 @@ add_template_resources.vm_config <- function(config, ...)
     # vm depends on nic (but nic should always be created)
 
     if(!created["nsg"])
-        vnet$depends <- list()
+        vnet$dependsOn <- NULL
+
+    if(unused["nsg"])
+        config$vnet$properties$subnets[[1]]$properties$networkSecurityGroup <- NULL
 
     nic_created_depends <- created[c("ip", "vnet")]
-    nic$depends <- nic$depends[nic_created_depends]
+    nic$dependsOn <- nic$dependsOn[nic_created_depends]
+    if(unused["ip"])
+        config$nic$properties$ipConfigurations[[1]]$properties$publicIPAddress <- NULL
 
     resources <- mapply(utils::modifyList,
         list(nsg, ip, vnet, nic)[created],
@@ -130,7 +141,7 @@ add_template_resources.vm_config <- function(config, ...)
     if(n_disk_resources > 0)
         resources <- c(resources, list(disk_default))
 
-    resources <- c(resources, list(vm_config))
+    resources <- c(resources, list(vm))
 
     if(!is_empty(config$other))
         resources <- c(resources, config$other)

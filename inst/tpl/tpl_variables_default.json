@@ -1,6 +1,5 @@
 {
     "location": "[resourceGroup().location]",
-    "subnet": "Subnet1",
     "nicName": "[concat(parameters('vmName'), '-nic')]",
     "nsgName": "[concat(parameters('vmName'), '-nsg')]",
     "vnetName": "[concat(parameters('vmName'), '-vnet')]",
@@ -14,5 +13,7 @@
     "ipId": "[resourceId('Microsoft.Network/publicIPAddresses', variables('ipName'))]",
     "ipRef": "[concat('Microsoft.Network/publicIPAddresses/', variables('ipName'))]",
     "vmId": "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]",
-    "vmRef": "[concat('Microsoft.Compute/virtualMachines/', parameters('vmName'))]"
+    "vmRef": "[concat('Microsoft.Compute/virtualMachines/', parameters('vmName'))]",
+    "subnet": "Subnet",
+    "subnetId": "[concat(variables('vnetId'), '/subnets/', variables('subnet'))]"
 }
