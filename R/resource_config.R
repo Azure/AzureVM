@@ -9,7 +9,7 @@ user_config <- function(username, sshkey=NULL, password=NULL)
         stop("Supply either a login password or SSH key, but not both", call.=FALSE)
 
     if(key && file.exists(sshkey))
-        key <- readLines(sshkey)
+        sshkey <- readLines(sshkey)
 
     structure(list(user=username, key=sshkey, pwd=password), class="user_config")
 }
