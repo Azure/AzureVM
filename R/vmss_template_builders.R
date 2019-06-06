@@ -63,6 +63,7 @@ add_template_resources.vmss_config <- function(config, ...)
     vnet <- vnet_default
     lb <- lb_default
     ip <- ip_default
+    as <- as_default
     vmss <- vmss_default
 
     # fixup VMSS properties
@@ -86,10 +87,13 @@ add_template_resources.vmss_config <- function(config, ...)
 
     if(!is_empty(config$lb))
     {
-        vm$networkProfile$
-            networkInterfaceConfigurations[[1]]$properties$
-                ipConfigurations[[1]]$properties$
-                    loadBalancerBackendAddressPools <- list(id="[variables('lbBackendId')]")
+        vm$
+            networkProfile$
+                networkInterfaceConfigurations[[1]]$
+                    properties$
+                        ipConfigurations[[1]]$
+                            properties$
+                                loadBalancerBackendAddressPools <- list(id="[variables('lbBackendId')]")  # lol
     }
 
     vmss$properties$virtualMachineProfile <- vm
@@ -105,9 +109,25 @@ add_template_resources.vmss_config <- function(config, ...)
     # vnet depends on nsg
     # vmss depends on lb
 
+    existing <- sapply(config[c("nsg", "vnet", "lb", "ip", "as")], existing_resource)
+    unused <- sapply(config[c("nsg", "vnet", "lb", "ip", "as")], is.null)
+    created <- !existing & !unused
+
     if(!created["nsg"])
         vnet$dependsOn <- NULL
 
     if(unused["nsg"])
         config$vnet$properties$subnets[[1]]$properties$networkSecurityGroup <- NULL
+
+    resources <- mapply(utils::modifyList,
+        list(nsg, vnet, lb, ip, as)[created],
+        config[c("nsg", "vnet", "lb", "ip", "as")][created],
+        SIMPLIFY=FALSE)
+
+    resources <- c(resources, list(vm))
+
+    if(!is_empty(config$other))
+        resources <- c(resources, config$other)
+
+    resources
 }

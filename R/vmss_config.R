@@ -21,7 +21,7 @@ vmss_config <- function(image, keylogin, managed=TRUE, public_nodes=FALSE,
         image=image,
         keylogin=keylogin,
         managed=managed,
-        public=public,
+        public_nodes=public_nodes,
         nsg=nsg,
         vnet=vnet,
         lb=load_balancer,
@@ -34,26 +34,26 @@ vmss_config <- function(image, keylogin, managed=TRUE, public_nodes=FALSE,
 }
 
 
-ubuntu_dsvm_ss <- function(keylogin=TRUE, managed=TRUE, public=FALSE,
+ubuntu_dsvm_ss <- function(keylogin=TRUE, managed=TRUE, public_nodes=FALSE,
                            nsg=nsg_config(list(nsg_rule_allow_ssh, nsg_rule_allow_jupyter, nsg_rule_allow_rstudio)),
                            ...)
 {
     vmss_config(image_config("microsoft-dsvm", "linux-data-science-vm-ubuntu", "linuxdsvmubuntu"),
-                keylogin, managed, public, nsg, ...)
+                keylogin, managed, public_nodes, nsg, ...)
 }
 
-ubuntu_1804_ss <- function(keylogin=TRUE, managed=TRUE, public=FALSE,
+ubuntu_1804_ss <- function(keylogin=TRUE, managed=TRUE, public_nodes=FALSE,
                            nsg=nsg_config(list(nsg_rule_allow_ssh)), ...)
 {
     vmss_config(image_config("Canonical", "UbuntuServer", "18.04-LTS"),
-                keylogin, managed, public, nsg, ...)
+                keylogin, managed, public_nodes, nsg, ...)
 }
 
-windows_2019_ss <- function(keylogin=FALSE, managed=TRUE, public=FALSE,
+windows_2019_ss <- function(keylogin=FALSE, managed=TRUE, public_nodes=FALSE,
                             nsg=nsg_config(list(nsg_rule_allow_rdp)), ...)
 {
     win_key_check(keylogin)
     vmss_config(image_config("Canonical", "UbuntuServer", "18.04-LTS"),
-                FALSE, managed, public, nsg, ...)
+                FALSE, managed, public_nodes, nsg, ...)
 }
 

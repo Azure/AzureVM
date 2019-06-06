@@ -90,10 +90,6 @@ add_template_resources.vm_config <- function(config, ...)
     if(inherits(config$image, "image_custom"))
         vm$properties$storageProfile$imageReference <- list(id="[parameters('imageId')]")
 
-    existing <- sapply(config[c("nsg", "ip", "vnet", "nic")], existing_resource)
-    unused <- sapply(config[c("nsg", "ip", "vnet", "nic")], is.null)
-    created <- !existing & !unused
-
     # fixup nsg security rule priorities
     for(i in seq_along(config$nsg$properties$securityRules))
     {
@@ -105,6 +101,10 @@ add_template_resources.vm_config <- function(config, ...)
     # vnet depends on nsg
     # nic depends on ip, vnet (possibly nsg)
     # vm depends on nic (but nic should always be created)
+
+    existing <- sapply(config[c("nsg", "ip", "vnet", "nic")], existing_resource)
+    unused <- sapply(config[c("nsg", "ip", "vnet", "nic")], is.null)
+    created <- !existing & !unused
 
     if(!created["nsg"])
         vnet$dependsOn <- NULL
