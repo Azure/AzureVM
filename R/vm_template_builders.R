@@ -1,9 +1,3 @@
-add_template_parameters <- function(config, ...)
-{
-    UseMethod("add_template_parameters")
-}
-
-
 add_template_parameters.vm_config <- function(config, ...)
 {
     add_param <- function(...)
@@ -22,19 +16,13 @@ add_template_parameters.vm_config <- function(config, ...)
         add_param(imagePublisher="string", imageOffer="string", imageSku="string", imageVersion="string")
     else add_param(imageId="string")
 
-    if(!is_empty(config$nsg_rules))
+    if(inherits(config$nsg, "nsg_config"))
         add_param(nsgrules="array")
 
     if(length(config$datadisks) > 0)
         add_param(dataDisks="array", dataDiskResources="array")
 
     params
-}
-
-
-add_template_variables <- function(config, ...)
-{
-    UseMethod("add_template_variables")
 }
 
 
@@ -66,14 +54,9 @@ add_template_variables.vm_config <- function(config, ...)
     # if we have a vnet, extract the 1st subnet name
     if(inherits(config$vnet, "vnet_config") || is_resource(config$vnet))
         vars$subnet <- config$vnet$properties$subnets[[1]]$name
-    
-    vars
-}
 
-
-add_template_resources <- function(config, ...)
-{
-    UseMethod("add_template_resources")
+    # add any extra variables provided by the user    
+    utils::modifyList(vars, config$variables)
 }
 
 

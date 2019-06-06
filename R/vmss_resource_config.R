@@ -17,7 +17,11 @@ scaleset_options <- function(instances=2, priority="regular", on_evict="dealloca
 
 lb_config <- function(rules=list(), probes=list())
 {
-    rule_probes <- sapply(rules, function(x) basename(x$properties$probe$id))
+    rule_probes <- sapply(rules, function(x)
+    {
+        probe_id <- x$properties$probe$id
+
+    })
     probe_names <- sapply(probes, `[[`, "name")
     if(!is_empty(rule_probes))
     {
@@ -49,8 +53,8 @@ lb_probe_config <- function(port, interval=5, fail_on=2, protocol="Tcp")
 lb_rule_config <- function(name, frontend_port, backend_port=frontend_port, protocol="Tcp", timeout=5,
                            floating_ip=FALSE, probe_name=paste("probe", protocol, frontend_port, sep="-"))
 {
-    frontend_id <- "[concat(variables('lbId'), '/frontendIPConfigurations/frontendIp')]"
-    backend_id <- "[concat(variables('lbId'), '/backendAddressPools/backendPool')]"
+    frontend_id <- "[variables('lbFrontendId')]"
+    backend_id <- "[variables('lbBackendId')]"
     probe_id <- sprintf("[concat(variables('lbId'), '/probes/%s')]", probe_name)
 
     props <- list(

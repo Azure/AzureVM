@@ -25,6 +25,23 @@ build_template_definition.vm_config <- function(config, ...)
 
 #' @rdname build_template
 #' @export
+build_template_definition.vmss_config <- function(config, ...)
+{
+    tpl <- list(
+        `$schema`="http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+        contentVersion="1.0.0.0",
+        parameters=add_template_parameters(config),
+        variables=add_template_variables(config),
+        resources=add_template_resources(config),
+        outputs=tpl_outputs_default
+    )
+
+    jsonlite::prettify(jsonlite::toJSON(tpl, auto_unbox=TRUE, null="null"))
+}
+
+
+#' @rdname build_template
+#' @export
 build_template_parameters.vm_config <- function(config, name, login_user, size, ...)
 {
     add_parameters <- function(...)
@@ -80,3 +97,19 @@ build_template_parameters.vm_config <- function(config, name, login_user, size, 
 }
 
 
+add_template_parameters <- function(config, ...)
+{
+    UseMethod("add_template_parameters")
+}
+
+
+add_template_variables <- function(config, ...)
+{
+    UseMethod("add_template_variables")
+}
+
+
+add_template_resources <- function(config, ...)
+{
+    UseMethod("add_template_resources")
+}

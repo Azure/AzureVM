@@ -247,3 +247,49 @@ nic_ip_config <- function(name="ipconfig", private_alloc="dynamic", subnet="[var
     )
     structure(list(name=name, properties=props), class="nic_ip_config")
 }
+
+
+#' Network security rules
+#'
+#' @section Usage:
+#' ```
+#' nsg_rule_allow_http
+#' nsg_rule_allow_https
+#' nsg_rule_allow_jupyter
+#' nsg_rule_allow_rdp
+#' nsg_rule_allow_rstudio
+#' nsg_rule_allow_ssh
+#' ```
+#' @section Details:
+#' These are the default network security rules provided by AzureVM. They are setup to allow specific ports through the Azure firewall. You should only allow the ports that you need.
+#' - HTTP: TCP port 80
+#' - HTTPS: TCP port 443
+#' - JupyterHub: TCP port 8000
+#' - RDP: TCP port 3389
+#' - RStudio Server: TCP port 8787
+#' - SSH: TCP port 22
+#' @docType data
+#' @rdname nsg_rule
+#' @export
+nsg_rule_allow_ssh <- nsg_rule_config("Allow-ssh", 22)
+
+#' @rdname nsg_rule
+#' @export
+nsg_rule_allow_http <- nsg_rule_config("Allow-http", 80)
+
+#' @rdname nsg_rule
+#' @export
+nsg_rule_allow_https <- nsg_rule_config("Allow-https", 443)
+
+#' @rdname nsg_rule
+#' @export
+nsg_rule_allow_rdp <- nsg_rule_config("Allow-rdp", 3389)
+
+#' @rdname nsg_rule
+#' @export
+nsg_rule_allow_jupyter <- nsg_rule_config("Allow-jupyter", 8000)
+
+#' @rdname nsg_rule
+#' @export
+nsg_rule_allow_rstudio <- nsg_rule_config("Allow-rstudio", 8787)
+

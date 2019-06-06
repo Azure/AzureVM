@@ -26,7 +26,7 @@ nsg_config(rules = list(), ...)
 nsg_rule_config(name, dest_port = "*", dest_addr = "*",
   dest_asgs = NULL, source_port = "*", source_addr = "*",
   source_asgs = NULL, access = "allow", direction = "inbound",
-  protocol = "TCP", priority = NULL)
+  protocol = "Tcp", priority = NULL)
 
 ip_config(allocation = "dynamic", ipv6 = FALSE,
   domain_name = "[parameters('vmName')]", ...)

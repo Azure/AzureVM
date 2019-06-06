@@ -15,7 +15,7 @@
 \usage{
 vm_config(image, keylogin, managed = TRUE, datadisks = numeric(0),
   nsg = nsg_config(), ip = ip_config(), vnet = vnet_config(),
-  nic = nic_config(), other_resources = list())
+  nic = nic_config(), other_resources = list(), variables = list())
 
 ubuntu_dsvm(keylogin = TRUE, managed = TRUE, datadisks = numeric(0),
   nsg = nsg_config(list(nsg_rule_allow_ssh, nsg_rule_allow_jupyter,
@@ -67,6 +67,8 @@ debian9_backports(keylogin = TRUE, managed = TRUE,
 \item{nic}{The network interface for the VM. Can be a call to \code{nic_config} to create a new interface, or an AzureRMR resource object or resource ID to reuse an existing interface.}
 
 \item{other_resources}{An optional list of other resources to include in the deployment.}
+
+\item{variables}{An optional named list of variables to add to the template.}
 
 \item{...}{For the specific VM configurations, other customisation arguments to be passed to \code{vm_config}.}
 }

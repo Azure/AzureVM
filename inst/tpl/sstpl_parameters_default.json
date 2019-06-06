@@ -1,0 +1,35 @@
+{
+    "vmName": {
+        "type": "string"
+    },
+    "vmSize": {
+        "type": "string"
+    },
+    "adminUsername": {
+        "type": "string"
+    },
+    "instanceCount": {
+        "type": "string"
+    },
+    "priority": {
+        "type": "string"
+    },
+    "evictionPolicy": {
+        "type": "string"
+    },
+    "enableAcceleratedNetworking": {
+        "type": "string"
+    },
+    "singlePlacementGroup": {
+        "type": "string"
+    },
+    "large_scaleset": {
+        "type": "string"
+    },
+    "overprovision":{
+        "type": "string"
+    },
+    "upgradePolicy":{
+        "type": "string"
+    }
+}

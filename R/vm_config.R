@@ -9,6 +9,7 @@
 #' @param vnet The virtual network for the VM. Can be a call to `vnet_config` to create a new virtual network, or an AzureRMR resource object or resource ID to reuse an existing virtual network.
 #' @param nic The network interface for the VM. Can be a call to `nic_config` to create a new interface, or an AzureRMR resource object or resource ID to reuse an existing interface.
 #' @param other_resources An optional list of other resources to include in the deployment.
+#' @param variables An optional named list of variables to add to the template.
 #' @param ... For the specific VM configurations, other customisation arguments to be passed to `vm_config`.
 #'
 #' @export
@@ -18,7 +19,8 @@ vm_config <- function(image, keylogin, managed=TRUE,
                       ip=ip_config(),
                       vnet=vnet_config(),
                       nic=nic_config(),
-                      other_resources=list())
+                      other_resources=list(),
+                      variables=list())
 {
     if(is.numeric(datadisks))
         datadisks <- lapply(datadisks, datadisk_config)
@@ -35,7 +37,8 @@ vm_config <- function(image, keylogin, managed=TRUE,
         ip=ip,
         vnet=vnet,
         nic=nic,
-        other=other_resources
+        other=other_resources,
+        variables=variables
     )
     structure(obj, class="vm_config")
 }

@@ -388,33 +388,6 @@ add_sub_methods <- function()
 
         resource_group$delete_vm_scaleset(name, confirm=confirm, free_resources=free_resources)
     })
-
-
-    az_subscription$set("public", "list_vms", overwrite=TRUE, function()
-    {
-        provider <- "Microsoft.Compute"
-        path <- "virtualMachines"
-        api_version <- self$get_provider_api_version(provider, path)
-
-        op <- file.path("providers", provider, path)
-
-        cont <- call_azure_rm(self$token, self$id, op, api_version=api_version)
-        lst <- lapply(cont$value,
-        function(parms) AzureVM::az_vm_resource$new(self$token, self$id, deployed_properties=parms))
-        # keep going until paging is complete
-        while(!is_empty(cont$nextLink))
-        {
-            cont <- call_azure_url(self$token, cont$nextLink)
-            lst <- lapply(cont$value,
-            function(parms) AzureVM::az_vm_resource$new(self$token, self$id, deployed_properties=parms))
-        }
-
-        # namespace shenanigans: get unexported function from AzureVM
-        convert_to_vm_template <- get("convert_to_vm_template", loadNamespace("AzureVM"))
-
-        # get templates corresponding to raw VMs (if possible)
-        lapply(named_list(lst), convert_to_vm_template)
-    })
 }
 
 
@@ -527,36 +500,6 @@ add_rg_methods <- function()
     function(...)
     {
         .Defunct(msg="The 'delete_vm_cluster' method is defunct.\nUse 'delete_vm_scaleset' instead.")
-    })
-
-
-    az_resource_group$set("public", "list_vms", overwrite=TRUE, function()
-    {
-        provider <- "Microsoft.Compute"
-        path <- "virtualMachines"
-        api_version <- az_subscription$
-            new(self$token, self$subscription)$
-            get_provider_api_version(provider, path)
-
-        op <- file.path("resourceGroups", self$name, "providers", provider, path)
-
-        cont <- call_azure_rm(self$token, self$subscription, op, api_version=api_version)
-        lst <- lapply(cont$value,
-        function(parms) AzureVM::az_vm_resource$new(self$token, self$subscription, deployed_properties=parms))
-
-        # keep going until paging is complete
-        while(!is_empty(cont$nextLink))
-        {
-            cont <- call_azure_url(self$token, cont$nextLink)
-            lst <- lapply(cont$value,
-            function(parms) AzureVM::az_vm_resource$new(self$token, self$subscription, deployed_properties=parms))
-        }
-
-        # namespace shenanigans: get unexported function from AzureVM
-        convert_to_vm_template <- get("convert_to_vm_template", loadNamespace("AzureVM"))
-
-        # get templates corresponding to raw VMs (if possible)
-        lapply(named_list(lst), convert_to_vm_template)
     })
 
 

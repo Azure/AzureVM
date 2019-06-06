@@ -12,7 +12,7 @@
     "properties": {
         "frontendIPConfigurations": [
             {
-                "name": "frontendIp",
+                "name": "[variables('lbFrontendName')]",
                 "properties": {
                     "publicIPAddress": {
                         "id": "[variables('ipId')]"
@@ -22,7 +22,7 @@
         ],
         "backendAddressPools": [
             {
-                "name": "backendPool"
+                "name": "[variables('lbBackendName')]"
             }
         ],
         "probes": [],
