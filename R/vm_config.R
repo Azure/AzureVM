@@ -1,14 +1,16 @@
 #' VM configuration functions
 #'
-#' @param image For `vm_config`, the VM image to deploy. Use `image_config` to specify this.
+#' @param image For `vm_config`, the VM image to deploy. This should be an object of class `image_config`, created by the function of the same name.
 #' @param keylogin Boolean: whether to use an SSH public key to login (TRUE) or a password (FALSE). Note that Windows does not support SSH key logins.
 #' @param managed Whether to provide a managed system identity for the VM.
 #' @param datadisks The data disks to attach to the VM. Specify this as either a vector of numeric disk sizes in GB, or a list of `datadisk_config` objects for more control over the specification.
-#' @param nsg The network security group for the VM.
-#' @param ip The public IP address for the VM.
-#' @param vnet The virtual network for the VM.
-#' @param nic The network interface for the VM.
-#' @param other_resources A list of other resources to include in the deployment.
+#' @param nsg The network security group for the VM. Can be a call to `nsg_config` to create a new NSG; an AzureRMR resource object or resource ID to reuse an existing NSG; or NULL to not use an NSG (not recommended).
+#' @param ip The public IP address for the VM. Can be a call to `ip_config` to create a new IP address; an AzureRMR resource object or resource ID to reuse an existing address resource; or NULL if the VM should not be accessible from outside its subnet.
+#' @param vnet The virtual network for the VM. Can be a call to `vnet_config` to create a new virtual network, or an AzureRMR resource object or resource ID to reuse an existing virtual network.
+#' @param nic The network interface for the VM. Can be a call to `nic_config` to create a new interface, or an AzureRMR resource object or resource ID to reuse an existing interface.
+#' @param other_resources An optional list of other resources to include in the deployment.
+#' @param ... For the specific VM configurations, other customisation arguments to be passed to `vm_config`.
+#'
 #' @export
 vm_config <- function(image, keylogin, managed=TRUE,
                       datadisks=numeric(0),

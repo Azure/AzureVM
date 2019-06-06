@@ -3,5 +3,8 @@
     "type": "Microsoft.Network/publicIPAddresses",
     "name": "[variables('ipName')]",
     "location": "[variables('location')]",
-    "properties": {}
+    "properties": {},
+    "sku": {
+        "name": "Standard"
+    }
 }

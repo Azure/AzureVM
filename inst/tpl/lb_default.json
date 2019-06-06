@@ -1,0 +1,31 @@
+{
+    "apiVersion": "2018-11-01",
+    "type": "Microsoft.Network/loadBalancers",
+    "name": "[variables('lbName')]",
+    "location": "[variables('location')]",
+    "dependsOn": [
+        "[variables('ipRef')]"
+    ],
+    "sku": {
+        "name": "Standard"
+    },
+    "properties": {
+        "frontendIPConfigurations": [
+            {
+                "name": "frontendIp",
+                "properties": {
+                    "publicIPAddress": {
+                        "id": "[variables('ipId')]"
+                    }
+                }
+            }
+        ],
+        "backendAddressPools": [
+            {
+                "name": "backendPool"
+            }
+        ],
+        "probes": [],
+        "loadBalancingRules": []
+    }
+}

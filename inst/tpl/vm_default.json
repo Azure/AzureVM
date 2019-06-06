@@ -26,7 +26,7 @@
             },
             "osDisk": {
                 "managedDisk": {
-                    "storageAccountType": "Standard_LRS"           
+                    "storageAccountType": "Premium_LRS"
                 },
                 "createOption": "FromImage"
             }

@@ -50,7 +50,7 @@ debian9_backports(keylogin = TRUE, managed = TRUE,
   ...)
 }
 \arguments{
-\item{image}{For \code{vm_config}, the VM image to deploy. Use \code{image_config} to specify this.}
+\item{image}{For \code{vm_config}, the VM image to deploy. This should be an object of class \code{image_config}, created by the function of the same name.}
 
 \item{keylogin}{Boolean: whether to use an SSH public key to login (TRUE) or a password (FALSE). Note that Windows does not support SSH key logins.}
 
@@ -58,15 +58,17 @@ debian9_backports(keylogin = TRUE, managed = TRUE,
 
 \item{datadisks}{The data disks to attach to the VM. Specify this as either a vector of numeric disk sizes in GB, or a list of \code{datadisk_config} objects for more control over the specification.}
 
-\item{nsg}{The network security group for the VM.}
+\item{nsg}{The network security group for the VM. Can be a call to \code{nsg_config} to create a new NSG; an AzureRMR resource object or resource ID to reuse an existing NSG; or NULL to not use an NSG (not recommended).}
 
-\item{ip}{The public IP address for the VM.}
+\item{ip}{The public IP address for the VM. Can be a call to \code{ip_config} to create a new IP address; an AzureRMR resource object or resource ID to reuse an existing address resource; or NULL if the VM should not be accessible from outside its subnet.}
 
-\item{vnet}{The virtual network for the VM.}
+\item{vnet}{The virtual network for the VM. Can be a call to \code{vnet_config} to create a new virtual network, or an AzureRMR resource object or resource ID to reuse an existing virtual network.}
 
-\item{nic}{The network interface for the VM.}
+\item{nic}{The network interface for the VM. Can be a call to \code{nic_config} to create a new interface, or an AzureRMR resource object or resource ID to reuse an existing interface.}
 
-\item{other_resources}{A list of other resources to include in the deployment.}
+\item{other_resources}{An optional list of other resources to include in the deployment.}
+
+\item{...}{For the specific VM configurations, other customisation arguments to be passed to \code{vm_config}.}
 }
 \description{
 VM configuration functions

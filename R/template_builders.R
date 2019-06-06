@@ -114,7 +114,8 @@ add_template_resources.vm_config <- function(config, ...)
     # fixup nsg security rule priorities
     for(i in seq_along(config$nsg$properties$securityRules))
     {
-        config$nsg$properties$securityRules[[i]]$properties$priority <- 1000 + 10 * i
+        if(is_empty(config$nsg$properties$securityRules[[i]]$properties$priority))
+            config$nsg$properties$securityRules[[i]]$properties$priority <- 1000 + 10 * i
     }
 
     ## fixup dependencies between resources
@@ -166,10 +167,6 @@ modify_resource <- function(resource, ...)
 
     tpl <- res_update_deployment
     tpl$properties$template$resources[[1]] <- utils::modifyList(reslist, list(...))
-    tpl$name <- paste0("update_", name)
-    tpl$resourceGroup <- resource_group
-    if(!is_empty(depends))
-        tpl$dependsOn <- depends
 
     tpl
 }

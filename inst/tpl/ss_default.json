@@ -1,0 +1,54 @@
+{
+    "apiVersion": "2019-03-01",
+    "type": "Microsoft.Compute/virtualMachineScaleSets",
+    "name": "[parameters('vmssName')]",
+    "location": "[variables('location')]",
+    "dependsOn": [
+        "[variables('vnetRef')]"
+    ],
+    "sku": {
+        "name": "[parameters('vmSize')]",
+        "tier": "Standard",
+        "capacity": "[int(parameters('instanceCount'))]"
+    },
+    "properties": {
+        "overprovision": "[parameters('overprovision')]",
+        "upgradePolicy": "[parameters('upgradePolicy')]",
+        "singlePlacementGroup": "[parameters('singlePlacementGroup')]",
+        "virtualMachineProfile": {
+            "priority": "[parameters('priority')]",
+            "evictionPolicy": "[parameters('evictionPolicy')]",
+            "storageProfile": {
+                "osDisk": {
+                    "createOption": "FromImage",
+                    "caching": "ReadWrite"
+                }
+            },
+            "osProfile": {
+                "computerNamePrefix": "[variables('vmPrefix')]",
+                "adminUsername": "[parameters('adminUsername')]"
+            },
+            "networkProfile": {
+                "networkInterfaceConfigurations": [
+                    {
+                        "name": "[concat(parameters('vmName'), '-nic')]",
+                        "properties": {
+                            "primary": "true",
+                            "enableAcceleratedNetworking": "[parameters('enableAcceleratedNetworking')]",
+                            "ipConfigurations": [
+                                {
+                                    "name": "[concat(parameters('vmName'), '-nic-ip')]",
+                                    "properties": {
+                                        "subnet": {
+                                            "id": "[variables('subnetId')]"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        }
+    }
+}

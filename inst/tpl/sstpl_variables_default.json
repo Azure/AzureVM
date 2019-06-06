@@ -1,0 +1,23 @@
+{
+    "location": "[resourceGroup().location]",
+    "nsgName": "[concat(parameters('vmName'), '-nsg')]",
+    "vnetName": "[concat(parameters('vmName'), '-vnet')]",
+    "ipName": "[concat(parameters('vmName'), '-ip')]",
+    "lbName": "[concat(parameters('vmName'), '-lb')]",
+    "asName": "[concat(parameters('vmName'), '-as')]",
+    "nsgId": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('nsgName'))]",
+    "nsgRef": "[concat('Microsoft.Network/networkSecurityGroups/', variables('nsgName'))]",
+    "vnetId": "[resourceId('Microsoft.Network/virtualNetworks', variables('vnetName'))]",
+    "vnetRef": "[concat('Microsoft.Network/virtualNetworks/', variables('vnetName'))]",
+    "ipId": "[resourceId('Microsoft.Network/publicIPAddresses', variables('ipName'))]",
+    "ipRef": "[concat('Microsoft.Network/publicIPAddresses/', variables('ipName'))]",
+    "lbId": "[resourceId('Microsoft.Network/loadBalancers', variables('lbName'))]",
+    "lbRef": "[concat('Microsoft.Network/loadBalancers/', variables('lbName'))]",
+    "asId": "[resourceId('Microsoft.Insights/autoscaleSettings', variables('asName'))]",
+    "asRef": "[concat('Microsoft.Insights/autoscaleSettings/', variables('asName'))]",
+    "vmId": "[resourceId('Microsoft.Compute/virtualMachineScalesets', parameters('vmName'))]",
+    "vmRef": "[concat('Microsoft.Compute/virtualMachineScalesets/', parameters('vmName'))]",
+    "subnet": "Subnet",
+    "subnetId": "[concat(variables('vnetId'), '/subnets/', variables('subnet'))]",
+    "vmPrefix": "[concat(parameters('vmName'), '-instance')]"
+}

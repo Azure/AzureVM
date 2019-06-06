@@ -1,3 +1,12 @@
+#' Build template definition and parameters
+#'
+#' @param config An object of class `vm_config` representing a virtual machine deployment.
+#' @param name The VM name. Will also be used for the domain name label.
+#' @param login_user An object of class `user_config` representing the login details for the admin user account on the VM.
+#' @param size The VM size.
+#' @param ... For `build_template_parameters`, any additional parameters that the VM deployment template may need. Unused for `build_template_definition`.
+#'
+#' @rdname build_template
 #' @export
 build_template_definition.vm_config <- function(config, ...)
 {
@@ -14,6 +23,7 @@ build_template_definition.vm_config <- function(config, ...)
 }
 
 
+#' @rdname build_template
 #' @export
 build_template_parameters.vm_config <- function(config, name, login_user, size, ...)
 {
@@ -51,7 +61,7 @@ build_template_parameters.vm_config <- function(config, name, login_user, size, 
             diskname <- config$datadisks[[i]]$vm_spec$name
             if(!is.null(diskname))
             {
-                newdiskname <- paste(diskname, name, i, sep="_")
+                newdiskname <- paste(name, diskname, i, sep="_")
                 config$datadisks[[i]]$res_spec$name <- newdiskname
                 config$datadisks[[i]]$vm_spec$name <- newdiskname
             }
