@@ -8,16 +8,13 @@ add_template_parameters.vmss_config <- function(config, ...)
 
     params <- sstpl_parameters_default
 
-    if(config$keylogin)
+    if(config$options$keylogin)
         add_param(sshKeyData="string")
     else add_param(adminPassword="securestring")
 
     if(inherits(config$image, "image_marketplace"))
         add_param(imagePublisher="string", imageOffer="string", imageSku="string", imageVersion="string")
     else add_param(imageId="string")
-
-    if(inherits(config$nsg, "nsg_config"))
-        add_param(nsgrules="array")
 
     params
 }
@@ -67,14 +64,14 @@ add_template_resources.vmss_config <- function(config, ...)
     vmss <- vmss_default
 
     # fixup VMSS properties
-    if(config$managed)
+    if(config$options$managed)
         vmss$identity <- list(type="systemAssigned")
 
     # fixup VM properties
     vm <- vmss$properties$virtualMachineProfile
 
-    vm$osProfile <- c(vm$properties$osProfile,
-        if(config$keylogin) vm_key_login else vm_pwd_login)
+    vm$osProfile <- c(vm$osProfile,
+        if(config$options$keylogin) vm_key_login else vm_pwd_login)
 
     vm$storageProfile$imageReference <- if(inherits(config$image, "image_custom"))
         list(id="[parameters('imageId')]")
@@ -85,6 +82,9 @@ add_template_resources.vmss_config <- function(config, ...)
         version="[parameters('imageVersion')]"
     )
 
+    if(config$options$params$priority == "low")
+        vm$evictionPolicy <- "[parameters('evictionPolicy')]"
+
     if(!is_empty(config$lb))
     {
         vm$
@@ -93,7 +93,7 @@ add_template_resources.vmss_config <- function(config, ...)
                     properties$
                         ipConfigurations[[1]]$
                             properties$
-                                loadBalancerBackendAddressPools <- list(id="[variables('lbBackendId')]")  # lol
+                                loadBalancerBackendAddressPools <- list(list(id="[variables('lbBackendId')]"))  # lol
     }
 
     vmss$properties$virtualMachineProfile <- vm
@@ -124,7 +124,7 @@ add_template_resources.vmss_config <- function(config, ...)
         config[c("nsg", "vnet", "lb", "ip", "as")][created],
         SIMPLIFY=FALSE)
 
-    resources <- c(resources, list(vm))
+    resources <- c(resources, list(vmss))
 
     if(!is_empty(config$other))
         resources <- c(resources, config$other)

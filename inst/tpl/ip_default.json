@@ -5,6 +5,6 @@
     "location": "[variables('location')]",
     "properties": {},
     "sku": {
-        "name": "Standard"
+        "name": "Basic"
     }
 }

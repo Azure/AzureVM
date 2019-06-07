@@ -97,6 +97,40 @@ build_template_parameters.vm_config <- function(config, name, login_user, size, 
 }
 
 
+#' @rdname build_template
+#' @export
+build_template_parameters.vmss_config <- function(config, name, login_user, size, ...)
+{
+    add_parameters <- function(...)
+    {
+        new_params <- lapply(list(...), function(obj) list(value=obj))
+        params <<- c(params, new_params)
+    }
+
+    stopifnot(inherits(login_user, "user_config"))
+
+    params <- list()
+    add_parameters(vmName=name, vmSize=size, adminUsername=login_user$user)
+
+    if(config$options$keylogin && !is_empty(login_user$key))
+        add_parameters(sshKeyData=login_user$key)
+    else add_parameters(adminPassword=login_user$pwd)
+
+    if(inherits(config$image, "image_marketplace"))
+        add_parameters(
+            imagePublisher=config$image$publisher,
+            imageOffer=config$image$offer,
+            imageSku=config$image$sku,
+            imageVersion=config$image$version
+        )
+    else add_parameters(imageId=config$image$id)
+
+    do.call(add_parameters, config$options$params)
+
+    jsonlite::prettify(jsonlite::toJSON(params, auto_unbox=TRUE, null="null"))
+}
+
+
 add_template_parameters <- function(config, ...)
 {
     UseMethod("add_template_parameters")

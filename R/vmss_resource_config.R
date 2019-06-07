@@ -1,42 +1,47 @@
-scaleset_options <- function(instances=2, priority="regular", on_evict="deallocate",
+scaleset_options <- function(instances=2, keylogin=TRUE, managed=TRUE, public=FALSE,
+                             low_priority=FALSE, delete_on_evict=FALSE,
                              network_accel=FALSE, large_scaleset=FALSE,
                              overprovision=TRUE, upgrade_policy=list(mode="manual"))
 {
-    out <- list(
+    params <- list(
         instanceCount=instances,
-        priority=priority,
-        evictionPolicy=on_evict,
+        priority=if(low_priority) "low" else "regular",
+        evictionPolicy=if(delete_on_evict) "delete" else "deallocate",
         enableAcceleratedNetworking=network_accel,
-        singlePlacementGroup=large_scaleset,
+        singlePlacementGroup=!large_scaleset,
         overprovision=overprovision,
         upgradePolicy=upgrade_policy
     )
+
+    out <- list(keylogin=keylogin, managed=managed, public=public, params=params)
     structure(out, class="scaleset_options")
 }
 
 
-lb_config <- function(rules=list(), probes=list())
+lb_config <- function(type="basic", rules=list(), probes=list())
 {
-    rule_probes <- sapply(rules, function(x)
-    {
-        probe_id <- x$properties$probe$id
-
-    })
+    rule_probe_names <- sapply(rules, function(x) x$properties$probe$id)
     probe_names <- sapply(probes, `[[`, "name")
-    if(!is_empty(rule_probes))
+
+    # basic checking
+    for(r in rule_probe_names)
     {
-        if(is_empty(probe_names))
-            stop("No probes specified", call.=FALSE)
-        if(!all(rule_probes %in% probe_names))
-            stop("Rule with no matching probe", call.=FALSE)
+        found <- FALSE
+        for(p in probe_names)
+            found <- grepl(p, r, fixed=TRUE)
+        if(!found)
+            stop("Rule with no matching probe:", r, call.=FALSE)
     }
 
-    props <- list(loadBalancingRules=rules, probes=probes)
-    structure(list(properties=props), class="lb_config")
+    props <- list(
+        loadBalancingRules=lapply(rules, unclass),
+        probes=lapply(probes, unclass)
+    )
+    structure(list(properties=props, sku=list(name=type)), class="lb_config")
 }
 
 
-lb_probe_config <- function(port, interval=5, fail_on=2, protocol="Tcp")
+lb_probe <- function(port, interval=5, fail_on=2, protocol="Tcp")
 {
     name <- paste("probe", protocol, port, sep="-")
     props <- list(
@@ -46,12 +51,12 @@ lb_probe_config <- function(port, interval=5, fail_on=2, protocol="Tcp")
         protocol=protocol
     )
 
-    structure(list(name=name, properties=props), class="lb_probe_config")
+    structure(list(name=name, properties=props), class="lb_probe")
 }
 
 
-lb_rule_config <- function(name, frontend_port, backend_port=frontend_port, protocol="Tcp", timeout=5,
-                           floating_ip=FALSE, probe_name=paste("probe", protocol, frontend_port, sep="-"))
+lb_rule <- function(name, frontend_port, backend_port=frontend_port, protocol="Tcp", timeout=5,
+                    floating_ip=FALSE, probe_name=paste("probe", protocol, frontend_port, sep="-"))
 {
     frontend_id <- "[variables('lbFrontendId')]"
     backend_id <- "[variables('lbBackendId')]"
@@ -68,28 +73,28 @@ lb_rule_config <- function(name, frontend_port, backend_port=frontend_port, prot
         probe=list(id=probe_id)
     )
 
-    structure(list(name=name, properties=props), class="lb_rule_config")
+    structure(list(name=name, properties=props), class="lb_rule")
 }
 
 
-lb_rule_ssh <- lb_rule_config("lb-ssh", 22, 22, probe_name="probe-Tcp-22")
-lb_rule_http <- lb_rule_config("lb-http", 80, 80, probe_name="probe-Tcp-80")
-lb_rule_https <- lb_rule_config("lb-https", 443, 443, probe_name="probe-Tcp-443")
-lb_rule_rdp <- lb_rule_config("lb-rdp", 3389, 3389, probe_name="probe-Tcp-3389")
-lb_rule_jupyter <- lb_rule_config("lb-rdp", 8000, 8000, probe_name="probe-Tcp-8000")
-lb_rule_rstudio <- lb_rule_config("lb-rstudio", 8787, 8787, probe_name="probe-Tcp-8787")
+lb_rule_ssh <- lb_rule("lb-ssh", 22, 22, probe_name="probe-Tcp-22")
+lb_rule_http <- lb_rule("lb-http", 80, 80, probe_name="probe-Tcp-80")
+lb_rule_https <- lb_rule("lb-https", 443, 443, probe_name="probe-Tcp-443")
+lb_rule_rdp <- lb_rule("lb-rdp", 3389, 3389, probe_name="probe-Tcp-3389")
+lb_rule_jupyter <- lb_rule("lb-rdp", 8000, 8000, probe_name="probe-Tcp-8000")
+lb_rule_rstudio <- lb_rule("lb-rstudio", 8787, 8787, probe_name="probe-Tcp-8787")
 
-lb_probe_ssh <- lb_probe_config(22)
-lb_probe_http <- lb_probe_config(80)
-lb_probe_https <- lb_probe_config(443)
-lb_probe_rdp <- lb_probe_config(3389)
-lb_probe_jupyter <- lb_probe_config(8000)
-lb_probe_rstudio <- lb_probe_config(8787)
+lb_probe_ssh <- lb_probe(22)
+lb_probe_http <- lb_probe(80)
+lb_probe_https <- lb_probe(443)
+lb_probe_rdp <- lb_probe(3389)
+lb_probe_jupyter <- lb_probe(8000)
+lb_probe_rstudio <- lb_probe(8787)
 
 
-autoscaler_config <- function(profiles=list())
+autoscaler_config <- function(profiles=list(autoscaler_profile_config()))
 {
-    props <- list(profiles=profiles)
+    props <- list(profiles=lapply(profiles, unclass))
     structure(list(properties=props), class="as_config")
 }
 

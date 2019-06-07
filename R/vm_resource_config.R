@@ -4,19 +4,19 @@
 #' @param sshkey For `user_config`, an SSH public key. Can be a string, or the name of the public key file.
 #' @param password For `user_config`, the admin password. Supply either `sshkey` or `password`, but not both; also, note that Windows does not support SSH logins.
 #' @param size For `datadisk_config`, the size of the data disk in GB. St this to NULL for a disk that will be created from an image.
-#' @param name The name of a resource: for `datadisk_config`, the disk name; for `nsg_rule_config`, the security rule name; for `subnet_config`, the name of a subnet; for `nic_ip_config`, the name of a network IP configuration. Duplicate names will automatically be disambiguated prior to VM deployment.
+#' @param name The name of a resource: for `datadisk_config`, the disk name; for `nsg_rule`, the security rule name; for `subnet_config`, the name of a subnet; for `nic_ip_config`, the name of a network IP configuration. Duplicate names will automatically be disambiguated prior to VM deployment.
 #' @param create For `datadisk_config`, the creation method. Can be "empty" (the default) to create a blank disk, or "fromImage" to use an image.
 #' @param type For `datadisk_config`, the disk type (SKU). Can be "Standard_LRS", "StandardSSD_LRS" (the default), "Premium_LRS" or "UltraSSD_LRS". Of these, "Standard_LRS" uses hard disks and the others use SSDs as the underlying hardware.
 #' @param write_accelerator For `datadisk_config`, whether the disk should have write acceleration enabled.
 #' @param publisher,offer,sku,version For `image_config`, the details for a marketplace image.
 #' @param id For `image_config`, the resource ID for a disk to use as a custom image.
-#' @param rules for `nsg_config`, a list of security rule objects, each obtained via a call to `nsg_rule_config`.
-#' @param dest_port,dest_addr,dest_asgs For `nsg_rule_config`, the destination port, address range, and application security groups for a rule.
-#' @param source_port,source_addr,source_asgs For `nsg_rule_config`, the source port, address range, and application security groups for a rule.
-#' @param access For `nsg_rule_config`, the action to take: "allow" or "deny".
-#' @param direction For `nsg_rule_config`, the direction of traffic: "inbound" or "outbound".
-#' @param protocol For `nsg_rule_config`, the network protocol: either "TCP" or "UDP".
-#' @param priority For `nsg_rule_config`, the rule priority. If NULL, this will be set automatically by AzureVM.
+#' @param rules for `nsg_config`, a list of security rule objects, each obtained via a call to `nsg_rule`.
+#' @param dest_port,dest_addr,dest_asgs For `nsg_rule`, the destination port, address range, and application security groups for a rule.
+#' @param source_port,source_addr,source_asgs For `nsg_rule`, the source port, address range, and application security groups for a rule.
+#' @param access For `nsg_rule`, the action to take: "allow" or "deny".
+#' @param direction For `nsg_rule`, the direction of traffic: "inbound" or "outbound".
+#' @param protocol For `nsg_rule`, the network protocol: either "TCP" or "UDP".
+#' @param priority For `nsg_rule`, the rule priority. If NULL, this will be set automatically by AzureVM.
 #' @param allocation For `ip_config`, the IP address allocation method: either "dynamic" or "static". In the latter case, the VM's public IP address will persist between shutdowns.
 #' @param ipv6 For `ip_config`, whether to use IPv6 addresses.
 #' @param domain_name For `ip_config`, the domain name label to associate with the address. Defaults to the VM's machine name.
@@ -109,7 +109,7 @@ nsg_config <- function(rules=list(), ...)
 
 #' @rdname resource_config
 #' @export
-nsg_rule_config <- function(name, dest_port="*", dest_addr="*", dest_asgs=NULL,
+nsg_rule <- function(name, dest_port="*", dest_addr="*", dest_asgs=NULL,
                             source_port="*", source_addr="*", source_asgs=NULL,
                             access="allow", direction="inbound",
                             protocol="Tcp", priority=NULL)
@@ -134,20 +134,31 @@ nsg_rule_config <- function(name, dest_port="*", dest_addr="*", dest_asgs=NULL,
     if(!is_empty(priority))
         properties$priority <- priority
 
-    structure(list(name=name, properties=properties), class="nsg_rule_config")
+    structure(list(name=name, properties=properties), class="nsg_rule")
 }
 
 
-#' @rdname resource_config
+#' Public IP address configuration
+#'
+#' @param type The SKU of the IP address resource: "basic" or "standard".
+#' @param dynamic Whether the IP address should be dynamically or statically allocated. Note that the standard SKU only supports standard allocation.
+#' @param ipv6 Whether to create an IPv6 address. The default is IPv4.
+#' @param domain_name The domain name label to associate with the address.
 #' @export
-ip_config <- function(allocation="dynamic", ipv6=FALSE, domain_name="[parameters('vmName')]", ...)
+ip_config <- function(type="basic", dynamic=if(type == "basic") TRUE else FALSE, ipv6=FALSE,
+                      domain_name="[parameters('vmName')]", ...)
 {
+    if(tolower(type) != "basic" && dynamic)
+        stop("Standard-SKU public IP address only supports static allocation", call.=FALSE)
+
+    alloc <- if(dynamic) "dynamic" else "static"
     version <- if(ipv6) "IPv6" else "IPv4"
-    props <- list(publicIPAllocationMethod=allocation, publicIPAddressVersion=version, ...)
+
+    props <- list(publicIPAllocationMethod=alloc, publicIPAddressVersion=version, ...)
     if(!is.null(domain_name))
         props$dnsSettings$domainNameLabel <- domain_name
 
-    structure(list(properties=props), class="ip_config")
+    structure(list(properties=props, sku=list(name=type)), class="ip_config")
 }
 
 
@@ -271,25 +282,25 @@ nic_ip_config <- function(name="ipconfig", private_alloc="dynamic", subnet="[var
 #' @docType data
 #' @rdname nsg_rule
 #' @export
-nsg_rule_allow_ssh <- nsg_rule_config("Allow-ssh", 22)
+nsg_rule_allow_ssh <- nsg_rule("Allow-ssh", 22)
 
 #' @rdname nsg_rule
 #' @export
-nsg_rule_allow_http <- nsg_rule_config("Allow-http", 80)
+nsg_rule_allow_http <- nsg_rule("Allow-http", 80)
 
 #' @rdname nsg_rule
 #' @export
-nsg_rule_allow_https <- nsg_rule_config("Allow-https", 443)
+nsg_rule_allow_https <- nsg_rule("Allow-https", 443)
 
 #' @rdname nsg_rule
 #' @export
-nsg_rule_allow_rdp <- nsg_rule_config("Allow-rdp", 3389)
+nsg_rule_allow_rdp <- nsg_rule("Allow-rdp", 3389)
 
 #' @rdname nsg_rule
 #' @export
-nsg_rule_allow_jupyter <- nsg_rule_config("Allow-jupyter", 8000)
+nsg_rule_allow_jupyter <- nsg_rule("Allow-jupyter", 8000)
 
 #' @rdname nsg_rule
 #' @export
-nsg_rule_allow_rstudio <- nsg_rule_config("Allow-rstudio", 8787)
+nsg_rule_allow_rstudio <- nsg_rule("Allow-rstudio", 8787)
 

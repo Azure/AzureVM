@@ -9,7 +9,7 @@
         "type": "string"
     },
     "instanceCount": {
-        "type": "string"
+        "type": "int"
     },
     "priority": {
         "type": "string"
@@ -18,18 +18,15 @@
         "type": "string"
     },
     "enableAcceleratedNetworking": {
-        "type": "string"
+        "type": "bool"
     },
     "singlePlacementGroup": {
-        "type": "string"
-    },
-    "large_scaleset": {
-        "type": "string"
+        "type": "bool"
     },
     "overprovision":{
-        "type": "string"
+        "type": "bool"
     },
     "upgradePolicy":{
-        "type": "string"
+        "type": "object"
     }
 }

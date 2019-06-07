@@ -16,9 +16,6 @@ add_template_parameters.vm_config <- function(config, ...)
         add_param(imagePublisher="string", imageOffer="string", imageSku="string", imageVersion="string")
     else add_param(imageId="string")
 
-    if(inherits(config$nsg, "nsg_config"))
-        add_param(nsgrules="array")
-
     if(length(config$datadisks) > 0)
         add_param(dataDisks="array", dataDiskResources="array")
 

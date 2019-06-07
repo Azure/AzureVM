@@ -1,7 +1,7 @@
 {
     "apiVersion": "2019-03-01",
     "type": "Microsoft.Compute/virtualMachineScaleSets",
-    "name": "[parameters('vmssName')]",
+    "name": "[parameters('vmName')]",
     "location": "[variables('location')]",
     "dependsOn": [
         "[variables('vnetRef')]"
@@ -9,7 +9,7 @@
     "sku": {
         "name": "[parameters('vmSize')]",
         "tier": "Standard",
-        "capacity": "[int(parameters('instanceCount'))]"
+        "capacity": "[parameters('instanceCount')]"
     },
     "properties": {
         "overprovision": "[parameters('overprovision')]",
@@ -17,7 +17,6 @@
         "singlePlacementGroup": "[parameters('singlePlacementGroup')]",
         "virtualMachineProfile": {
             "priority": "[parameters('priority')]",
-            "evictionPolicy": "[parameters('evictionPolicy')]",
             "storageProfile": {
                 "osDisk": {
                     "createOption": "FromImage",

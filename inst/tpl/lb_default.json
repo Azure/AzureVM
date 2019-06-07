@@ -24,8 +24,6 @@
             {
                 "name": "[variables('lbBackendName')]"
             }
-        ],
-        "probes": [],
-        "loadBalancingRules": []
+        ]
     }
 }

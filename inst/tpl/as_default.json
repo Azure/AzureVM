@@ -9,7 +9,6 @@
     "properties": {
         "name": "[variables('asPrefix')]",
         "targetResourceUri": "[variables('vmId')]",
-        "enabled": true,
-        "profiles": []
+        "enabled": true
     }
 }
