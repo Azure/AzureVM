@@ -126,32 +126,6 @@ public=list(
         }
     },
 
-    get_public_ip_address=function()
-    {
-        outputs <- unlist(self$properties$outputResources)
-        ip_id <- grep("publicIPAddresses/.+$", outputs, ignore.case=TRUE, value=TRUE)
-
-        # no public IP address for this VM
-        if(is_empty(ip_id))
-            return(character(0))
-
-        ip <- az_resource$new(self$token, self$subscription, id=ip_id)
-        ip$properties$ipAddress
-    },
-
-    get_private_ip_address=function(interface=1)
-    {
-        outputs <- unlist(self$properties$outputResources)
-        nic_id <- grep("networkInterfaces/.+$", outputs, ignore.case=TRUE, value=TRUE)
-
-        # no private IP address for this VM (?)
-        if(is_empty(nic_id))
-            return(character(0))
-
-        nic <- az_resource$new(self$token, self$subscription, id=nic_id)
-        nic$properties$ipConfigurations[[interface]]$properties$privateIPAddress
-    },
-
     print=function(...)
     {
         cat("<Azure virtual machine ", self$name, ">\n", sep="")
@@ -203,6 +177,12 @@ active=list(
 
     run_script=function()
     private$vm$run_script,
+
+    get_public_ip_address=function()
+    private$vm$get_public_ip_address,
+
+    get_private_ip_address=function()
+    private$vm$get_private_ip_address,
 
     do_vm_operation=function()
     private$vm$do_operation

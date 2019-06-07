@@ -160,6 +160,22 @@ public=list(
         self$run_deployed_command(cmd, as.list(parameters), as.list(script))
     },
 
+    get_public_ip_address=function()
+    {
+        nic <- private$get_nic()
+        ip_id <- nic$properties$ipConfigurations[[1]]$properties$publicIPAddress$id
+        if(is_empty(ip_id))
+            return(NULL)
+        ip <- az_resource$new(self$token, self$subscription, id=ip_id)
+        ip$properties$ipAddress
+    },
+
+    get_private_ip_address=function()
+    {
+        nic <- private$get_nic()
+        nic$properties$ipConfigurations[[1]]$properties$privateIPAddress
+    },
+
     print=function(...)
     {
         cat("<Azure virtual machine resource ", self$name, ">\n", sep="")
@@ -202,6 +218,14 @@ public=list(
 ),
 
 private=list(
+
+    get_nic=function(n=1)
+    {
+        nic_id <- self$properties$networkProfile$networkInterfaces[[n]]$id
+        if(is_empty(nic_id))
+            stop("Network interface resource not found", call.=FALSE)
+        az_resource$new(self$token, self$subscription, id=nic_id)
+    },
 
     init_and_deploy=function(...)
     {
