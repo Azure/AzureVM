@@ -3,6 +3,9 @@
     "type": "Microsoft.Compute/virtualMachineScaleSets",
     "name": "[parameters('vmName')]",
     "location": "[variables('location')]",
+    "tags": {
+        "CreatedBy": "AzureR/AzureVM"
+    },
     "dependsOn": [],
     "sku": {
         "name": "[parameters('vmSize')]",

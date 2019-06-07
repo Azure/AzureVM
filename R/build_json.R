@@ -99,7 +99,7 @@ build_template_parameters.vm_config <- function(config, name, login_user, size, 
 
 #' @rdname build_template
 #' @export
-build_template_parameters.vmss_config <- function(config, name, login_user, size, ...)
+build_template_parameters.vmss_config <- function(config, name, login_user, size, instances, ...)
 {
     add_parameters <- function(...)
     {
@@ -110,7 +110,7 @@ build_template_parameters.vmss_config <- function(config, name, login_user, size
     stopifnot(inherits(login_user, "user_config"))
 
     params <- list()
-    add_parameters(vmName=name, vmSize=size, adminUsername=login_user$user)
+    add_parameters(vmName=name, vmSize=size, instanceCount=instances, adminUsername=login_user$user)
 
     if(config$options$keylogin && !is_empty(login_user$key))
         add_parameters(sshKeyData=login_user$key)

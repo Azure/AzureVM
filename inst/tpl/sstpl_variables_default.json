@@ -25,5 +25,5 @@
     "lbBackendName": "lbBackend",
     "lbBackendId": "[concat(variables('lbId'), '/backendAddressPools/', variables('lbBackendName'))]",
     "asMaxCapacity": "[mul(int(parameters('instanceCount')), 10)]",
-    "asScaleValue": "[max(div(int(parameters('instanceCount')), 10), 1)]"
+    "asScaleValue": "[max(div(int(parameters('instanceCount')), 5), 1)]"
 }
