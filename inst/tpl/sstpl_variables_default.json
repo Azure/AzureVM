@@ -17,11 +17,14 @@
     "asRef": "[concat('Microsoft.Insights/autoscaleSettings/', variables('asName'))]",
     "vmId": "[resourceId('Microsoft.Compute/virtualMachineScalesets', parameters('vmName'))]",
     "vmRef": "[concat('Microsoft.Compute/virtualMachineScalesets/', parameters('vmName'))]",
+    "vmPrefix": "[concat(parameters('vmName'), '-instance')]",
     "subnet": "Subnet",
     "subnetId": "[concat(variables('vnetId'), '/subnets/', variables('subnet'))]",
-    "vmPrefix": "[concat(parameters('vmName'), '-instance')]",
     "lbFrontendName": "lbFrontend",
     "lbFrontendId": "[concat(variables('lbId'), '/frontendIPConfigurations/', variables('lbFrontendName')]",
     "lbBackendName": "lbBackend",
-    "lbBackendId": "[concat(variables('lbId'), '/backendAddressPools/', variables('lbBackendName')]"
+    "lbBackendId": "[concat(variables('lbId'), '/backendAddressPools/', variables('lbBackendName')]",
+    "asPrefix": "[concat(parameters('vmName'), '-scaler')]",
+    "asMaxCapacity": "[mul(int(parameters('instanceCount')), 2)]",
+    "asScaleValue": "[max(div(int(parameters('instanceCount')), 10), 1)]"
 }

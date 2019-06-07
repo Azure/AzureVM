@@ -1,0 +1,64 @@
+{
+    "apiVersion": "2015-04-01",
+    "type": "Microsoft.Insights/autoscaleSettings",
+    "name": "[variables('asName')]",
+    "location": "[variables('location')]",
+    "dependsOn": [
+        "[variables('vmRef')]"
+    ],
+    "properties": {
+        "name": "[variables('asPrefix')]",
+        "targetResourceUri": "[variables('vmId')]",
+        "enabled": true,
+        "profiles": [
+            {
+                "name": "Profile1",
+                "capacity": {
+                    "minimum": "[parameters('autoscaleMin')]",
+                    "maximum": "[parameters('autoscaleMax')]",
+                    "default": "[parameters('autoscaleDefault')]"
+                },
+                "rules": [
+                    {
+                        "metricTrigger": {
+                            "metricName": "Percentage CPU",
+                            "metricNamespace": "",
+                            "metricResourceUri": "[variables('vmssId')]",
+                            "timeGrain": "PT1M",
+                            "statistic": "Average",
+                            "timeWindow": "PT5M",
+                            "timeAggregation": "Average",
+                            "operator": "GreaterThan",
+                            "threshold": "[parameters('scaleOutCPUPercentageThreshold')]"
+                        },
+                        "scaleAction": {
+                            "direction": "Increase",
+                            "type": "ChangeCount",
+                            "value": "[parameters('scaleOutInterval')]",
+                            "cooldown": "PT1M"
+                        }
+                    },
+                    {
+                        "metricTrigger": {
+                            "metricName": "Percentage CPU",
+                            "metricNamespace": "",
+                            "metricResourceUri": "[variables('vmssId')]",
+                            "timeGrain": "PT1M",
+                            "statistic": "Average",
+                            "timeWindow": "PT5M",
+                            "timeAggregation": "Average",
+                            "operator": "LessThan",
+                            "threshold": "[parameters('scaleInCPUPercentageThreshold')]"
+                        },
+                        "scaleAction": {
+                            "direction": "Decrease",
+                            "type": "ChangeCount",
+                            "value": "[parameters('scaleInInterval')]",
+                            "cooldown": "PT1M"
+                        }
+                    }
+                ]
+            }
+        ]
+    }
+}
