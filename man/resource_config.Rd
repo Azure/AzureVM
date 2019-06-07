@@ -6,7 +6,6 @@
 \alias{image_config}
 \alias{nsg_config}
 \alias{nsg_rule}
-\alias{ip_config}
 \alias{vnet_config}
 \alias{subnet_config}
 \alias{nic_config}
@@ -27,9 +26,6 @@ nsg_rule(name, dest_port = "*", dest_addr = "*", dest_asgs = NULL,
   source_port = "*", source_addr = "*", source_asgs = NULL,
   access = "allow", direction = "inbound", protocol = "Tcp",
   priority = NULL)
-
-ip_config(allocation = "dynamic", ipv6 = FALSE,
-  domain_name = "[parameters('vmName')]", ...)
 
 vnet_config(address_space = "10.0.0.0/16",
   subnets = list(subnet_config()), ...)
@@ -80,12 +76,6 @@ nic_ip_config(name = "ipconfig", private_alloc = "dynamic",
 
 \item{priority}{For \code{nsg_rule}, the rule priority. If NULL, this will be set automatically by AzureVM.}
 
-\item{allocation}{For \code{ip_config}, the IP address allocation method: either "dynamic" or "static". In the latter case, the VM's public IP address will persist between shutdowns.}
-
-\item{ipv6}{For \code{ip_config}, whether to use IPv6 addresses.}
-
-\item{domain_name}{For \code{ip_config}, the domain name label to associate with the address. Defaults to the VM's machine name.}
-
 \item{address_space}{For \code{vnet_config}, the address range accessible by the virtual network, expressed in CIDR block format.}
 
 \item{subnets}{For \code{vnet_config}, a list of subnet objects, each obtained via a call to \code{subnet_config}.}
@@ -101,6 +91,12 @@ nic_ip_config(name = "ipconfig", private_alloc = "dynamic",
 \item{subnet}{For \code{nic_ip_config}, the subnet to associate with this private IP address.}
 
 \item{public_address}{For \code{nic_ip_config}, the public IP address. Defaults to the public IP address created or used as part of this VM deployment. Ignored if the deployment does not include a public address.}
+
+\item{allocation}{For \code{ip_config}, the IP address allocation method: either "dynamic" or "static". In the latter case, the VM's public IP address will persist between shutdowns.}
+
+\item{ipv6}{For \code{ip_config}, whether to use IPv6 addresses.}
+
+\item{domain_name}{For \code{ip_config}, the domain name label to associate with the address. Defaults to the VM's machine name.}
 }
 \description{
 Resource configuration functions for a virtual machine deployment

@@ -4,6 +4,7 @@
 \alias{build_template_definition.vm_config}
 \alias{build_template_definition.vmss_config}
 \alias{build_template_parameters.vm_config}
+\alias{build_template_parameters.vmss_config}
 \title{Build template definition and parameters}
 \usage{
 \method{build_template_definition}{vm_config}(config, ...)
@@ -11,6 +12,9 @@
 \method{build_template_definition}{vmss_config}(config, ...)
 
 \method{build_template_parameters}{vm_config}(config, name, login_user,
+  size, ...)
+
+\method{build_template_parameters}{vmss_config}(config, name, login_user,
   size, ...)
 }
 \arguments{
