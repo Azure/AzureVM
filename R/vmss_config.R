@@ -39,6 +39,17 @@ ubuntu_dsvm_ss <- function(nsg=nsg_config(list(nsg_rule_allow_ssh, nsg_rule_allo
 }
 
 #' @export
+windows_dsvm_ss <- function(nsg=nsg_config(list(nsg_rule_allow_rdp)),
+                            load_balancer=lb_config(rules=list(lb_rule_rdp),
+                                                   probes=list(lb_probe_rdp)),
+                            options=scaleset_options(keylogin=FALSE),
+                            ...)
+{
+    vmss_config(image_config("microsoft-dsvm", "dsvm-windows", "server-2016"),
+                options=options, nsg=nsg, load_balancer=load_balancer, ...)
+}
+
+#' @export
 ubuntu_1804_ss <- function(nsg=nsg_config(list(nsg_rule_allow_ssh)),
                            load_balancer=lb_config(rules=list(lb_rule_ssh),
                                                    probes=list(lb_probe_ssh)),
@@ -52,12 +63,12 @@ ubuntu_1804_ss <- function(nsg=nsg_config(list(nsg_rule_allow_ssh)),
 windows_2019_ss <- function(nsg=nsg_config(list(nsg_rule_allow_rdp)),
                             load_balancer=lb_config(rules=list(lb_rule_rdp),
                                                     probes=list(lb_probe_rdp)),
-                            scaleset_options=scaleset_options(keylogin=FALSE),
+                            options=scaleset_options(keylogin=FALSE),
                             ...)
 {
     win_key_check(scaleset_options$keylogin)
     vmss_config(image_config("Canonical", "UbuntuServer", "18.04-LTS"),
-                scaleset_options=scaleset_options, nsg=nsg, load_balancer=load_balancer, ...)
+                options=options, nsg=nsg, load_balancer=load_balancer, ...)
 }
 
 
