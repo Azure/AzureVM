@@ -7,7 +7,7 @@
         "[variables('vmRef')]"
     ],
     "properties": {
-        "name": "[variables('asPrefix')]",
+        "name": "[variables('asName')]",
         "targetResourceUri": "[variables('vmId')]",
         "enabled": true
     }

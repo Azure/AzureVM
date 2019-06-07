@@ -107,7 +107,7 @@ add_template_resources.vmss_config <- function(config, ...)
 
     ## fixup dependencies between resources
     # vnet depends on nsg
-    # vmss depends on lb
+    # vmss depends on vnet, lb
 
     existing <- sapply(config[c("nsg", "vnet", "lb", "ip", "as")], existing_resource)
     unused <- sapply(config[c("nsg", "vnet", "lb", "ip", "as")], is.null)
@@ -118,6 +118,13 @@ add_template_resources.vmss_config <- function(config, ...)
 
     if(unused["nsg"])
         config$vnet$properties$subnets[[1]]$properties$networkSecurityGroup <- NULL
+
+    vmss_depends <- character()
+    if(!unused["lb"])
+        vmss_depends <- c(vmss_depends, "[variables('lbRef')]")
+    if(!unused["vnet"])
+        vmss_depends <- c(vmss_depends, "[variables('vnetRef')]")
+    vmss$dependsOn <- vmss_depends
 
     resources <- mapply(utils::modifyList,
         list(nsg, vnet, lb, ip, as)[created],

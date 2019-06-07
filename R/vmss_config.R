@@ -60,3 +60,23 @@ windows_2019_ss <- function(nsg=nsg_config(list(nsg_rule_allow_rdp)),
                 scaleset_options=scaleset_options, nsg=nsg, load_balancer=load_balancer, ...)
 }
 
+
+scaleset_options <- function(instances=2, keylogin=TRUE, managed=TRUE, public=FALSE,
+                             low_priority=FALSE, delete_on_evict=FALSE,
+                             network_accel=FALSE, large_scaleset=FALSE,
+                             overprovision=TRUE, upgrade_policy=list(mode="manual"))
+{
+    params <- list(
+        instanceCount=instances,
+        priority=if(low_priority) "low" else "regular",
+        evictionPolicy=if(delete_on_evict) "delete" else "deallocate",
+        enableAcceleratedNetworking=network_accel,
+        singlePlacementGroup=!large_scaleset,
+        overprovision=overprovision,
+        upgradePolicy=upgrade_policy
+    )
+
+    out <- list(keylogin=keylogin, managed=managed, public=public, params=params)
+    structure(out, class="scaleset_options")
+}
+

@@ -1,23 +1,3 @@
-scaleset_options <- function(instances=2, keylogin=TRUE, managed=TRUE, public=FALSE,
-                             low_priority=FALSE, delete_on_evict=FALSE,
-                             network_accel=FALSE, large_scaleset=FALSE,
-                             overprovision=TRUE, upgrade_policy=list(mode="manual"))
-{
-    params <- list(
-        instanceCount=instances,
-        priority=if(low_priority) "low" else "regular",
-        evictionPolicy=if(delete_on_evict) "delete" else "deallocate",
-        enableAcceleratedNetworking=network_accel,
-        singlePlacementGroup=!large_scaleset,
-        overprovision=overprovision,
-        upgradePolicy=upgrade_policy
-    )
-
-    out <- list(keylogin=keylogin, managed=managed, public=public, params=params)
-    structure(out, class="scaleset_options")
-}
-
-
 lb_config <- function(type="basic", rules=list(), probes=list())
 {
     rule_probe_names <- sapply(rules, function(x) x$properties$probe$id)
@@ -92,15 +72,15 @@ lb_probe_jupyter <- lb_probe(8000)
 lb_probe_rstudio <- lb_probe(8787)
 
 
-autoscaler_config <- function(profiles=list(autoscaler_profile_config()))
+autoscaler_config <- function(profiles=list(autoscaler_profile()))
 {
     props <- list(profiles=lapply(profiles, unclass))
     structure(list(properties=props), class="as_config")
 }
 
 
-autoscaler_profile_config <- function(name="Profile", minsize=1, maxsize=NA, default=NA, scale_out=0.75, scale_in=0.25,
-                                      interval="PT1M", window="PT5M")
+autoscaler_profile <- function(name="Profile", minsize=1, maxsize=NA, default=NA, scale_out=0.75, scale_in=0.25,
+                               interval="PT1M", window="PT5M")
 {
     if(is.na(maxsize))
         maxsize <- "[variables('asMaxCapacity')]"
@@ -126,17 +106,17 @@ autoscaler_profile_config <- function(name="Profile", minsize=1, maxsize=NA, def
     rule_out <- list(metricTrigger=trigger, scaleAction=action)
     rule_out$metricTrigger$operator <- "GreaterThan"
     rule_out$metricTrigger$threshold <- round(scale_out * 100)
-    rule_out$direction <- "Increase"
+    rule_out$scaleAction$direction <- "Increase"
 
     rule_in <- list(metricTrigger=trigger, scaleAction=action)
     rule_in$metricTrigger$operator <- "LessThan"
     rule_in$metricTrigger$threshold <- round(scale_in * 100)
-    rule_in$direction <- "Decrease"
+    rule_in$scaleAction$direction <- "Decrease"
 
     prof <- list(
         name=name,
         capacity=capacity,
-        rules=c(rule_out, rule_in)
+        rules=list(rule_out, rule_in)
     )
     structure(prof, class="as_profile_config")
 }

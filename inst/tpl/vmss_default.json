@@ -3,9 +3,7 @@
     "type": "Microsoft.Compute/virtualMachineScaleSets",
     "name": "[parameters('vmName')]",
     "location": "[variables('location')]",
-    "dependsOn": [
-        "[variables('vnetRef')]"
-    ],
+    "dependsOn": [],
     "sku": {
         "name": "[parameters('vmSize')]",
         "tier": "Standard",
