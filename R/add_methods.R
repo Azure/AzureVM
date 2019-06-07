@@ -288,7 +288,6 @@ add_sub_methods <- function()
         else sapply(res$value, `[[`, "name")
     })
 
-
     az_subscription$set("public", "create_vm", overwrite=TRUE,
     function(name, location, resource_group=name, ...)
     {
@@ -318,7 +317,6 @@ add_sub_methods <- function()
         }
         res
     })
-
 
     az_subscription$set("public", "create_vm_scaleset", overwrite=TRUE,
     function(name, location, resource_group=name, ...)
@@ -350,7 +348,6 @@ add_sub_methods <- function()
         res
     })
 
-
     az_subscription$set("public", "get_vm", overwrite=TRUE,
     function(name, resource_group=name)
     {
@@ -359,7 +356,6 @@ add_sub_methods <- function()
 
         resource_group$get_vm(name)
     })
-
 
     az_subscription$set("public", "get_vm_scaleset", overwrite=TRUE,
     function(name, resource_group=name)
@@ -378,7 +374,6 @@ add_sub_methods <- function()
 
         resource_group$delete_vm(name, confirm=confirm, free_resources=free_resources)
     })
-
 
     az_subscription$set("public", "delete_vm_scaleset", overwrite=TRUE,
     function(name, confirm=TRUE, free_resources=TRUE, resource_group=name)
@@ -417,17 +412,16 @@ add_rg_methods <- function()
             template=template, parameters=parameters, mode=mode, wait=wait)
     })
 
-
     az_resource_group$set("public", "create_vm_scaleset", overwrite=TRUE,
-    function(name, login_user, size="Standard_DS3_v2", config="ubuntu_dsvm_ss", managed=TRUE, datadisks=numeric(0),
-             scaleset, ..., template, parameters, mode="Incremental", wait=TRUE)
+    function(name, login_user, instances, size="Standard_DS1_v2", config="ubuntu_dsvm_ss",
+             ..., template, parameters, mode="Incremental", wait=TRUE)
     {
         stopifnot(inherits(login_user, "user_config"))
 
         if(is.character(config))
             config <- get(config, getNamespace("AzureVM"))
         if(is.function(config))
-            config <- config(!is_empty(login_user$key), managed, datadisks, scaleset, ...)
+            config <- config(...)
 
         stopifnot(inherits(config, "vmss_config"))
 
@@ -435,49 +429,23 @@ add_rg_methods <- function()
             template <- build_template_definition(config)
 
         if(missing(parameters))
-            parameters <- build_template_parameters(config, name, login_user, size, scaleset)
+            parameters <- build_template_parameters(config, name, login_user, size, instances)
 
         AzureVM::az_vmss_template$new(self$token, self$subscription, self$name, name,
             template=template, parameters=parameters, mode=mode, wait=wait)
     })
 
-
-    az_resource_group$set("public", "create_vm_cluster", overwrite=TRUE,
-    function(...)
-    {
-        .Defunct(msg="The 'create_vm_cluster' method is defunct.\nUse 'create_vm_scaleset' instead.")
-    })
-
-
     az_resource_group$set("public", "get_vm", overwrite=TRUE,
     function(name)
     {
-        res <- try(AzureVM::az_vm_template$new(self$token, self$subscription, self$name, name), silent=TRUE)
-
-        # if we couldn't find a VM deployment template, get the raw VM resource
-        if(inherits(res, "try-error"))
-        {
-            warning("No deployment template found for VM '", name, "'", call.=FALSE)
-            res <- AzureVM::az_vm_resource$new(self$token, self$subscription, self$name,
-            type="Microsoft.Compute/virtualMachines", name=name)
-        }
-        res
+        AzureVM::az_vm_template$new(self$token, self$subscription, self$name, name)
     })
-
 
     az_resource_group$set("public", "get_vm_scaleset", overwrite=TRUE,
     function(name)
     {
         AzureVM::az_vmss_template$new(self$token, self$subscription, self$name, name)
     })
-
-
-    az_resource_group$set("public", "get_vm_cluster", overwrite=TRUE,
-    function(...)
-    {
-        .Defunct(msg="The 'get_vm_cluster' method is defunct.\nUse 'get_vm_scaleset' instead.")
-    })
-
 
     az_resource_group$set("public", "delete_vm", overwrite=TRUE,
                           function(name, confirm=TRUE, free_resources=TRUE)
@@ -488,20 +456,11 @@ add_rg_methods <- function()
         else vm$delete(confirm=confirm)
     })
 
-
     az_resource_group$set("public", "delete_vm_scaleset", overwrite=TRUE,
     function(name, confirm=TRUE, free_resources=TRUE)
     {
         self$get_vmss_cluster(name)$delete(confirm=confirm, free_resources=free_resources)
     })
-
-
-    az_resource_group$set("public", "delete_vm_cluster", overwrite=TRUE,
-    function(...)
-    {
-        .Defunct(msg="The 'delete_vm_cluster' method is defunct.\nUse 'delete_vm_scaleset' instead.")
-    })
-
 
     az_resource_group$set("public", "list_vm_sizes", overwrite=TRUE,
     function(name_only=FALSE)
@@ -509,6 +468,54 @@ add_rg_methods <- function()
         az_subscription$
             new(self$token, self$subscription)$
             list_vm_sizes(self$location, name_only=name_only)
+    })
+
+    az_resource_group$set("public", "get_vm_resource", overwrite=TRUE,
+    function(name)
+    {
+        AzureVM::az_vm_resource$new(self$token, self$subscription, self$name,
+            type="Microsoft.Compute/virtualMachines", name=name)
+    })
+
+    az_resource_group$set("public", "get_vm_scaleset_resource", overwrite=TRUE,
+    function(name)
+    {
+        AzureVM::az_vmss_resource$new(self$token, self$subscription, self$name,
+            type="Microsoft.Compute/virtualMachineScaleset", name=name)
+    })
+}
+
+
+add_defunct_methods <- function()
+{
+    az_subscription$set("public", "get_vm_cluster", overwrite=TRUE, function(...)
+    {
+        .Defunct(msg="The 'get_vm_cluster' method is defunct.\nUse 'get_vm_scaleset' instead.")
+    })
+
+    az_subscription$set("public", "create_vm_cluster", overwrite=TRUE, function(...)
+    {
+        .Defunct(msg="The 'create_vm_cluster' method is defunct.\nUse 'create_vm_scaleset' instead.")
+    })
+
+    az_subscription$set("public", "delete_vm_cluster", overwrite=TRUE, function(...)
+    {
+        .Defunct(msg="The 'delete_vm_cluster' method is defunct.\nUse 'delete_vm_scaleset' instead.")
+    })
+    
+    az_resource_group$set("public", "get_vm_cluster", overwrite=TRUE, function(...)
+    {
+        .Defunct(msg="The 'get_vm_cluster' method is defunct.\nUse 'get_vm_scaleset' instead.")
+    })
+
+    az_resource_group$set("public", "create_vm_cluster", overwrite=TRUE, function(...)
+    {
+        .Defunct(msg="The 'create_vm_cluster' method is defunct.\nUse 'create_vm_scaleset' instead.")
+    })
+
+    az_resource_group$set("public", "delete_vm_cluster", overwrite=TRUE, function(...)
+    {
+        .Defunct(msg="The 'delete_vm_cluster' method is defunct.\nUse 'delete_vm_scaleset' instead.")
     })
 }
 

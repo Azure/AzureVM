@@ -73,7 +73,6 @@
 az_vm_template <- R6::R6Class("az_vm_template", inherit=az_template,
 
 public=list(
-    ip_address=NULL,
     dns_name=NULL,
 
     initialize=function(token, subscription, resource_group, name, ..., wait=TRUE)
@@ -82,20 +81,19 @@ public=list(
 
         if(wait)
         {
-            private$vm <- az_vm_resource$new(self$token, self$subscription, id=self$properties$outputs$vmResource)
+            private$vm <- az_vm_resource$new(self$token, self$subscription, id=self$properties$outputs$vmResource$value)
 
             # get the hostname/IP address for the VM
             outputs <- unlist(self$properties$outputResources)
             ip_id <- grep("publicIPAddresses/.+$", outputs, ignore.case=TRUE, value=TRUE)
-            ip <- az_resource$new(self$token, self$subscription, id=ip_id)$properties
 
-            self$ip_address <- ip$ipAddress
-            self$dns_name <- ip$dnsSettings$fqdn
-            NULL
+            if(!is_empty(ip_id))
+            {
+                ip <- az_resource$new(self$token, self$subscription, id=ip_id)
+                self$dns_name <- ip$properties$dnsSettings$fqdn
+            }
         }
-        else message("Deployment started. Call the get_vm_status() method to track the status of the deployment.")
-
-        NULL
+        else message("Deployment started. Call the sync_vm_status() method to track the status of the deployment.")
     },
 
     delete=function(confirm=TRUE, free_resources=TRUE)
@@ -128,6 +126,32 @@ public=list(
         }
     },
 
+    get_public_ip_address=function()
+    {
+        outputs <- unlist(self$properties$outputResources)
+        ip_id <- grep("publicIPAddresses/.+$", outputs, ignore.case=TRUE, value=TRUE)
+
+        # no public IP address for this VM
+        if(is_empty(ip_id))
+            return(character(0))
+
+        ip <- az_resource$new(self$token, self$subscription, id=ip_id)
+        ip$properties$ipAddress
+    },
+
+    get_private_ip_address=function(interface=1)
+    {
+        outputs <- unlist(self$properties$outputResources)
+        nic_id <- grep("networkInterfaces/.+$", outputs, ignore.case=TRUE, value=TRUE)
+
+        # no private IP address for this VM (?)
+        if(is_empty(nic_id))
+            return(character(0))
+
+        nic <- az_resource$new(self$token, self$subscription, id=nic_id)
+        nic$properties$ipConfigurations[[interface]]$properties$privateIPAddress
+    },
+
     print=function(...)
     {
         cat("<Azure virtual machine ", self$name, ">\n", sep="")
@@ -135,11 +159,14 @@ public=list(
         osProf <- names(private$vm$properties$osProfile)
         os <- if(any(grepl("linux", osProf))) "Linux" else if(any(grepl("windows", osProf))) "Windows" else "<unknown>"
         exclusive <- self$properties$mode == "Complete"
+        status <- if(is_empty(private$vm$status))
+            "<unknown>"
+        else paste0(names(private$vm$status), "=", private$vm$status, collapse=", ")
 
         cat("  Operating system:", os, "\n")
         cat("  Exclusive resource group:", exclusive, "\n")
         cat("  Domain name:", self$dns_name, "\n")
-        cat("  IP address:", self$ip_address, "\n")
+        cat("  Status:", status, "\n")
         cat("---\n")
 
         exclude <- c("subscription", "resource_group", "name", "dns_name")
@@ -153,8 +180,8 @@ public=list(
 # propagate VM methods up to template
 active=list(
 
-    get_vm_status=function()
-    private$vm$get_vm_status,
+    sync_vm_status=function()
+    private$vm$sync_vm_status,
 
     start=function()
     private$vm$start,
@@ -175,7 +202,10 @@ active=list(
     private$vm$run_deployed_command,
 
     run_script=function()
-    private$vm$run_script
+    private$vm$run_script,
+
+    do_vm_operation=function()
+    private$vm$do_operation
 ),
 
 private=list(
@@ -183,17 +213,26 @@ private=list(
 ))
 
 
-#' Is an object an Azure VM template
+#' Is an object an Azure VM
 #'
 #' @param object an R object.
 #'
 #' @details
-#' This function returns TRUE only for an object representing a VM template deployment. In particular, it returns FALSE for a raw VM resource.
+#' These functions returns TRUE for an object representing a VM template deployment (for `is_vm_template`) or resource (for `is_vm_resource`).
 #'
 #' @return
 #' A boolean.
+#' @rdname is_vm
 #' @export
 is_vm_template <- function(object)
 {
     R6::is.R6(object) && inherits(object, "az_vm_template")
 }
+
+#' @rdname is_vm
+#' @export
+is_vm_resource <- function(object)
+{
+    R6::is.R6(object) && inherits(object, "az_vm_resource")
+}
+

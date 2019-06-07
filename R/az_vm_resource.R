@@ -22,7 +22,6 @@
 az_vm_resource <- R6::R6Class("az_vm_resource", inherit=AzureRMR::az_resource,
 
 public=list(
-    disks=NULL,
     status=NULL,
 
     sync_vm_status=function()
@@ -39,10 +38,7 @@ public=list(
         res <- self$do_operation("instanceView", http_verb="GET")
         self$status <- get_status(res$statuses)
 
-        disks <- named_list(res$disks)
-        self$disks <- lapply(disks, function(d) get_status(d$status))
-
-        invisible(NULL)
+        self$status
     },
 
     start=function(wait=TRUE)
@@ -196,13 +192,6 @@ public=list(
         super$delete(..., confirm=confirm, wait=wait)
         if(!is_empty(managed_disks))
         {
-            md_api_ver <- named_list(
-                call_azure_rm(self$token, self$subscription, "providers/Microsoft.Compute")$
-                    resourceTypes, "resourceType"
-                )$
-                disks$
-                apiVersions[[1]]
-
             lapply(managed_disks, function(id)
                 az_resource$
                     new(self$token, self$subscription, id=id, deployed_properties=list(NULL))$
