@@ -62,6 +62,10 @@ vmss_fixup_ip <- function(options, lb, ip)
     if(is.null(ip) || !inherits(ip, "ip_config"))
         return(ip)
 
+    lb_type <- if(is_resource(lb))
+        lb$sku$name
+    else lb$type 
+
     # for a large scaleset, must set sku=standard, allocation=static
     if(!options$params$singlePlacementGroup)
     {
@@ -79,7 +83,7 @@ vmss_fixup_ip <- function(options, lb, ip)
     {
         # defaults for small scaleset: sku=load balancer sku, allocation=dynamic
         if(is_empty(ip$type))
-            ip$type <- lb$type
+            ip$type <- lb_type
         if(is_empty(ip$dynamic))
             ip$dynamic <- TRUE
     }
