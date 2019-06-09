@@ -102,6 +102,20 @@ add_template_resources.vmss_config <- function(config, ...)
                                 loadBalancerBackendAddressPools <- list(list(id="[variables('lbBackendId')]"))  # lol
     }
 
+    if(config$options$public)
+    {
+        vm$
+            networkProfile$
+                networkInterfaceConfigurations[[1]]$
+                    properties$
+                        ipConfigurations[[1]]$
+                            properties$
+                                publicIpAddressConfiguration <- list(
+                                    name="pub1",
+                                    properties=list(idleTimeoutInMinutes=15)
+                                )
+    }
+
     vmss$properties$virtualMachineProfile <- vm
 
     resources <- config[c("nsg", "vnet", "lb", "ip", "as")]
