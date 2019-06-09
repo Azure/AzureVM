@@ -13,7 +13,7 @@ vmss_config <- function(image, options=scaleset_options(),
 
     # make IP sku, balancer sku and scaleset size consistent with each other
     load_balancer <- vmss_fixup_lb(options, load_balancer)
-    ip <- vmss_fixup_ip(options, load_balancer, ip)
+    ip <- vmss_fixup_ip(options, load_balancer, load_balancer_address)
 
     obj <- list(
         image=image,
@@ -32,20 +32,21 @@ vmss_config <- function(image, options=scaleset_options(),
 
 vmss_fixup_lb <- function(options, lb)
 {
+    # don't try to fix load balancer if not created here
     if(is.null(lb) || !inherits(lb, "lb_config"))
         return(lb)
 
     # for a large scaleset, must set sku=standard
     if(!options$params$singlePlacementGroup)
     {
-        if(is_empty(lb$type))
+        if(is.null(lb$type))
             lb$type <- "standard"
         else if(tolower(lb$type) != "standard")
             stop("Load balancer type must be 'standard' for large scalesets", call.=FALSE)
     }
     else
     {
-        if(is_empty(lb$type))
+        if(is.null(lb$type))
             lb$type <- "basic"
     }
 
@@ -59,6 +60,11 @@ vmss_fixup_ip <- function(options, lb, ip)
     if(is.null(lb))
         return(NULL)
 
+    # don't try to fix IP if load balancer was provided as a resource id
+    if(is.character(lb))
+        return(ip)
+
+    # don't try to fix IP if not created here
     if(is.null(ip) || !inherits(ip, "ip_config"))
         return(ip)
 
@@ -69,12 +75,12 @@ vmss_fixup_ip <- function(options, lb, ip)
     # for a large scaleset, must set sku=standard, allocation=static
     if(!options$params$singlePlacementGroup)
     {
-        if(is_empty(ip$type))
+        if(is.null(ip$type))
             ip$type <- "standard"
         else if(tolower(ip$type) != "standard")
             stop("Load balancer IP address type must be 'standard' for large scalesets", call.=FALSE)
 
-        if(is_empty(ip$dynamic))
+        if(is.null(ip$dynamic))
             ip$dynamic <- FALSE
         else if(ip$dynamic)
             stop("Load balancer dynamic IP address not supported for large scalesets", call.=FALSE)
@@ -82,15 +88,15 @@ vmss_fixup_ip <- function(options, lb, ip)
     else
     {
         # defaults for small scaleset: sku=load balancer sku, allocation=dynamic
-        if(is_empty(ip$type))
+        if(is.null(ip$type))
             ip$type <- lb_type
-        if(is_empty(ip$dynamic))
-            ip$dynamic <- TRUE
+        if(is.null(ip$dynamic))
+            ip$dynamic <- tolower(ip$type) == "basic"
     }
 
     # check consistency
     if(tolower(ip$type) == "standard" && ip$dynamic)
-        stop("Standard IP address type does not support dynamic address allocation", call.=FALSE)
+        stop("Standard IP address type does not support dynamic allocation", call.=FALSE)
 
     ip
 }

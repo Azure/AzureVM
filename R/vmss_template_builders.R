@@ -93,12 +93,13 @@ add_template_resources.vmss_config <- function(config, ...)
 
     vmss$properties$virtualMachineProfile <- vm
 
-    existing <- sapply(config[c("nsg", "vnet", "lb", "ip", "as")], existing_resource)
-    unused <- sapply(config[c("nsg", "vnet", "lb", "ip", "as")], is.null)
+    resources <- config[c("nsg", "vnet", "lb", "ip", "as")]
+
+    existing <- sapply(resources, existing_resource)
+    unused <- sapply(resources, is.null)
     create <- !existing & !unused
 
-    resources <- lapply(config[create], build_resource_fields)
-    names(resources) <- NULL
+    resources <- lapply(resources[create], build_resource_fields)
 
     ## fixup dependencies between resources
     # vnet depends on nsg
@@ -107,23 +108,23 @@ add_template_resources.vmss_config <- function(config, ...)
     if(create["vnet"])
     {
         if(!create["nsg"])
-        vnet$dependsOn <- NULL
+            resources$vnet$dependsOn <- NULL
 
         if(unused["nsg"])
-        config$vnet$properties$subnets[[1]]$properties$networkSecurityGroup <- NULL
+            resources$vnet$properties$subnets[[1]]$properties$networkSecurityGroup <- NULL
     }
 
     vmss_depends <- character()
-    if(!unused["lb"])
+    if(create["lb"])
         vmss_depends <- c(vmss_depends, "[variables('lbRef')]")
-    if(!unused["vnet"])
+    if(create["vnet"])
         vmss_depends <- c(vmss_depends, "[variables('vnetRef')]")
-    vmss$dependsOn <- vmss_depends
+    vmss$dependsOn <- I(vmss_depends)
 
     resources <- c(resources, list(vmss))
 
     if(!is_empty(config$other))
-        resources <- c(resources, config$other)
+        resources <- c(resources, lapply(config$other, build_resource_fields))
 
-    resources
+    unname(resources)
 }

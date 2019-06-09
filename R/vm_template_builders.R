@@ -83,12 +83,13 @@ add_template_resources.vm_config <- function(config, ...)
     if(inherits(config$image, "image_custom"))
         vm$properties$storageProfile$imageReference <- list(id="[parameters('imageId')]")
 
-    existing <- sapply(config[c("nsg", "ip", "vnet", "nic")], existing_resource)
-    unused <- sapply(config[c("nsg", "ip", "vnet", "nic")], is.null)
+    resources <- config[c("nsg", "ip", "vnet", "nic")]
+
+    existing <- sapply(resources, existing_resource)
+    unused <- sapply(resources, is.null)
     create <- !existing & !unused
 
-    resources <- lapply(config[create], build_resource_fields)
-    names(resources) <- NULL
+    resources <- lapply(resources[create], build_resource_fields)
 
     ## fixup dependencies between resources
     # vnet depends on nsg
@@ -98,18 +99,18 @@ add_template_resources.vm_config <- function(config, ...)
     if(create["vnet"])
     {
         if(!create["nsg"])
-        vnet$dependsOn <- NULL
+        resources$vnet$dependsOn <- NULL
 
         if(unused["nsg"])
-        config$vnet$properties$subnets[[1]]$properties$networkSecurityGroup <- NULL
+        resources$vnet$properties$subnets[[1]]$properties$networkSecurityGroup <- NULL
     }
 
     if(create["nic"])
     {
         nic_created_depends <- create[c("ip", "vnet")]
-        nic$dependsOn <- nic$dependsOn[nic_created_depends]
+        resources$nic$dependsOn <- resources$nic$dependsOn[nic_created_depends]
         if(unused["ip"])
-            config$nic$properties$ipConfigurations[[1]]$properties$publicIPAddress <- NULL
+            resources$nic$properties$ipConfigurations[[1]]$properties$publicIPAddress <- NULL
     }
     else vm$dependsOn <- NULL
 
@@ -121,7 +122,7 @@ add_template_resources.vm_config <- function(config, ...)
     if(!is_empty(config$other))
         resources <- c(resources, lapply(config$other, build_resource_fields))
 
-    resources
+    unname(resources)
 }
 
 

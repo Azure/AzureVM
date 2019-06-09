@@ -42,7 +42,7 @@ vnet_config <- function(address_space="10.0.0.0/16", subnets=list(subnet_config(
 }
 
 
-vnet_config.build_resource_fields <- function(object, ...)
+build_resource_fields.vnet_config <- function(object, ...)
 {
     object$properties$subnets <- lapply(object$properties$subnets, unclass)
     utils::modifyList(vnet_default, object)

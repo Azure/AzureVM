@@ -1,7 +1,14 @@
-autoscaler_config <- function(profiles=list(autoscaler_profile()))
+autoscaler_config <- function(profiles=list(autoscaler_profile()), ...)
 {
-    props <- list(profiles=lapply(profiles, unclass))
+    props <- list(profiles=profiles, ...)
     structure(list(properties=props), class="as_config")
+}
+
+
+build_resource_fields.as_config <- function(object, ...)
+{
+    object$properties$profiles <- lapply(object$properties$profiles, unclass)
+    utils::modifyList(as_default, object)
 }
 
 

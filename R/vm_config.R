@@ -28,6 +28,8 @@ vm_config <- function(image, keylogin, managed=TRUE,
     stopifnot(inherits(image, "image_config"))
     stopifnot(is.list(datadisks) && all(sapply(datadisks, inherits, "datadisk_config")))
 
+    ip <- vm_fixup_ip(ip)
+
     obj <- list(
         image=image,
         keylogin=keylogin,
@@ -42,6 +44,27 @@ vm_config <- function(image, keylogin, managed=TRUE,
     )
     structure(obj, class="vm_config")
 }
+
+
+vm_fixup_ip <- function(ip)
+{
+    # don't try to fix IP if not created here
+    if(is.null(ip) || !inherits(ip, "ip_config"))
+        return(ip)
+
+    # default for a regular VM: sku=basic, allocation=dynamic
+    if(is.null(ip$type))
+        ip$type <- "basic"
+    if(is.null(ip$dynamic))
+        ip$dynamic <- tolower(ip$type) == "basic"
+
+    # check consistency
+    if(tolower(ip$type) == "standard" && ip$dynamic)
+        stop("Standard IP address type does not support dynamic allocation", call.=FALSE)
+
+    ip
+}
+
 
 #' @rdname vm_config
 #' @export

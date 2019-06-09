@@ -8,9 +8,12 @@ lb_config <- function(type=NULL, rules=list(), probes=list(), ...)
     {
         found <- FALSE
         for(p in probe_names)
+        {
             found <- grepl(p, r, fixed=TRUE)
+            if(found) break
+        }
         if(!found)
-            stop("Rule with no matching probe:", r, call.=FALSE)
+            stop("Rule with no matching probe: ", r, call.=FALSE)
     }
 
     props <- list(
@@ -23,7 +26,7 @@ lb_config <- function(type=NULL, rules=list(), probes=list(), ...)
 }
 
 
-lb_config.build_resource_fields <- function(object, ...)
+build_resource_fields.lb_config <- function(object, ...)
 {
     props <- c(
         list(

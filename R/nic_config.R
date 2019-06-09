@@ -23,7 +23,7 @@ nic_config <- function(nic_ip=list(nic_ip_config()), ...)
 }
 
 
-nic_config.build_resource_fields <- function(object, ...)
+build_resource_fields.nic_config <- function(object, ...)
 {
     object$properties$ipConfigurations <- lapply(object$properties$ipConfigurations, unclass)
     utils::modifyList(nic_default, object)
