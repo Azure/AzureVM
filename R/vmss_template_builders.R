@@ -56,11 +56,6 @@ add_template_variables.vmss_config <- function(config, ...)
 
 add_template_resources.vmss_config <- function(config, ...)
 {
-    nsg <- nsg_default
-    vnet <- vnet_default
-    lb <- lb_default
-    ip <- ip_default
-    as <- as_default
     vmss <- vmss_default
 
     # fixup VMSS properties
@@ -98,26 +93,25 @@ add_template_resources.vmss_config <- function(config, ...)
 
     vmss$properties$virtualMachineProfile <- vm
 
-    # fixup nsg security rule priorities
-    for(i in seq_along(config$nsg$properties$securityRules))
-    {
-        if(is_empty(config$nsg$properties$securityRules[[i]]$properties$priority))
-            config$nsg$properties$securityRules[[i]]$properties$priority <- 1000 + 10 * i
-    }
+    existing <- sapply(config[c("nsg", "vnet", "lb", "ip", "as")], existing_resource)
+    unused <- sapply(config[c("nsg", "vnet", "lb", "ip", "as")], is.null)
+    create <- !existing & !unused
+
+    resources <- lapply(config[create], build_resource_fields)
+    names(resources) <- NULL
 
     ## fixup dependencies between resources
     # vnet depends on nsg
     # vmss depends on vnet, lb
 
-    existing <- sapply(config[c("nsg", "vnet", "lb", "ip", "as")], existing_resource)
-    unused <- sapply(config[c("nsg", "vnet", "lb", "ip", "as")], is.null)
-    created <- !existing & !unused
-
-    if(!created["nsg"])
+    if(create["vnet"])
+    {
+        if(!create["nsg"])
         vnet$dependsOn <- NULL
 
-    if(unused["nsg"])
+        if(unused["nsg"])
         config$vnet$properties$subnets[[1]]$properties$networkSecurityGroup <- NULL
+    }
 
     vmss_depends <- character()
     if(!unused["lb"])
@@ -125,11 +119,6 @@ add_template_resources.vmss_config <- function(config, ...)
     if(!unused["vnet"])
         vmss_depends <- c(vmss_depends, "[variables('vnetRef')]")
     vmss$dependsOn <- vmss_depends
-
-    resources <- mapply(utils::modifyList,
-        list(nsg, vnet, lb, ip, as)[created],
-        config[c("nsg", "vnet", "lb", "ip", "as")][created],
-        SIMPLIFY=FALSE)
 
     resources <- c(resources, list(vmss))
 

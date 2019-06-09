@@ -11,7 +11,9 @@ vmss_config <- function(image, options=scaleset_options(),
     stopifnot(inherits(image, "image_config"))
     stopifnot(inherits(options, "scaleset_options"))
 
-    ip <- if(!is_empty(load_balancer)) load_balancer_address else NULL
+    # make IP sku, balancer sku and scaleset size consistent with each other
+    load_balancer <- vmss_fixup_lb(options, load_balancer)
+    ip <- vmss_fixup_ip(options, load_balancer, ip)
 
     obj <- list(
         image=image,
@@ -25,6 +27,68 @@ vmss_config <- function(image, options=scaleset_options(),
         variables=variables
     )
     structure(obj, class="vmss_config")
+}
+
+
+vmss_fixup_lb <- function(options, lb)
+{
+    if(is.null(lb) || !inherits(lb, "lb_config"))
+        return(lb)
+
+    # for a large scaleset, must set sku=standard
+    if(!options$params$singlePlacementGroup)
+    {
+        if(is_empty(lb$type))
+            lb$type <- "standard"
+        else if(tolower(lb$type) != "standard")
+            stop("Load balancer type must be 'standard' for large scalesets", call.=FALSE)
+    }
+    else
+    {
+        if(is_empty(lb$type))
+            lb$type <- "basic"
+    }
+
+    lb
+}
+
+
+vmss_fixup_ip <- function(options, lb, ip)
+{
+    # IP address only required if load balancer is present
+    if(is.null(lb))
+        return(NULL)
+
+    if(is.null(ip) || !inherits(ip, "ip_config"))
+        return(ip)
+
+    # for a large scaleset, must set sku=standard, allocation=static
+    if(!options$params$singlePlacementGroup)
+    {
+        if(is_empty(ip$type))
+            ip$type <- "standard"
+        else if(tolower(ip$type) != "standard")
+            stop("Load balancer IP address type must be 'standard' for large scalesets", call.=FALSE)
+
+        if(is_empty(ip$dynamic))
+            ip$dynamic <- FALSE
+        else if(ip$dynamic)
+            stop("Load balancer dynamic IP address not supported for large scalesets", call.=FALSE)
+    }
+    else
+    {
+        # defaults for small scaleset: sku=load balancer sku, allocation=dynamic
+        if(is_empty(ip$type))
+            ip$type <- lb$type
+        if(is_empty(ip$dynamic))
+            ip$dynamic <- TRUE
+    }
+
+    # check consistency
+    if(tolower(ip$type) == "standard" && ip$dynamic)
+        stop("Standard IP address type does not support dynamic address allocation", call.=FALSE)
+
+    ip
 }
 
 

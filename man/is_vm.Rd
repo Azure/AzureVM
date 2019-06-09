@@ -2,9 +2,12 @@
 % Please edit documentation in R/az_vm_template.R
 \name{is_vm_template}
 \alias{is_vm_template}
-\title{Is an object an Azure VM template}
+\alias{is_vm_resource}
+\title{Is an object an Azure VM}
 \usage{
 is_vm_template(object)
+
+is_vm_resource(object)
 }
 \arguments{
 \item{object}{an R object.}
@@ -13,8 +16,8 @@ is_vm_template(object)
 A boolean.
 }
 \description{
-Is an object an Azure VM template
+Is an object an Azure VM
 }
 \details{
-This function returns TRUE only for an object representing a VM template deployment. In particular, it returns FALSE for a raw VM resource.
+These functions returns TRUE for an object representing a VM template deployment (for \code{is_vm_template}) or resource (for \code{is_vm_resource}).
 }

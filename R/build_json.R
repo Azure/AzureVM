@@ -147,3 +147,17 @@ add_template_resources <- function(config, ...)
 {
     UseMethod("add_template_resources")
 }
+
+
+build_resource_fields <- function(object, ...)
+{
+    UseMethod("build_resource_fields")
+}
+
+
+build_resource_fields.list <- function(object, ...)
+{
+    unclass(object)
+}
+
+

@@ -59,10 +59,6 @@ add_template_variables.vm_config <- function(config, ...)
 
 add_template_resources.vm_config <- function(config, ...)
 {
-    nsg <- nsg_default
-    ip <- ip_default
-    vnet <- vnet_default
-    nic <- nic_default
     vm <- vm_default
 
     # fixup VM properties
@@ -87,37 +83,35 @@ add_template_resources.vm_config <- function(config, ...)
     if(inherits(config$image, "image_custom"))
         vm$properties$storageProfile$imageReference <- list(id="[parameters('imageId')]")
 
-    # fixup nsg security rule priorities
-    for(i in seq_along(config$nsg$properties$securityRules))
-    {
-        if(is_empty(config$nsg$properties$securityRules[[i]]$properties$priority))
-            config$nsg$properties$securityRules[[i]]$properties$priority <- 1000 + 10 * i
-    }
+    existing <- sapply(config[c("nsg", "ip", "vnet", "nic")], existing_resource)
+    unused <- sapply(config[c("nsg", "ip", "vnet", "nic")], is.null)
+    create <- !existing & !unused
+
+    resources <- lapply(config[create], build_resource_fields)
+    names(resources) <- NULL
 
     ## fixup dependencies between resources
     # vnet depends on nsg
     # nic depends on ip, vnet (possibly nsg)
     # vm depends on nic (but nic should always be created)
 
-    existing <- sapply(config[c("nsg", "ip", "vnet", "nic")], existing_resource)
-    unused <- sapply(config[c("nsg", "ip", "vnet", "nic")], is.null)
-    created <- !existing & !unused
-
-    if(!created["nsg"])
+    if(create["vnet"])
+    {
+        if(!create["nsg"])
         vnet$dependsOn <- NULL
 
-    if(unused["nsg"])
+        if(unused["nsg"])
         config$vnet$properties$subnets[[1]]$properties$networkSecurityGroup <- NULL
+    }
 
-    nic_created_depends <- created[c("ip", "vnet")]
-    nic$dependsOn <- nic$dependsOn[nic_created_depends]
-    if(unused["ip"])
-        config$nic$properties$ipConfigurations[[1]]$properties$publicIPAddress <- NULL
-
-    resources <- mapply(utils::modifyList,
-        list(nsg, ip, vnet, nic)[created],
-        config[c("nsg", "ip", "vnet", "nic")][created],
-        SIMPLIFY=FALSE)
+    if(create["nic"])
+    {
+        nic_created_depends <- create[c("ip", "vnet")]
+        nic$dependsOn <- nic$dependsOn[nic_created_depends]
+        if(unused["ip"])
+            config$nic$properties$ipConfigurations[[1]]$properties$publicIPAddress <- NULL
+    }
+    else vm$dependsOn <- NULL
 
     if(n_disk_resources > 0)
         resources <- c(resources, list(disk_default))
@@ -125,30 +119,9 @@ add_template_resources.vm_config <- function(config, ...)
     resources <- c(resources, list(vm))
 
     if(!is_empty(config$other))
-        resources <- c(resources, config$other)
+        resources <- c(resources, lapply(config$other, build_resource_fields))
 
     resources
-}
-
-
-# if deployment uses an existing resource, turn it into a nested template
-modify_resource <- function(resource, ...)
-{
-    if(!inherits(resource, "az_resource"))
-        return(resource)
-
-    reslist <- as.list(resource)[c("type", "name", "location", "kind", "sku", "properties", "identity")]
-    nulls <- sapply(reslist, is.null)
-    reslist <- reslist[!nulls]
-
-    if(is.null(resource$get_api_version()))
-        resource$set_api_version()
-    reslist$apiVersion <- resource$get_api_version()
-
-    tpl <- res_update_deployment
-    tpl$properties$template$resources[[1]] <- utils::modifyList(reslist, list(...))
-
-    tpl
 }
 
 

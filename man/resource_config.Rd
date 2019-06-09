@@ -4,12 +4,6 @@
 \alias{user_config}
 \alias{datadisk_config}
 \alias{image_config}
-\alias{nsg_config}
-\alias{nsg_rule}
-\alias{vnet_config}
-\alias{subnet_config}
-\alias{nic_config}
-\alias{nic_ip_config}
 \title{Resource configuration functions for a virtual machine deployment}
 \usage{
 user_config(username, sshkey = NULL, password = NULL)
@@ -19,25 +13,6 @@ datadisk_config(size, name = "datadisk", create = "empty",
 
 image_config(publisher = NULL, offer = NULL, sku = NULL,
   version = "latest", id = NULL)
-
-nsg_config(rules = list(), ...)
-
-nsg_rule(name, dest_port = "*", dest_addr = "*", dest_asgs = NULL,
-  source_port = "*", source_addr = "*", source_asgs = NULL,
-  access = "allow", direction = "inbound", protocol = "Tcp",
-  priority = NULL)
-
-vnet_config(address_space = "10.0.0.0/16",
-  subnets = list(subnet_config()), ...)
-
-subnet_config(name = "subnet", addresses = "10.0.0.0/24",
-  nsg = "[variables('nsgId')]", ...)
-
-nic_config(nic_ip = list(nic_ip_config()), ...)
-
-nic_ip_config(name = "ipconfig", private_alloc = "dynamic",
-  subnet = "[variables('subnetId')]",
-  public_address = "[variables('ipId')]", ...)
 }
 \arguments{
 \item{username}{For \code{user_config}, the name for the admin user account.}
@@ -48,7 +23,7 @@ nic_ip_config(name = "ipconfig", private_alloc = "dynamic",
 
 \item{size}{For \code{datadisk_config}, the size of the data disk in GB. St this to NULL for a disk that will be created from an image.}
 
-\item{name}{The name of a resource: for \code{datadisk_config}, the disk name; for \code{nsg_rule}, the security rule name; for \code{subnet_config}, the name of a subnet; for \code{nic_ip_config}, the name of a network IP configuration. Duplicate names will automatically be disambiguated prior to VM deployment.}
+\item{name}{For \code{datadisk_config}, the disk name. Duplicate names will automatically be disambiguated prior to VM deployment.}
 
 \item{create}{For \code{datadisk_config}, the creation method. Can be "empty" (the default) to create a blank disk, or "fromImage" to use an image.}
 
@@ -59,44 +34,6 @@ nic_ip_config(name = "ipconfig", private_alloc = "dynamic",
 \item{publisher, offer, sku, version}{For \code{image_config}, the details for a marketplace image.}
 
 \item{id}{For \code{image_config}, the resource ID for a disk to use as a custom image.}
-
-\item{rules}{for \code{nsg_config}, a list of security rule objects, each obtained via a call to \code{nsg_rule}.}
-
-\item{...}{Other named arguments that will be treated as resource fields.}
-
-\item{dest_port, dest_addr, dest_asgs}{For \code{nsg_rule}, the destination port, address range, and application security groups for a rule.}
-
-\item{source_port, source_addr, source_asgs}{For \code{nsg_rule}, the source port, address range, and application security groups for a rule.}
-
-\item{access}{For \code{nsg_rule}, the action to take: "allow" or "deny".}
-
-\item{direction}{For \code{nsg_rule}, the direction of traffic: "inbound" or "outbound".}
-
-\item{protocol}{For \code{nsg_rule}, the network protocol: either "TCP" or "UDP".}
-
-\item{priority}{For \code{nsg_rule}, the rule priority. If NULL, this will be set automatically by AzureVM.}
-
-\item{address_space}{For \code{vnet_config}, the address range accessible by the virtual network, expressed in CIDR block format.}
-
-\item{subnets}{For \code{vnet_config}, a list of subnet objects, each obtained via a call to \code{subnet_config}.}
-
-\item{addresses}{For \code{subnet_config}, the address ranges spanned by this subnet. Must be a subset of the address space available to the parent virtual network.}
-
-\item{nsg}{The network security group associated with this subnet. Defaults to the NSG created as part of this VM deployment.}
-
-\item{nic_ip}{For \code{nic_config}, a list of IP configuration objects, each obtained via a call to \code{nic_ip_config}.}
-
-\item{private_alloc}{For \code{nic_ip_config}, the allocation method for a private IP address. Can be "dynamic" or "static".}
-
-\item{subnet}{For \code{nic_ip_config}, the subnet to associate with this private IP address.}
-
-\item{public_address}{For \code{nic_ip_config}, the public IP address. Defaults to the public IP address created or used as part of this VM deployment. Ignored if the deployment does not include a public address.}
-
-\item{allocation}{For \code{ip_config}, the IP address allocation method: either "dynamic" or "static". In the latter case, the VM's public IP address will persist between shutdowns.}
-
-\item{ipv6}{For \code{ip_config}, whether to use IPv6 addresses.}
-
-\item{domain_name}{For \code{ip_config}, the domain name label to associate with the address. Defaults to the VM's machine name.}
 }
 \description{
 Resource configuration functions for a virtual machine deployment

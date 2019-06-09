@@ -1,4 +1,4 @@
-lb_config <- function(type="basic", rules=list(), probes=list())
+lb_config <- function(type=NULL, rules=list(), probes=list(), ...)
 {
     rule_probe_names <- sapply(rules, function(x) x$properties$probe$id)
     probe_names <- sapply(probes, `[[`, "name")
@@ -14,10 +14,26 @@ lb_config <- function(type="basic", rules=list(), probes=list())
     }
 
     props <- list(
-        loadBalancingRules=lapply(rules, unclass),
-        probes=lapply(probes, unclass)
+        type=type,
+        rules=rules,
+        probes=probes,
+        other=list(...)
     )
-    structure(list(properties=props, sku=list(name=type)), class="lb_config")
+    structure(props, class="lb_config")
+}
+
+
+lb_config.build_resource_fields <- function(object, ...)
+{
+    props <- c(
+        list(
+            loadBalancingRules=lapply(object$rules, unclass),
+            probes=lapply(object$probes, unclass)
+        ),
+        object$other
+    )
+    sku <- list(name=object$type)
+    utils::modifyList(lb_default, list(properties=props, sku=sku))
 }
 
 
@@ -72,51 +88,3 @@ lb_probe_jupyter <- lb_probe(8000)
 lb_probe_rstudio <- lb_probe(8787)
 
 
-autoscaler_config <- function(profiles=list(autoscaler_profile()))
-{
-    props <- list(profiles=lapply(profiles, unclass))
-    structure(list(properties=props), class="as_config")
-}
-
-
-autoscaler_profile <- function(name="Profile", minsize=1, maxsize=NA, default=NA, scale_out=0.75, scale_in=0.25,
-                               interval="PT1M", window="PT5M")
-{
-    if(is.na(maxsize))
-        maxsize <- "[variables('asMaxCapacity')]"
-    if(is.na(default))
-        default <- "[parameters('instanceCount')]"
-    capacity <- list(minimum=minsize, maximum=maxsize, default=default)
-
-    trigger <- list(
-        metricName="Percentage CPU",
-        metricNamespace="",
-        metricResourceUri="[variables('vmId')]",
-        timeGrain=interval,
-        timeWindow=window,
-        statistic="Average",
-        timeAggregation="Average"
-    )
-    action <- list(
-        type="ChangeCount",
-        value="[variables('asScaleValue')]",
-        cooldown=interval
-    )
-
-    rule_out <- list(metricTrigger=trigger, scaleAction=action)
-    rule_out$metricTrigger$operator <- "GreaterThan"
-    rule_out$metricTrigger$threshold <- round(scale_out * 100)
-    rule_out$scaleAction$direction <- "Increase"
-
-    rule_in <- list(metricTrigger=trigger, scaleAction=action)
-    rule_in$metricTrigger$operator <- "LessThan"
-    rule_in$metricTrigger$threshold <- round(scale_in * 100)
-    rule_in$scaleAction$direction <- "Decrease"
-
-    prof <- list(
-        name=name,
-        capacity=capacity,
-        rules=list(rule_out, rule_in)
-    )
-    structure(prof, class="as_profile_config")
-}

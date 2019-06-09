@@ -15,7 +15,7 @@
   size, ...)
 
 \method{build_template_parameters}{vmss_config}(config, name, login_user,
-  size, ...)
+  size, instances, ...)
 }
 \arguments{
 \item{config}{An object of class \code{vm_config} representing a virtual machine deployment.}
