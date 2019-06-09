@@ -49,6 +49,17 @@ add_template_variables.vmss_config <- function(config, ...)
     if(inherits(config$vnet, "vnet_config") || is_resource(config$vnet))
         vars$subnet <- config$vnet$properties$subnets[[1]]$name
 
+    # if we don't have a load balancer, remove these vars
+    if(is.null(config$lb))
+        vars$lbFrontendName <- vars$lbFrontendId <- vars$lbBackendName <- vars$lbBackendId <- NULL
+
+    # if we have an existing load balancer, extract the frontend and backend names
+    if(is_resource(config$lb))
+    {
+        vars$lbFrontendName <- config$lb$properties$frontendIPConfigurations[[1]]$name
+        vars$lbBackendName <- config$lb$properties$backendAddressPools[[1]]$name
+    }
+
     # add any extra variables provided by the user    
     utils::modifyList(vars, config$variables)
 }
