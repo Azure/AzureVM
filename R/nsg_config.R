@@ -4,9 +4,10 @@
 #' @param dest_port,dest_addr,dest_asgs For `nsg_rule`, the destination port, address range, and application security groups for a rule.
 #' @param source_port,source_addr,source_asgs For `nsg_rule`, the source port, address range, and application security groups for a rule.
 #' @param ... Other named arguments that will be treated as resource properties.
+#' @param name For `nsg_rule`, a name for the rule.
 #' @param access For `nsg_rule`, the action to take: "allow" or "deny".
 #' @param direction For `nsg_rule`, the direction of traffic: "inbound" or "outbound".
-#' @param protocol For `nsg_rule`, the network protocol: either "TCP" or "UDP".
+#' @param protocol For `nsg_rule`, the network protocol: either "Tcp" or "Udp".
 #' @param priority For `nsg_rule`, the rule priority. If NULL, this will be set automatically by AzureVM.
 #' @export
 nsg_config <- function(rules=list(), ...)
@@ -65,17 +66,10 @@ nsg_rule <- function(name, dest_port="*", dest_addr="*", dest_asgs=NULL,
 
 #' Network security rules
 #'
-#' @section Usage:
-#' ```
-#' nsg_rule_allow_http
-#' nsg_rule_allow_https
-#' nsg_rule_allow_jupyter
-#' nsg_rule_allow_rdp
-#' nsg_rule_allow_rstudio
-#' nsg_rule_allow_ssh
-#' ```
-#' @section Details:
-#' Some predefined network security rules provided by AzureVM, to unblock commonly-used ports.
+#' @format
+#' Objects of class `nsg_rule`.
+#' @details
+#' Some predefined network security rule objects, to unblock commonly-used ports.
 #' - HTTP: TCP port 80
 #' - HTTPS: TCP port 443
 #' - JupyterHub: TCP port 8000
@@ -85,34 +79,34 @@ nsg_rule <- function(name, dest_port="*", dest_addr="*", dest_asgs=NULL,
 #' - SQL Server: TCP port 1433
 #' - SQL Server browser service: TCP port 1434
 #' @docType data
-#' @rdname nsg_rule
+#' @rdname nsg_rules
 #' @export
 nsg_rule_allow_ssh <- nsg_rule("Allow-ssh", 22)
 
-#' @rdname nsg_rule
+#' @rdname nsg_rules
 #' @export
 nsg_rule_allow_http <- nsg_rule("Allow-http", 80)
 
-#' @rdname nsg_rule
+#' @rdname nsg_rules
 #' @export
 nsg_rule_allow_https <- nsg_rule("Allow-https", 443)
 
-#' @rdname nsg_rule
+#' @rdname nsg_rules
 #' @export
 nsg_rule_allow_rdp <- nsg_rule("Allow-rdp", 3389)
 
-#' @rdname nsg_rule
+#' @rdname nsg_rules
 #' @export
 nsg_rule_allow_jupyter <- nsg_rule("Allow-jupyter", 8000)
 
-#' @rdname nsg_rule
+#' @rdname nsg_rules
 #' @export
 nsg_rule_allow_rstudio <- nsg_rule("Allow-rstudio", 8787)
 
-#' @rdname nsg_rule
+#' @rdname nsg_rules
 #' @export
 nsg_rule_allow_mssql <- nsg_rule("Allow-mssql", 1433)
 
-#' @rdname nsg_rule
+#' @rdname nsg_rules
 #' @export
 nsg_rule_allow_mssql_browser <- nsg_rule("Allow-mssql-browser", 1434)

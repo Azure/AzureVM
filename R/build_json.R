@@ -97,6 +97,7 @@ build_template_parameters.vm_config <- function(config, name, login_user, size, 
 }
 
 
+#' @param instances For `vmss_config`, the number of (initial) instances in the VM scaleset.
 #' @rdname build_template
 #' @export
 build_template_parameters.vmss_config <- function(config, name, login_user, size, instances, ...)

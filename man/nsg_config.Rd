@@ -17,6 +17,8 @@ nsg_rule(name, dest_port = "*", dest_addr = "*", dest_asgs = NULL,
 
 \item{...}{Other named arguments that will be treated as resource properties.}
 
+\item{name}{For \code{nsg_rule}, a name for the rule.}
+
 \item{dest_port, dest_addr, dest_asgs}{For \code{nsg_rule}, the destination port, address range, and application security groups for a rule.}
 
 \item{source_port, source_addr, source_asgs}{For \code{nsg_rule}, the source port, address range, and application security groups for a rule.}
@@ -25,7 +27,7 @@ nsg_rule(name, dest_port = "*", dest_addr = "*", dest_asgs = NULL,
 
 \item{direction}{For \code{nsg_rule}, the direction of traffic: "inbound" or "outbound".}
 
-\item{protocol}{For \code{nsg_rule}, the network protocol: either "TCP" or "UDP".}
+\item{protocol}{For \code{nsg_rule}, the network protocol: either "Tcp" or "Udp".}
 
 \item{priority}{For \code{nsg_rule}, the rule priority. If NULL, this will be set automatically by AzureVM.}
 }

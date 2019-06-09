@@ -11,7 +11,7 @@
 \alias{nsg_rule_allow_mssql}
 \alias{nsg_rule_allow_mssql_browser}
 \title{Network security rules}
-\format{An object of class \code{nsg_rule} of length 2.}
+\format{Objects of class \code{nsg_rule}.}
 \usage{
 nsg_rule_allow_ssh
 
@@ -32,19 +32,8 @@ nsg_rule_allow_mssql_browser
 \description{
 Network security rules
 }
-\section{Usage}{
-\preformatted{nsg_rule_allow_http
-nsg_rule_allow_https
-nsg_rule_allow_jupyter
-nsg_rule_allow_rdp
-nsg_rule_allow_rstudio
-nsg_rule_allow_ssh
-}
-}
-
-\section{Details}{
-
-Some predefined network security rules provided by AzureVM, to unblock commonly-used ports.
+\details{
+Some predefined network security rule objects, to unblock commonly-used ports.
 \itemize{
 \item HTTP: TCP port 80
 \item HTTPS: TCP port 443
@@ -56,5 +45,4 @@ Some predefined network security rules provided by AzureVM, to unblock commonly-
 \item SQL Server browser service: TCP port 1434
 }
 }
-
 \keyword{datasets}

@@ -27,6 +27,8 @@
 \item{login_user}{An object of class \code{user_config} representing the login details for the admin user account on the VM.}
 
 \item{size}{The VM size.}
+
+\item{instances}{For \code{vmss_config}, the number of (initial) instances in the VM scaleset.}
 }
 \description{
 Build template definition and parameters
