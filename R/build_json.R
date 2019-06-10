@@ -170,8 +170,10 @@ add_template_variables.az_resource <- function(config, type, ...)
     {
         frontend <- config$properties$frontendIPConfigurations[[1]]$name
         backend <- config$properties$backendAddressPools[[1]]$name
-        varnames <- c(varnames, "lbFrontendName", "lbBackendName")
-        structure(c(vars, frontend, backend), names=varnames)
+        frontend_id <- "[concat(variables('lbId'), '/frontendIPConfigurations/', variables('lbFrontendName'))]"
+        backend_id <- "[concat(variables('lbId'), '/backendAddressPools/', variables('lbBackendName'))]"
+        varnames <- c(varnames, "lbFrontendName", "lbBackendName", "lbFrontendId", "lbBackendId")
+        structure(c(vars, frontend, backend, frontend_id, backend_id), names=varnames)
     }
     else structure(vars, names=varnames)
 }
