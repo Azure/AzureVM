@@ -22,45 +22,17 @@ add_template_parameters.vmss_config <- function(config, ...)
 
 add_template_variables.vmss_config <- function(config, ...)
 {
-    vars <- sstpl_variables_default
+    vars <- list(
+        location="[resourceGroup().location]",
+        vmId="[resourceId('Microsoft.Compute/virtualMachineScalesets', parameters('vmName'))]",
+        vmRef="[concat('Microsoft.Compute/virtualMachineScalesets/', parameters('vmName'))]",
+        vmPrefix="[concat(parameters('vmName'), '-instance')]"
+    )
+
     for(res in c("nsg", "vnet", "lb", "ip", "as"))
-    {
-        obj <- config[[res]]
-        # input can be a resource ID string, an AzureRMR::az_resource object, a config object, or NULL (no resource)
-        if(is.character(obj))
-        {
-            vars[[paste0(res, "Name")]] <- basename(obj)
-            vars[[paste0(res, "Id")]] <- obj
-        }
-        else if(is_resource(obj))
-        {
-            vars[[paste0(res, "Name")]] <- obj$name
-            vars[[paste0(res, "Id")]] <- obj$id
-        }
-        else if(is.null(obj))
-        {
-            vars[[paste0(res, "Name")]] <- NULL
-            vars[[paste0(res, "Id")]] <- NULL
-            vars[[paste0(res, "Ref")]] <- NULL
-        }
-    }
+        vars <- c(vars, add_template_variables(config[[res]], res))
 
-    # if we have a vnet, extract the 1st subnet name
-    if(inherits(config$vnet, "vnet_config") || is_resource(config$vnet))
-        vars$subnet <- config$vnet$properties$subnets[[1]]$name
-
-    # if we don't have a load balancer, remove these vars
-    if(is.null(config$lb))
-        vars$lbFrontendName <- vars$lbFrontendId <- vars$lbBackendName <- vars$lbBackendId <- NULL
-
-    # if we have an existing load balancer, extract the frontend and backend names
-    if(is_resource(config$lb))
-    {
-        vars$lbFrontendName <- config$lb$properties$frontendIPConfigurations[[1]]$name
-        vars$lbBackendName <- config$lb$properties$backendAddressPools[[1]]$name
-    }
-
-    # add any extra variables provided by the user    
+    # add any extra variables provided by the user
     utils::modifyList(vars, config$variables)
 }
 

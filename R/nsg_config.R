@@ -18,18 +18,27 @@ nsg_config <- function(rules=list(), ...)
 }
 
 
-build_resource_fields.nsg_config <- function(object, ...)
+build_resource_fields.nsg_config <- function(config, ...)
 {
-    for(i in seq_along(object$properties$securityRules))
+    for(i in seq_along(config$properties$securityRules))
     {
         # fixup nsg security rule priorities
-        if(is_empty(object$properties$securityRules[[i]]$properties$priority))
-            object$properties$securityRules[[i]]$properties$priority <- 1000 + 10 * i
+        if(is_empty(config$properties$securityRules[[i]]$properties$priority))
+            config$properties$securityRules[[i]]$properties$priority <- 1000 + 10 * i
 
-        object$properties$securityRules[[i]] <- unclass(object$properties$securityRules[[i]])
+        config$properties$securityRules[[i]] <- unclass(config$properties$securityRules[[i]])
     }
 
-    utils::modifyList(nsg_default, object)
+    utils::modifyList(nsg_default, config)
+}
+
+
+add_template_variables.nsg_config <- function(config, ...)
+{
+    name <- "[concat(parameters('vmName'), '-nsg')]"
+    id <- "[resourceId('Microsoft.Network/networkSecurityGroups', variables('nsgName'))]"
+    ref <- "[concat('Microsoft.Network/networkSecurityGroups/', variables('nsgName'))]"
+    list(nsgName=name, nsgId=id, nsgRef=ref)
 }
 
 

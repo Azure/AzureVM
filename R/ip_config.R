@@ -20,20 +20,28 @@ ip_config <- function(type=NULL, dynamic=NULL, ipv6=FALSE, domain_name="[paramet
 }
 
 
-build_resource_fields.ip_config <- function(object, ...)
+build_resource_fields.ip_config <- function(config, ...)
 {
-    alloc <- if(object$dynamic) "dynamic" else "static"
-    version <- if(object$ipv6) "IPv6" else "IPv4"
+    alloc <- if(config$dynamic) "dynamic" else "static"
+    version <- if(config$ipv6) "IPv6" else "IPv4"
     props <- c(
         list(
             publicIPAllocationMethod=alloc,
             publicIPAddressVersion=version
         ),
-        object$other)
-    if(!is.null(object$domain_name))
-        props$dnsSettings$domainNameLabel <- object$domain_name
+        config$other)
+    if(!is.null(config$domain_name))
+        props$dnsSettings$domainNameLabel <- config$domain_name
 
-    sku <- list(name=object$type)
+    sku <- list(name=config$type)
     utils::modifyList(ip_default, list(properties=props, sku=sku))
 }
 
+
+add_template_variables.ip_config <- function(config, ...)
+{
+    name <- "[concat(parameters('vmName'), '-ip')]"
+    id <- "[resourceId('Microsoft.Network/publicIPAddresses', variables('ipName'))]"
+    ref <- "[concat('Microsoft.Network/publicIPAddresses/', variables('ipName'))]"
+    list(ipName=name, ipId=id, ipRef=ref)
+}

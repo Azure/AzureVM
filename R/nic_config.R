@@ -23,16 +23,25 @@ nic_config <- function(nic_ip=list(nic_ip_config()), ...)
 }
 
 
-build_resource_fields.nic_config <- function(object, ...)
+build_resource_fields.nic_config <- function(config)
 {
-    object$properties$ipConfigurations <- lapply(object$properties$ipConfigurations, unclass)
-    utils::modifyList(nic_default, object)
+    config$properties$ipConfigurations <- lapply(config$properties$ipConfigurations, unclass)
+    utils::modifyList(nic_default, config)
+}
+
+
+add_template_variables.nic_config <- function(config, ...)
+{
+    name <- "[concat(parameters('vmName'), '-nic')]"
+    id <- "[resourceId('Microsoft.Network/networkInterfaces', variables('nicName'))]"
+    ref <- "[concat('Microsoft.Network/networkInterfaces/', variables('nicName'))]"
+    list(nicName=name, nicId=id, nicRef=ref)
 }
 
 
 #' @rdname nic_config
 #' @export
-nic_ip_config <- function(name="ipconfig", private_alloc="dynamic", subnet="[variables('subnetId')]", 
+nic_ip_config <- function(name="ipconfig", private_alloc="dynamic", subnet="[variables('subnetId')]",
                           public_address="[variables('ipId')]", ...)
 {
     props <- list(

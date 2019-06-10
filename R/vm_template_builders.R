@@ -25,34 +25,16 @@ add_template_parameters.vm_config <- function(config, ...)
 
 add_template_variables.vm_config <- function(config, ...)
 {
-    vars <- tpl_variables_default
+    vars <- list(
+        location="[resourceGroup().location]",
+        vmId="[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]",
+        vmRef="[concat('Microsoft.Compute/virtualMachines/', parameters('vmName'))]"
+    )
+
     for(res in c("nsg", "ip", "vnet", "nic"))
-    {
-        obj <- config[[res]]
-        # input can be a resource ID string, an AzureRMR::az_resource object, a config object, or NULL (no resource)
-        if(is.character(obj))
-        {
-            vars[[paste0(res, "Name")]] <- basename(obj)
-            vars[[paste0(res, "Id")]] <- obj
-        }
-        else if(is_resource(obj))
-        {
-            vars[[paste0(res, "Name")]] <- obj$name
-            vars[[paste0(res, "Id")]] <- obj$id
-        }
-        else if(is.null(obj))
-        {
-            vars[[paste0(res, "Name")]] <- NULL
-            vars[[paste0(res, "Id")]] <- NULL
-            vars[[paste0(res, "Ref")]] <- NULL
-        }
-    }
+        vars <- c(vars, add_template_variables(config[[res]], res))
 
-    # if we have a vnet, extract the 1st subnet name
-    if(inherits(config$vnet, "vnet_config") || is_resource(config$vnet))
-        vars$subnet <- config$vnet$properties$subnets[[1]]$name
-
-    # add any extra variables provided by the user    
+    # add any extra variables provided by the user
     utils::modifyList(vars, config$variables)
 }
 

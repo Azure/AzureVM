@@ -16,10 +16,21 @@ autoscaler_config <- function(profiles=list(autoscaler_profile()), ...)
 }
 
 
-build_resource_fields.as_config <- function(object, ...)
+build_resource_fields.as_config <- function(config, ...)
 {
-    object$properties$profiles <- lapply(object$properties$profiles, unclass)
-    utils::modifyList(as_default, object)
+    config$properties$profiles <- lapply(config$properties$profiles, unclass)
+    utils::modifyList(as_default, config)
+}
+
+
+add_template_variables.as_config <- function(config, ...)
+{
+    name <- "[concat(parameters('vmName'), '-as')]"
+    id <- "[resourceId('Microsoft.Insights/autoscaleSettings', variables('asName'))]"
+    ref <- "[concat('Microsoft.Insights/autoscaleSettings/', variables('asName'))]"
+    capacity <- "[mul(int(parameters('instanceCount')), 10)]"
+    scaleval <- "[max(div(int(parameters('instanceCount')), 5), 1)]"
+    list(asName=name, asId=id, asRef=ref, asMaxCapacity=capacity, asScaleValue=scaleval)
 }
 
 

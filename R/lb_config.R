@@ -43,17 +43,38 @@ lb_config <- function(type=NULL, rules=list(), probes=list(), ...)
 }
 
 
-build_resource_fields.lb_config <- function(object, ...)
+build_resource_fields.lb_config <- function(config, ...)
 {
     props <- c(
         list(
-            loadBalancingRules=lapply(object$rules, unclass),
-            probes=lapply(object$probes, unclass)
+            loadBalancingRules=lapply(config$rules, unclass),
+            probes=lapply(config$probes, unclass)
         ),
-        object$other
+        config$other
     )
-    sku <- list(name=object$type)
+    sku <- list(name=config$type)
     utils::modifyList(lb_default, list(properties=props, sku=sku))
+}
+
+
+add_template_variables.lb_config <- function(config, ...)
+{
+    name <- "[concat(parameters('vmName'), '-lb')]"
+    id <- "[resourceId('Microsoft.Network/loadBalancers', variables('lbName'))]"
+    ref <- "[concat('Microsoft.Network/loadBalancers/', variables('lbName'))]"
+    frontend <- "frontend"
+    backend <- "backend"
+    frontend_id <- "[concat(variables('lbId'), '/frontendIPConfigurations/', variables('lbFrontendName'))]"
+    backend_id <- "[concat(variables('lbId'), '/backendAddressPools/', variables('lbBackendName'))]"
+    list(
+        lbName=name,
+        lbId=id,
+        lbRef=ref,
+        lbFrontendName=frontend,
+        lbBackendName=backend,
+        lbFrontendId=frontend_id,
+        lbBackendId=backend_id
+    )
 }
 
 

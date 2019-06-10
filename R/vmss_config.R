@@ -83,7 +83,7 @@ vmss_fixup_ip <- function(options, lb, ip)
 
     lb_type <- if(is_resource(lb))
         lb$sku$name
-    else lb$type 
+    else lb$type
 
     # for a large scaleset, must set sku=standard, allocation=static
     if(!options$params$singlePlacementGroup)

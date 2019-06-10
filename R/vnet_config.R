@@ -42,10 +42,23 @@ vnet_config <- function(address_space="10.0.0.0/16", subnets=list(subnet_config(
 }
 
 
-build_resource_fields.vnet_config <- function(object, ...)
+build_resource_fields.vnet_config <- function(config, ...)
 {
-    object$properties$subnets <- lapply(object$properties$subnets, unclass)
-    utils::modifyList(vnet_default, object)
+    config$properties$subnets <- lapply(config$properties$subnets, unclass)
+    utils::modifyList(vnet_default, config)
+}
+
+
+add_template_variables.vnet_config <- function(config, ...)
+{
+    name <- "[concat(parameters('vmName'), '-vnet')]"
+    id <- "[resourceId('Microsoft.Network/virtualNetworks', variables('vnetName'))]"
+    ref <- "[concat('Microsoft.Network/virtualNetworks/', variables('vnetName'))]"
+
+    subnet <- config$properties$subnets[[1]]$name
+    subnet_id <- "[concat(variables('vnetId'), '/subnets/', variables('subnet'))]"
+
+    list(vnetName=name, vnetId=id, vnetRef=ref, subnet=subnet, subnetId=subnet_id)
 }
 
 

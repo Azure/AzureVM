@@ -144,21 +144,60 @@ add_template_variables <- function(config, ...)
 }
 
 
+add_template_variables.character <- function(config, type, ...)
+{
+    # assume this is a resource ID
+    resname <- basename(config)
+    varnames <- paste0(type, c("Name", "Id"))
+    structure(list(resname, config), names=varnames)
+}
+
+
+add_template_variables.az_resource <- function(config, type, ...)
+{
+    varnames <- paste0(type, c("Name", "Id"))
+    vars <- list(config$name, config$id)
+
+    # a bit hackish, should fully objectify
+    if(type == "vnet") # if we have a vnet, extract the 1st subnet name
+    {
+        subnet <- config$properties$subnets[[1]]$name
+        subnet_id <- "[concat(variables('vnetId'), '/subnets/', variables('subnet'))]"
+        varnames <- c(varnames, "subnet", "subnetId")
+        structure(c(vars, subnet, subnet_id), names=varnames)
+    }
+    else if(type == "lb") # if we have a load balancer, extract component names
+    {
+        frontend <- config$properties$frontendIPConfigurations[[1]]$name
+        backend <- config$properties$backendAddressPools[[1]]$name
+        varnames <- c(varnames, "lbFrontendName", "lbBackendName")
+        structure(c(vars, frontend, backend), names=varnames)
+    }
+    else structure(vars, names=varnames)
+}
+
+
+add_template_variables.NULL <- function(config, ...)
+{
+    NULL
+}
+
+
 add_template_resources <- function(config, ...)
 {
     UseMethod("add_template_resources")
 }
 
 
-build_resource_fields <- function(object, ...)
+build_resource_fields <- function(config)
 {
     UseMethod("build_resource_fields")
 }
 
 
-build_resource_fields.list <- function(object, ...)
+build_resource_fields.list <- function(config, ...)
 {
-    unclass(object)
+    unclass(config)
 }
 
 
