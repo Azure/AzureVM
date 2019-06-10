@@ -49,7 +49,7 @@
 #' sub <- AzureRMR::az_rm$
 #'     new(tenant="myaadtenant.onmicrosoft.com", app="app_id", password="password")$
 #'     get_subscription("subscription_id")
-#' 
+#'
 #' vm <- sub$get_vm("myLinuxDSVM")
 #'
 #' # start the VM
@@ -99,12 +99,15 @@ public=list(
     delete=function(confirm=TRUE, free_resources=TRUE)
     {
         # delete the resource group -- customised confirmation message
-        if(self$properties$mode == "Complete" && confirm && interactive())
+        if(self$properties$mode == "Complete")
         {
-            msg <- paste0("Do you really want to delete VM and resource group '", self$name, "'? (y/N) ")
-            yn <- readline(msg)
-            if(tolower(substr(yn, 1, 1)) != "y")
-                return(invisible(NULL))
+            if(confirm && interactive())
+            {
+                msg <- paste0("Do you really want to delete VM and resource group '", self$name, "'? (y/N) ")
+                yn <- readline(msg)
+                if(tolower(substr(yn, 1, 1)) != "y")
+                    return(invisible(NULL))
+            }
             super$delete(confirm=FALSE, free_resources=TRUE)
         }
         else
@@ -151,7 +154,7 @@ public=list(
     }
 ),
 
-# propagate VM methods up to template
+# propagate resource methods up to template
 active=list(
 
     sync_vm_status=function()
@@ -197,17 +200,19 @@ private=list(
 #'
 #' @param object an R object.
 #'
-#' @details
-#' These functions returns TRUE for an object representing a VM template deployment (for `is_vm_template`) or resource (for `is_vm_resource`).
-#'
 #' @return
-#' A boolean.
+#' These functions return TRUE for an object representing a VM template deployment (for `is_vm` and `is_vm_template`) or resource (for `is_vm_resource`), FALSE otherwise.
+#'
 #' @rdname is_vm
 #' @export
-is_vm_template <- function(object)
+is_vm <- function(object)
 {
     R6::is.R6(object) && inherits(object, "az_vm_template")
 }
+
+#' @rdname is_vm
+#' @export
+is_vm_template <- is_vm
 
 #' @rdname is_vm
 #' @export
