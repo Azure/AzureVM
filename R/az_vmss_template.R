@@ -10,13 +10,12 @@ public=list(
 
         if(wait)
         {
-            private$vm <- az_vmss_resource$new(self$token, self$subscription,
+            private$vmss <- az_vmss_resource$new(self$token, self$subscription,
                 id=self$properties$outputs$vmResource$value)
 
             # get the hostname/IP address for the VM
             outputs <- unlist(self$properties$outputResources)
             ip_id <- grep("publicIPAddresses/.+$", outputs, ignore.case=TRUE, value=TRUE)
-
             if(!is_empty(ip_id))
             {
                 ip <- az_resource$new(self$token, self$subscription, id=ip_id)
@@ -30,17 +29,24 @@ public=list(
     {
         cat("<Azure virtual machine scaleset ", self$name, ">\n", sep="")
 
-        osProf <- names(private$vm$properties$osProfile)
+        osProf <- names(private$vmss$properties$virtualMachineProfile$osProfile)
         os <- if(any(grepl("linux", osProf))) "Linux" else if(any(grepl("windows", osProf))) "Windows" else "<unknown>"
         exclusive <- self$properties$mode == "Complete"
-        status <- if(is_empty(private$vm$status))
-            "<unknown>"
-        else paste0(names(private$vm$status), "=", private$vm$status, collapse=", ")
 
         cat("  Operating system:", os, "\n")
         cat("  Exclusive resource group:", exclusive, "\n")
         cat("  Domain name:", self$dns_name, "\n")
-        cat("  Status:", status, "\n")
+        cat("  Status:\n")
+        if(is_empty(private$vmss$status))
+            cat("    <unknown>\n")
+        else
+        {
+            status <- head(private$vmss$status)
+            row.names(status) <- paste0("     ", row.names(status))
+            print(status)
+            if(nrow(private$vmss$status) > nrow(status))
+            cat("    ...\n")
+        }
         cat("---\n")
 
         exclude <- c("subscription", "resource_group", "name", "dns_name")
@@ -48,58 +54,69 @@ public=list(
         cat(AzureRMR::format_public_fields(self, exclude=exclude))
         cat(AzureRMR::format_public_methods(self))
         invisible(NULL)
-    }
-),
+    },
+
+    get_public_ip_address=function()
+    {
+        outputs <- unlist(self$properties$outputResources)
+        ip_id <- grep("publicIPAddresses/.+$", outputs, ignore.case=TRUE, value=TRUE)
+        if(!is_empty(ip_id))
+        {
+            ip <- az_resource$new(self$token, self$subscription, id=ip_id)
+            ip$properties$ipAddress
+        }
+        else NULL
+    }),
 
 # propagate resource methods up to template
 active=list(
 
     sync_vmss_status=function()
-    private$vm$sync_vmss_status,
+    private$vmss$sync_vmss_status,
 
     list_instances=function()
-    private$vm$list_instances,
+    private$vmss$list_instances,
 
     get_instance=function()
-    private$vm$get_instance,
+    private$vmss$get_instance,
 
     start=function()
-    private$vm$start,
+    private$vmss$start,
 
     stop=function()
-    private$vm$stop,
+    private$vmss$stop,
 
     restart=function()
-    private$vm$restart,
+    private$vmss$restart,
 
-    add_extension=function()
-    private$vm$add_extension,
+    get_vm_public_ip_addresses=function(nic=1, config=1)
+    private$vmss$get_vm_public_ip_addresses,
 
-    redeploy=function()
-    private$vm$redeploy,
-
-    reimage=function()
-    private$vm$reimage,
+    get_vm_private_ip_addresses=function(nic=1, config=1)
+    private$vmss$get_vm_private_ip_addresses,
 
     run_deployed_command=function()
-    private$vm$run_deployed_command,
+    private$vmss$run_deployed_command,
 
     run_script=function()
-    private$vm$run_script,
+    private$vmss$run_script,
 
-    get_load_balancer_address=function()
-    private$vm$get_load_balancer_address,
+    reimage=function()
+    private$vmss$reimage,
 
-    get_public_ip_addresses=function()
-    private$vm$get_public_ip_addresses,
+    redeploy=function()
+    private$vmss$redeploy,
 
-    get_private_ip_addresses=function()
-    private$vm$get_private_ip_addresses,
+    mapped_vm_operation=function()
+    private$mapped_vm_operation,
+
+    add_extension=function()
+    private$vmss$add_extension,
 
     do_vmss_operation=function()
-    private$vm$do_operation
+    private$vmss$do_operation
 ),
 
 private=list(
-    vm=NULL
+    vmss=NULL
 ))

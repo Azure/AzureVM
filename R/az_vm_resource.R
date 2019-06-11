@@ -105,11 +105,6 @@ public=list(
         }
     },
 
-    add_extension=function(...)
-    {
-        stop("This function is not yet implemented", call.=FALSE)
-    },
-
     resize=function(size, deallocate=FALSE, wait=FALSE)
     {
         if(deallocate)
@@ -153,20 +148,41 @@ public=list(
         self$run_deployed_command(cmd, as.list(parameters), as.list(script))
     },
 
-    get_public_ip_address=function()
+    get_public_ip_address=function(nic=1, config=1)
     {
-        nic <- private$get_nic()
-        ip_id <- nic$properties$ipConfigurations[[1]]$properties$publicIPAddress$id
+        nic <- private$get_nic(nic)
+        ip_id <- nic$properties$ipConfigurations[[config]]$properties$publicIPAddress$id
         if(is_empty(ip_id))
             return(NULL)
         ip <- az_resource$new(self$token, self$subscription, id=ip_id)
         ip$properties$ipAddress
     },
 
-    get_private_ip_address=function()
+    get_private_ip_address=function(nic=1, config=1)
     {
-        nic <- private$get_nic()
-        nic$properties$ipConfigurations[[1]]$properties$privateIPAddress
+        nic <- private$get_nic(nic)
+        nic$properties$ipConfigurations[[config]]$properties$privateIPAddress
+    },
+
+    add_extension=function(publisher, type, version, settings=list(),
+        protected_settings=list(), key_vault_settings=list())
+    {
+        name <- gsub("[[:punct:]]", "", type)
+        op <- file.path("extensions", name)
+        props <- list(
+            publisher=publisher,
+            type=type,
+            typeHandlerVersion=version,
+            autoUpgradeMinorVersion=TRUE,
+            settings=settings
+        )
+
+        if(!is_empty(protected_settings))
+            props$protectedSettings <- protected_settings
+        if(!is_empty(key_vault_settings))
+            props$protectedSettingsFromKeyVault <- key_vault_settings
+
+        self$do_operation(op, body=list(properties=props), http_verb="PUT")
     },
 
     print=function(...)
