@@ -23,6 +23,7 @@ public=list(
         })
 
         self$status <- data.frame(id=names(statuses), do.call(rbind, statuses), stringsAsFactors=FALSE)
+        colnames(self$status) <- c("id", "ProvisioningState", "PowerState")
         row.names(self$status) <- NULL
         self$status
     },
@@ -157,6 +158,34 @@ public=list(
             props$protectedSettingsFromKeyVault <- key_vault_settings
 
         self$do_operation(op, body=list(properties=props), http_verb="PUT")
+    },
+
+    print=function(...)
+    {
+        cat("<Azure virtual machine scaleset resource ", self$name, ">\n", sep="")
+
+        osProf <- names(self$properties$virtualMachineProfile$osProfile)
+        os <- if(any(grepl("linux", osProf))) "Linux" else if(any(grepl("windows", osProf))) "Windows" else "<unknown>"
+
+        cat("  Operating system:", os, "\n")
+        cat("  Status:\n")
+        if(is_empty(self$status))
+            cat("    <unknown>\n")
+        else
+        {
+            status <- head(self$status)
+            row.names(status) <- paste0("     ", row.names(status))
+            print(status)
+            if(nrow(self$status) > nrow(status))
+            cat("    ...\n")
+        }
+        cat("---\n")
+
+        exclude <- c("subscription", "resource_group", "type", "name", "status")
+
+        cat(AzureRMR::format_public_fields(self, exclude=exclude))
+        cat(AzureRMR::format_public_methods(self))
+        invisible(NULL)
     }
 ),
 

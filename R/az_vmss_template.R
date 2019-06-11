@@ -112,7 +112,7 @@ active=list(
     private$vmss$redeploy,
 
     mapped_vm_operation=function()
-    private$mapped_vm_operation,
+    private$vmss$mapped_vm_operation,
 
     add_extension=function()
     private$vmss$add_extension,
