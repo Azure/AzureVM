@@ -84,7 +84,7 @@ NULL
 #'
 #' @examples
 #' \dontrun{
-#' 
+#'
 #' sub <- AzureRMR::az_rm$
 #'     new(tenant="myaadtenant.onmicrosoft.com", app="app_id", password="password")$
 #'     get_subscription("subscription_id")
@@ -94,7 +94,7 @@ NULL
 #'
 #' rg <- sub$get_resource_group("rgname")
 #' rg$get_vm("myOtherVirtualMachine")
-#' 
+#'
 #' }
 #' @rdname get_vm
 #' @aliases get_vm get_vm_cluster list_vms
@@ -175,7 +175,7 @@ NULL
 #'
 #' @examples
 #' \dontrun{
-#' 
+#'
 #' sub <- AzureRMR::az_rm$
 #'     new(tenant="myaadtenant.onmicrosoft.com", app="app_id", password="password")$
 #'     get_subscription("subscription_id")
@@ -251,7 +251,7 @@ NULL
 #' sub <- AzureRMR::az_rm$
 #'     new(tenant="myaadtenant.onmicrosoft.com", app="app_id", password="password")$
 #'     get_subscription("subscription_id")
-#' 
+#'
 #' sub$delete_vm("myWindowsDSVM")
 #' sub$delete_vm("myLinuxDSVM")
 #'
@@ -267,6 +267,7 @@ NULL
 {
     add_sub_methods()
     add_rg_methods()
+    add_defunct_methods()
 }
 
 
@@ -408,7 +409,7 @@ add_rg_methods <- function()
         if(missing(parameters))
             parameters <- build_template_parameters(config, name, login_user, size)
 
-        AzureVM::az_vm_template$new(self$token, self$subscription, self$name, name,
+        az_vm_template$new(self$token, self$subscription, self$name, name,
             template=template, parameters=parameters, mode=mode, wait=wait)
     })
 
@@ -431,20 +432,20 @@ add_rg_methods <- function()
         if(missing(parameters))
             parameters <- build_template_parameters(config, name, login_user, size, instances)
 
-        AzureVM::az_vmss_template$new(self$token, self$subscription, self$name, name,
+        az_vmss_template$new(self$token, self$subscription, self$name, name,
             template=template, parameters=parameters, mode=mode, wait=wait)
     })
 
     az_resource_group$set("public", "get_vm", overwrite=TRUE,
     function(name)
     {
-        AzureVM::az_vm_template$new(self$token, self$subscription, self$name, name)
+        az_vm_template$new(self$token, self$subscription, self$name, name)
     })
 
     az_resource_group$set("public", "get_vm_scaleset", overwrite=TRUE,
     function(name)
     {
-        AzureVM::az_vmss_template$new(self$token, self$subscription, self$name, name)
+        az_vmss_template$new(self$token, self$subscription, self$name, name)
     })
 
     az_resource_group$set("public", "delete_vm", overwrite=TRUE,
@@ -466,22 +467,22 @@ add_rg_methods <- function()
     function(name_only=FALSE)
     {
         az_subscription$
-            new(self$token, self$subscription)$
+            new(self$token, parms=list(subscriptionId=self$subscription))$
             list_vm_sizes(self$location, name_only=name_only)
     })
 
     az_resource_group$set("public", "get_vm_resource", overwrite=TRUE,
     function(name)
     {
-        AzureVM::az_vm_resource$new(self$token, self$subscription, self$name,
+        az_vm_resource$new(self$token, self$subscription, self$name,
             type="Microsoft.Compute/virtualMachines", name=name)
     })
 
     az_resource_group$set("public", "get_vm_scaleset_resource", overwrite=TRUE,
     function(name)
     {
-        AzureVM::az_vmss_resource$new(self$token, self$subscription, self$name,
-            type="Microsoft.Compute/virtualMachineScaleset", name=name)
+        az_vmss_resource$new(self$token, self$subscription, self$name,
+            type="Microsoft.Compute/virtualMachineScalesets", name=name)
     })
 }
 
@@ -502,7 +503,7 @@ add_defunct_methods <- function()
     {
         .Defunct(msg="The 'delete_vm_cluster' method is defunct.\nUse 'delete_vm_scaleset' instead.")
     })
-    
+
     az_resource_group$set("public", "get_vm_cluster", overwrite=TRUE, function(...)
     {
         .Defunct(msg="The 'get_vm_cluster' method is defunct.\nUse 'get_vm_scaleset' instead.")
@@ -527,7 +528,7 @@ convert_to_vm_template <- function(vm_resource)
     resource_group <- vm_resource$resource_group
     name <- vm_resource$name
 
-    tpl <- try(AzureVM::az_vm_template$new(token, subscription, resource_group, name), silent=TRUE)
+    tpl <- try(az_vm_template$new(token, subscription, resource_group, name), silent=TRUE)
     if(!inherits(tpl, "try-error") &&
        !is_empty(tpl$properties$outputResources) &&
        grepl(sprintf("providers/Microsoft.Compute/virtualMachines/%s$", name),

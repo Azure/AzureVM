@@ -23,6 +23,7 @@ az_vm_resource <- R6::R6Class("az_vm_resource", inherit=AzureRMR::az_resource,
 
 public=list(
     status=NULL,
+    nic_api_version="2019-04-01", # need to record this since AzureRMR can't currently get API versions for subresources
 
     sync_vm_status=function()
     {
@@ -35,7 +36,7 @@ public=list(
 
         self$sync_fields()
 
-        res <- self$do_operation("instanceView", http_verb="GET")
+        res <- self$do_operation("instanceView")
         self$status <- get_status(res$statuses)
 
         self$status
@@ -43,19 +44,18 @@ public=list(
 
     start=function(wait=TRUE)
     {
-        message("Starting VM '", self$name, "'")
         self$do_operation("start", http_verb="POST")
-        Sys.sleep(2)
+        # Sys.sleep(2)
         if(wait)
         {
             for(i in 1:100)
             {
+                Sys.sleep(5)
                 self$sync_vm_status()
                 if(length(self$status) == 2 &&
                     self$status[1] == "succeeded" &&
                     self$status[2] == "running")
                     break
-                Sys.sleep(5)
             }
             if(length(self$status) < 2 ||
                 self$status[1] != "succeeded" ||
@@ -66,19 +66,18 @@ public=list(
 
     restart=function(wait=TRUE)
     {
-        message("Restarting VM '", self$name, "'")
         self$do_operation("restart", http_verb="POST")
-        Sys.sleep(2)
+        # Sys.sleep(2)
         if(wait)
         {
             for(i in 1:100)
             {
+                Sys.sleep(5)
                 self$sync_vm_status()
                 if(length(self$status) == 2 &&
                     self$status[1] == "succeeded" &&
                     self$status[2] == "running")
                     break
-                Sys.sleep(5)
             }
             if(length(self$status) < 2 ||
                 self$status[1] != "succeeded" ||
@@ -89,12 +88,6 @@ public=list(
 
     stop=function(deallocate=TRUE, wait=FALSE)
     {
-        msg <- "Shutting down"
-        if(deallocate)
-            msg <- paste(msg, "and deallocating")
-        msg <- paste0(msg, " VM '", self$name, "'")
-        message(msg)
-
         self$do_operation("powerOff", http_verb="POST")
         if(deallocate)
             self$do_operation("deallocate", http_verb="POST")
@@ -102,10 +95,10 @@ public=list(
         {
             for(i in 1:100)
             {
+                Sys.sleep(5)
                 self$sync_vm_status()
                 if(length(self$status) < 2 || self$status[2] %in% c("stopped", "deallocated"))
                     break
-                Sys.sleep(5)
             }
             if(length(self$status) == 2 && !(self$status[2] %in% c("stopped", "deallocated")))
                 stop("Unable to shut down VM", call.=FALSE)
@@ -191,7 +184,7 @@ public=list(
         cat("---\n")
 
         cat(AzureRMR::format_public_fields(self,
-            exclude=c("subscription", "resource_group", "type", "name", "status", "is_synced")))
+            exclude=c("subscription", "resource_group", "type", "name", "status", "is_synced", "nic_api_version")))
         cat(AzureRMR::format_public_methods(self))
         invisible(NULL)
     },
@@ -224,7 +217,7 @@ private=list(
         nic_id <- self$properties$networkProfile$networkInterfaces[[n]]$id
         if(is_empty(nic_id))
             stop("Network interface resource not found", call.=FALSE)
-        az_resource$new(self$token, self$subscription, id=nic_id)
+        az_resource$new(self$token, self$subscription, id=nic_id, api_version=self$nic_api_version)
     },
 
     init_and_deploy=function(...)

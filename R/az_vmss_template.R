@@ -1,3 +1,4 @@
+#' @export
 az_vmss_template <- R6::R6Class("az_vmss_template", inherit=az_template,
 
 public=list(
@@ -9,7 +10,8 @@ public=list(
 
         if(wait)
         {
-            private$vm <- az_vm_resource$new(self$token, self$subscription, id=self$properties$outputs$vmResource$value)
+            private$vm <- az_vmss_resource$new(self$token, self$subscription,
+                id=self$properties$outputs$vmResource$value)
 
             # get the hostname/IP address for the VM
             outputs <- unlist(self$properties$outputResources)
@@ -55,6 +57,12 @@ active=list(
     sync_vmss_status=function()
     private$vm$sync_vmss_status,
 
+    list_instances=function()
+    private$vm$list_instances,
+
+    get_instance=function()
+    private$vm$get_instance,
+
     start=function()
     private$vm$start,
 
@@ -88,7 +96,7 @@ active=list(
     get_private_ip_addresses=function()
     private$vm$get_private_ip_addresses,
 
-    do_vm_operation=function()
+    do_vmss_operation=function()
     private$vm$do_operation
 ),
 
