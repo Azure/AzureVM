@@ -98,35 +98,9 @@ public=list(
 
     delete=function(confirm=TRUE, free_resources=TRUE)
     {
-        # delete the resource group -- customised confirmation message
-        if(self$properties$mode == "Complete")
-        {
-            if(confirm && interactive())
-            {
-                msg <- paste0("Do you really want to delete VM and resource group '", self$name, "'? (y/N) ")
-                yn <- readline(msg)
-                if(tolower(substr(yn, 1, 1)) != "y")
-                    return(invisible(NULL))
-            }
-            super$delete(confirm=FALSE, free_resources=TRUE)
-        }
-        else
-        {
-            if(free_resources)  # delete individual resources
-            {
-                if(confirm && interactive())
-                {
-                    msg <- paste0("Do you really want to delete VM '", self$name, "'? (y/N) ")
-                    yn <- readline(msg)
-                    if(tolower(substr(yn, 1, 1)) != "y")
-                        return(invisible(NULL))
-                }
-                # must delete VM resource first, to ensure managed disks are properly handled
-                private$vm$delete(confirm=FALSE, wait=TRUE)
-                super$delete(confirm=FALSE, free_resources=TRUE)
-            }
-            else super$delete(confirm=confirm, free_resources=FALSE)
-        }
+        # must reorder template output resources so that freeing resources will work
+        private$reorder_for_delete()
+        super$delete(confirm=confirm, free_resources=free_resources)
     },
 
     print=function(...)
@@ -192,32 +166,25 @@ active=list(
 ),
 
 private=list(
-    vm=NULL
+    vm=NULL,
+
+    reorder_for_delete=function()
+    {
+        is_type <- function(id, type)
+        {
+            grepl(type, id, fixed=TRUE, ignore.case=TRUE)
+        }
+        new_order <- sapply(self$properties$outputResources, function(x)
+        {
+            id <- x$id
+            if(is_type(id, "Microsoft.Compute/virtualMachines")) 0.1
+            else if(is_type(id, "Microsoft.Network/networkInterfaces")) 0.2
+            else if(is_type(id, "Microsoft.Network/virtualNetworks")) 0.3
+            else if(is_type(id, "Microsoft.Network/publicIPAddresses")) 0.4
+            else if(is_type(id, "Microsoft.Network/networkSecurityGroups")) 0.5
+            else stop("Unknown resource type:\n", id, call.=FALSE)
+        })
+        self$properties$outputResources <- self$properties$outputResources[order(new_order)]
+    }
 ))
-
-
-#' Is an object an Azure VM
-#'
-#' @param object an R object.
-#'
-#' @return
-#' These functions return TRUE for an object representing a VM template deployment (for `is_vm` and `is_vm_template`) or resource (for `is_vm_resource`), FALSE otherwise.
-#'
-#' @rdname is_vm
-#' @export
-is_vm <- function(object)
-{
-    R6::is.R6(object) && inherits(object, "az_vm_template")
-}
-
-#' @rdname is_vm
-#' @export
-is_vm_template <- is_vm
-
-#' @rdname is_vm
-#' @export
-is_vm_resource <- function(object)
-{
-    R6::is.R6(object) && inherits(object, "az_vm_resource")
-}
 

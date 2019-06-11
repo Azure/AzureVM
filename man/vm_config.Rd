@@ -4,12 +4,12 @@
 \alias{vm_config}
 \alias{ubuntu_dsvm}
 \alias{windows_dsvm}
-\alias{ubuntu_1604}
-\alias{ubuntu_1804}
+\alias{ubuntu_16.04}
+\alias{ubuntu_18.04}
 \alias{windows_2016}
 \alias{windows_2019}
-\alias{redhat_7.6}
-\alias{redhat_8}
+\alias{rhel_7.6}
+\alias{rhel_8}
 \alias{debian9_backports}
 \title{VM configuration functions}
 \usage{
@@ -25,10 +25,10 @@ windows_dsvm(keylogin = FALSE, managed = TRUE,
   datadisks = numeric(0), nsg = nsg_config(list(nsg_rule_allow_rdp)),
   ...)
 
-ubuntu_1604(keylogin = TRUE, managed = TRUE, datadisks = numeric(0),
+ubuntu_16.04(keylogin = TRUE, managed = TRUE, datadisks = numeric(0),
   nsg = nsg_config(list(nsg_rule_allow_ssh)), ...)
 
-ubuntu_1804(keylogin = TRUE, managed = TRUE, datadisks = numeric(0),
+ubuntu_18.04(keylogin = TRUE, managed = TRUE, datadisks = numeric(0),
   nsg = nsg_config(list(nsg_rule_allow_ssh)), ...)
 
 windows_2016(keylogin = FALSE, managed = TRUE,
@@ -39,10 +39,10 @@ windows_2019(keylogin = FALSE, managed = TRUE,
   datadisks = numeric(0), nsg = nsg_config(list(nsg_rule_allow_rdp)),
   ...)
 
-redhat_7.6(keylogin = TRUE, managed = TRUE, datadisks = numeric(0),
+rhel_7.6(keylogin = TRUE, managed = TRUE, datadisks = numeric(0),
   nsg = nsg_config(list(nsg_rule_allow_ssh)), ...)
 
-redhat_8(keylogin = TRUE, managed = TRUE, datadisks = numeric(0),
+rhel_8(keylogin = TRUE, managed = TRUE, datadisks = numeric(0),
   nsg = nsg_config(list(nsg_rule_allow_ssh)), ...)
 
 debian9_backports(keylogin = TRUE, managed = TRUE,

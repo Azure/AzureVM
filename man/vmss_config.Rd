@@ -4,7 +4,7 @@
 \alias{vmss_config}
 \alias{ubuntu_dsvm_ss}
 \alias{windows_dsvm_ss}
-\alias{ubuntu_1804_ss}
+\alias{ubuntu_18.04_ss}
 \alias{windows_2019_ss}
 \title{Virtual machine scaleset configuration functions}
 \usage{
@@ -24,7 +24,7 @@ windows_dsvm_ss(nsg = nsg_config(list(nsg_rule_allow_rdp)),
   load_balancer = lb_config(rules = list(lb_rule_rdp), probes =
   list(lb_probe_rdp)), options = scaleset_options(keylogin = FALSE), ...)
 
-ubuntu_1804_ss(nsg = nsg_config(list(nsg_rule_allow_ssh)),
+ubuntu_18.04_ss(nsg = nsg_config(list(nsg_rule_allow_ssh)),
   load_balancer = lb_config(rules = list(lb_rule_ssh), probes =
   list(lb_probe_ssh)), ...)
 

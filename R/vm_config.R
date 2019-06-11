@@ -88,7 +88,7 @@ windows_dsvm <- function(keylogin=FALSE, managed=TRUE, datadisks=numeric(0),
 
 #' @rdname vm_config
 #' @export
-ubuntu_1604 <- function(keylogin=TRUE, managed=TRUE, datadisks=numeric(0),
+ubuntu_16.04 <- function(keylogin=TRUE, managed=TRUE, datadisks=numeric(0),
                         nsg=nsg_config(list(nsg_rule_allow_ssh)), ...)
 {
     vm_config(image_config("Canonical", "UbuntuServer", "16.04-LTS"), keylogin, managed, datadisks, nsg, ...)
@@ -96,7 +96,7 @@ ubuntu_1604 <- function(keylogin=TRUE, managed=TRUE, datadisks=numeric(0),
 
 #' @rdname vm_config
 #' @export
-ubuntu_1804 <- function(keylogin=TRUE, managed=TRUE, datadisks=numeric(0),
+ubuntu_18.04 <- function(keylogin=TRUE, managed=TRUE, datadisks=numeric(0),
                         nsg=nsg_config(list(nsg_rule_allow_ssh)), ...)
 {
     vm_config(image_config("Canonical", "UbuntuServer", "18.04-LTS"), keylogin, managed, datadisks, nsg, ...)
@@ -124,7 +124,7 @@ windows_2019 <- function(keylogin=FALSE, managed=TRUE, datadisks=numeric(0),
 
 #' @rdname vm_config
 #' @export
-redhat_7.6 <- function(keylogin=TRUE, managed=TRUE, datadisks=numeric(0),
+rhel_7.6 <- function(keylogin=TRUE, managed=TRUE, datadisks=numeric(0),
                        nsg=nsg_config(list(nsg_rule_allow_ssh)), ...)
 {
     vm_config(image_config("RedHat", "RHEL", "7-RAW"), keylogin, managed, datadisks, nsg, ...)
@@ -132,7 +132,7 @@ redhat_7.6 <- function(keylogin=TRUE, managed=TRUE, datadisks=numeric(0),
 
 #' @rdname vm_config
 #' @export
-redhat_8 <- function(keylogin=TRUE, managed=TRUE, datadisks=numeric(0),
+rhel_8 <- function(keylogin=TRUE, managed=TRUE, datadisks=numeric(0),
                      nsg=nsg_config(list(nsg_rule_allow_ssh)), ...)
 {
     vm_config(image_config("RedHat", "RHEL", "8"), keylogin, managed, datadisks, nsg, ...)

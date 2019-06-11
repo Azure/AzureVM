@@ -451,16 +451,13 @@ add_rg_methods <- function()
     az_resource_group$set("public", "delete_vm", overwrite=TRUE,
                           function(name, confirm=TRUE, free_resources=TRUE)
     {
-        vm <- self$get_vm(name)
-        if(is_vm_template(vm))
-            vm$delete(confirm=confirm, free_resources=free_resources)
-        else vm$delete(confirm=confirm)
+        self$get_vm(name)$delete(confirm=confirm, free_resources=free_resources)
     })
 
     az_resource_group$set("public", "delete_vm_scaleset", overwrite=TRUE,
     function(name, confirm=TRUE, free_resources=TRUE)
     {
-        self$get_vmss_cluster(name)$delete(confirm=confirm, free_resources=free_resources)
+        self$get_vm_scaleset(name)$delete(confirm=confirm, free_resources=free_resources)
     })
 
     az_resource_group$set("public", "list_vm_sizes", overwrite=TRUE,

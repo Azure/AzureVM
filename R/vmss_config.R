@@ -140,7 +140,7 @@ windows_dsvm_ss <- function(nsg=nsg_config(list(nsg_rule_allow_rdp)),
 
 #' @rdname vmss_config
 #' @export
-ubuntu_1804_ss <- function(nsg=nsg_config(list(nsg_rule_allow_ssh)),
+ubuntu_18.04_ss <- function(nsg=nsg_config(list(nsg_rule_allow_ssh)),
                            load_balancer=lb_config(rules=list(lb_rule_ssh),
                                                    probes=list(lb_probe_ssh)),
                            ...)
