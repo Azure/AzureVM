@@ -3,7 +3,7 @@
 \docType{class}
 \name{az_vm_template}
 \alias{az_vm_template}
-\title{Virtual machine cluster template class}
+\title{Virtual machine template class}
 \format{An R6 object of class \code{az_vm_template}, inheriting from \code{AzureRMR::az_template}.}
 \usage{
 az_vm_template

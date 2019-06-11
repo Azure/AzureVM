@@ -1,4 +1,4 @@
-#' Virtual machine cluster template class
+#' Virtual machine template class
 #'
 #' Class representing a virtual machine template. This class keeps track of all resources that are created as part of deploying a VM or cluster of VMs, and exposes methods for managing them. In this page, "VM" refers to both a cluster of virtual machines, as well as a single virtual machine (which is treated as the special case of a cluster containing a single node).
 #'

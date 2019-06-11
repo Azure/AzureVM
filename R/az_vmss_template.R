@@ -1,3 +1,7 @@
+#' Virtual machine scaleset (cluster) template class
+#'
+#' Class representing a virtual machine scaleset template.
+#' @docType class
 #' @export
 az_vmss_template <- R6::R6Class("az_vmss_template", inherit=az_template,
 
