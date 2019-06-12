@@ -111,7 +111,7 @@ sub$create_vm_scaleset("myrhelss", user_config("myname", "~/.ssh/id_rsa.pub"),
 
 # Debian scaleset with no load balancer or autoscaler, using low-priority VMs
 sub$create_vm_scaleset("mydebss", user_config("myname", "~/.ssh/id_rsa.pub"),
-                       instances=5, size="Standard_DS3_v2", config="debian_9_ss",
+                       instances=5, size="Standard_DS3_v2", config="debian_9_backports_ss",
                        load_balancer=NULL, autoscaler=NULL,
                        options=scaleset_options(low_priority=TRUE),
                        location="australiaeast")
