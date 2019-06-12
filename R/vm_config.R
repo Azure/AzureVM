@@ -12,6 +12,34 @@
 #' @param variables An optional named list of variables to add to the template.
 #' @param ... For the specific VM configurations, other customisation arguments to be passed to `vm_config`.
 #'
+#' @details
+#' These functions are for specifying the details of a new virtual machine deployment: the VM image and related options, along with the Azure resources that the VM may need. These include the datadisks, network security group, public IP address (if the VM is to be accessible from outside its subnet), virtual network, and network interface.
+#'
+#' Each resource can be specified in a number of ways:
+#' - To _create_ a new resource as part of the deployment, call the corresponding `*_config` function.
+#' - To use an _existing_ resource, supply either an `AzureRMR::az_resource` object (recommended) or a string containing the resource ID.
+#' - If the resource is not needed, specify it as NULL.
+#' - For the `other_resources` argument, supply a list of resources, each of which should be a list of resource fields (name, type, properties, sku, etc).
+#'
+#' The `vm_config` function is the base configuration function, and the others call it to create VMs with specific operating systems and other image details.
+#' - `ubuntu_dsvm`: Data Science Virtual Machine, based on Ubuntu 16.04
+#' - `windows_dsvm`: Data Science Virtual Machine, based on Windows Server 2016
+#' - `ubuntu_16.04`, `ubuntu_18.04`: Ubuntu operating system
+#' - `windows_2016`, `windows_2019`: Windows Server Datacenter edition
+#' - `rhel_7.6`, `rhel_8`: Red Hat Enterprise Linux
+#' - `debian_9_backports`: Debian
+#'
+#' @return
+#' An object of S3 class `vm_config`, that can be used by the `create_vm` method.
+#'
+#' @seealso
+#' [image_config], [user_config], [datadisk_config] for options relating to the VM resource itself
+#'
+#' [nsg_config], [ip_config], [vnet_config], [nic_config] for other resource configs
+#'
+#' [vmss_config] for configuring a virtual machine scaleset
+#'
+#' [create_vm]
 #' @export
 vm_config <- function(image, keylogin, managed=TRUE,
                       datadisks=numeric(0),

@@ -4,11 +4,74 @@
 \name{az_vmss_template}
 \alias{az_vmss_template}
 \title{Virtual machine scaleset (cluster) template class}
-\format{An object of class \code{R6ClassGenerator} of length 24.}
+\format{An R6 object of class \code{az_vmss_template}, inheriting from \code{AzureRMR::az_template}.}
 \usage{
 az_vmss_template
 }
 \description{
-Class representing a virtual machine scaleset template.
+Class representing a virtual machine scaleset deployment template. This class keeps track of all resources that are created as part of deploying a scaleset, and exposes methods for managing them.
+}
+\details{
+A virtual machine scaleset in Azure is actually a collection of resources, including any and all of the following.
+\itemize{
+\item Network security group (Azure resource type \code{Microsoft.Network/networkSecurityGroups})
+\item Virtual network (Azure resource type \code{Microsoft.Network/virtualNetworks})
+\item Load balancer (Azure resource type \code{Microsoft.Network/loadBalancers})
+\item Public IP address (Azure resource type \code{Microsoft.Network/publicIPAddresses})
+\item Autoscaler (Azure resource type \code{Microsoft.Insights/autoscaleSettings})
+\item The scaleset itself (Azure resource type \code{Microsoft.Compute/virtualMachineScaleSets})
+}
+
+By wrapping the deployment template used to create these resources, the \code{az_vmss_template} class allows managing them all as a single entity.
+}
+\section{Methods}{
+
+The following methods are available, in addition to those provided by the \link[AzureRMR:az_template]{AzureRMR::az_template} class.
+\itemize{
+\item \code{sync_vmss_status}: Check the status of the scaleset.
+\item \code{list_instances()}: Return a list of \link{az_vm_resource} objects, one for each VM instance in the scaleset. Note that if the scaleset has a load balancer attached, the number of instances will vary depending on the load.
+\item \code{get_instance(id)}: Return a specific VM instance in the scaleset.
+\item \code{start(id=NULL, wait=FALSE)}: Start the scaleset. In this and the other methods listed here, \code{id} can be an optional character vector of instance IDs; if supplied, only carry out the operation for those instances.
+\item \code{restart(id=NULL, wait=FALSE)}: Restart the scaleset.
+\item \code{stop(deallocate=TRUE, id=NULL, wait=FALSE)}: Stop the scaleset.
+\item \code{get_public_ip_address()}: Get the public IP address of the scaleset (technically, of the load balancer). If the scaleset doesn't have a load balancer attached, returns NULL.
+\item \code{get_vm_public_ip_addresses(id=NULL, nic=1, config=1)}: Get the public IP addresses for the instances in the scaleset. Returns NULL if the instances are not publicly accessible.
+\item \code{get_vm_private_ip_addresses(id=NULL, nic=1, config=1)}: Get the private IP addresses for the instances in the scaleset.
+\item \code{run_deployed_command(command, parameters=NULL, script=NULL, id=NULL)}: Run a PowerShell command on the instances in the scaleset.
+\item \code{run_script(script, parameters=NULL, id=NULL)}: Run a script on the VM. For a Linux VM, this will be a shell script; for a Windows VM, a PowerShell script. Pass the script as a character vector.
+\item \code{reimage(id=NULL, datadisks=FALSE)}: Reimage the instances in the scaleset. If \code{datadisks} is TRUE, reimage any attached data disks as well.
+\item \code{redeploy(id=NULL)}: Redeploy the instances in the scaleset.
+\item \code{mapped_vm_operation(..., id=NULL)}: Carry out an arbitrary operation on the instances in the scaleset. See the \code{do_operation} method of the \link[AzureRMR:az_resource]{AzureRMR::az_resource} class for more details.
+\item \code{add_extension(publisher, type, version, settings=list(), protected_settings=list(), key_vault_settings=list())}: Add an extension to the scaleset.
+\item \code{do_vmss_operation(...)} Carry out an arbitrary operation on the scaleset resource (as opposed to the instances in the scaleset).
+}
+}
+
+\examples{
+\dontrun{
+
+sub <- AzureRMR::get_azure_login()$
+    get_subscription("subscription_id")
+
+vmss <- sub$get_vm_scaleset("myscaleset")
+
+# start the VM
+vmss$start()
+
+# run a shell command
+vmss$run_script("ifconfig > /tmp/ifc.out")
+
+# get private IP addresses
+vmss$get_vm_private_ip_addresses()
+
+# get the VM status
+vmss$sync_vmss_status()
+
+}
+}
+\seealso{
+\link[AzureRMR:az_template]{AzureRMR::az_template}, \link{create_vm_scaleset}, \link{get_vm_scaleset}, \link{delete_vm_scaleset}
+
+\href{https://docs.microsoft.com/en-us/rest/api/compute/virtualmachinescalesets}{VM scaleset API reference}
 }
 \keyword{datasets}

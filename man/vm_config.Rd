@@ -72,6 +72,39 @@ debian_9_backports(keylogin = TRUE, managed = TRUE,
 
 \item{...}{For the specific VM configurations, other customisation arguments to be passed to \code{vm_config}.}
 }
+\value{
+An object of S3 class \code{vm_config}, that can be used by the \code{create_vm} method.
+}
 \description{
 VM configuration functions
+}
+\details{
+These functions are for specifying the details of a new virtual machine deployment: the VM image and related options, along with the Azure resources that the VM may need. These include the datadisks, network security group, public IP address (if the VM is to be accessible from outside its subnet), virtual network, and network interface.
+
+Each resource can be specified in a number of ways:
+\itemize{
+\item To \emph{create} a new resource as part of the deployment, call the corresponding \code{*_config} function.
+\item To use an \emph{existing} resource, supply either an \code{AzureRMR::az_resource} object (recommended) or a string containing the resource ID.
+\item If the resource is not needed, specify it as NULL.
+\item For the \code{other_resources} argument, supply a list of resources, each of which should be a list of resource fields (name, type, properties, sku, etc).
+}
+
+The \code{vm_config} function is the base configuration function, and the others call it to create VMs with specific operating systems and other image details.
+\itemize{
+\item \code{ubuntu_dsvm}: Data Science Virtual Machine, based on Ubuntu 16.04
+\item \code{windows_dsvm}: Data Science Virtual Machine, based on Windows Server 2016
+\item \code{ubuntu_16.04}, \code{ubuntu_18.04}: Ubuntu operating system
+\item \code{windows_2016}, \code{windows_2019}: Windows Server Datacenter edition
+\item \code{rhel_7.6}, \code{rhel_8}: Red Hat Enterprise Linux
+\item \code{debian_9_backports}: Debian
+}
+}
+\seealso{
+\link{image_config}, \link{user_config}, \link{datadisk_config} for options relating to the VM resource itself
+
+\link{nsg_config}, \link{ip_config}, \link{vnet_config}, \link{nic_config} for other resource configs
+
+\link{vmss_config} for configuring a virtual machine scaleset
+
+\link{create_vm}
 }

@@ -11,6 +11,36 @@
 #' @param variables An optional named list of variables to add to the template.
 #' @param ... For the specific VM configurations, other customisation arguments to be passed to `vm_config`.
 #'
+#' @details
+#' These functions are for specifying the details of a new virtual machine scaleset deployment: the base VM image and related options, along with the Azure resources that the scaleset may need. These include the network security group, virtual network, load balancer and associated public IP address, and autoscaler.
+#'
+#' Each resource can be specified in a number of ways:
+#' - To _create_ a new resource as part of the deployment, call the corresponding `*_config` function.
+#' - To use an _existing_ resource, supply either an `AzureRMR::az_resource` object (recommended) or a string containing the resource ID.
+#' - If the resource is not needed, specify it as NULL.
+#' - For the `other_resources` argument, supply a list of resources, each of which should be a list of resource fields (name, type, properties, sku, etc).
+#'
+#' Currently, AzureVM does not support adding datadisks to a scaleset as part of the deployment.
+#'
+#' The `vmss_config` function is the base configuration function, and the others call it to create VM scalesets with specific operating systems and other image details.
+#' - `ubuntu_dsvm_ss`: Data Science Virtual Machine, based on Ubuntu 16.04
+#' - `windows_dsvm_ss`: Data Science Virtual Machine, based on Windows Server 2016
+#' - `ubuntu_16.04_ss`, `ubuntu_18.04`: Ubuntu operating system
+#' - `windows_2016_ss`, `windows_2019`: Windows Server Datacenter edition
+#' - `rhel_7.6_ss`, `rhel_8_ss`: Red Hat Enterprise Linux
+#' - `debian_9_backports_ss`: Debian
+#'
+#' @return
+#' An object of S3 class `vmss_config`, that can be used by the `create_vm_scaleset` method.
+#'
+#' @seealso
+#' [scaleset_options] for options relating to the scaleset resource itself
+#'
+#' [nsg_config], [ip_config], [vnet_config], [lb_config], [autoscaler_config] for other resource configs
+#'
+#' [vmss_config] for configuring a virtual machine scaleset
+#'
+#' [create_vm_scaleset]
 #' @export
 vmss_config <- function(image, options=scaleset_options(),
                         nsg=nsg_config(),
@@ -134,6 +164,7 @@ windows_dsvm_ss <- function(nsg=nsg_config(list(nsg_rule_allow_rdp)),
                             options=scaleset_options(keylogin=FALSE),
                             ...)
 {
+    win_key_check(scaleset_options$keylogin)
     vmss_config(image_config("microsoft-dsvm", "dsvm-windows", "server-2016"),
                 options=options, nsg=nsg, load_balancer=load_balancer, ...)
 }

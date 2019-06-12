@@ -60,44 +60,43 @@ NULL
 #' ## R6 method for class 'az_resource_group'
 #' get_vm_scaleset(name)
 #'
-#' ## R6 method for class 'az_resource_group'
-#' ## R6 method for class 'az_subscription'
-#' list_vms()
+#' ## R6 method for class 'az_resource_group')
+#' get_vm_resource(name)
+#' get_vm_scaleset_resource(name)
 #' ```
 #' @section Arguments:
 #' - `name`: The name of the VM or scaleset.
-#' - `resource_group`: For the `az_subscription` method, the resource group in which `get_vm()` will look for the VM. Defaults to the VM name.
+#' - `resource_group`: For the `az_subscription` methods, the resource group in which `get_vm()` and `get_vm_scaleset()`  will look for the VM or scaleset. Defaults to the VM name.
 #'
 #' @section Details:
 #' Despite the names, `get_vm` and `get_vm_scaleset` can both be used to retrieve individual VMs and scalesets. The main difference is in their behaviour if a deployment template is not found. In the case of `get_vm`, it also searches for a raw VM resource of the given name, whereas `get_vm_scaleset` will throw an error immediately.
 #'
 #' @section Value:
-#' For `get_vm()`, an object representing the VM, either of class `az_vm_template` or `az_vm_resource`.
+#' For `get_vm()`, an object representing the VM deployment. This will include other resources besides the VM itself, such as the network interface, virtual network, etc. For `get_vm_resource()`, an object representing the specific VM resource.
 #'
-#' For `list_vms()`, a list of such objects.
-#'
-#' For `get_vm_scaleset()`, an object representing the scaleset.
+#' For `get_vm_scaleset()`, an object representing the scaleset deployment. Similarly to `get_vm()`, this includes other resources besides the scaleset. For `get_vm_scaleset_resource()`, the scaleset resource itself.
 #'
 #' @seealso
-#' [az_vm_template], [az_vm_resource],
+#' [az_vm_template], [az_vm_resource], [az_vmss_template], [az_vmss_resource] for the methods available for working with VMs and VM scalesets.
+#'
 #' [AzureRMR::az_subscription], [AzureRMR::az_resource_group]
 #'
 #' @examples
 #' \dontrun{
 #'
-#' sub <- AzureRMR::az_rm$
-#'     new(tenant="myaadtenant.onmicrosoft.com", app="app_id", password="password")$
+#' sub <- AzureRMR::get_azure_login()$
 #'     get_subscription("subscription_id")
 #'
-#' sub$list_vms()
-#' sub$get_vm("myVirtualMachine")
+#' sub$get_vm("myvirtualmachine")
+#' sub$get_vm_scaleset("myscaleset")
 #'
 #' rg <- sub$get_resource_group("rgname")
-#' rg$get_vm("myOtherVirtualMachine")
+#' rg$get_vm("myothervirtualmachine")
+#' rg$get_vm_scaleset("myotherscaleset")
 #'
 #' }
 #' @rdname get_vm
-#' @aliases get_vm get_vm_scaleset list_vms
+#' @aliases get_vm get_vm_scaleset
 #' @name get_vm
 NULL
 

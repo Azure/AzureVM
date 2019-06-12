@@ -15,19 +15,23 @@ Class representing a virtual machine resource. In general, the methods in this c
 
 The following methods are available, in addition to those provided by the \link[AzureRMR:az_resource]{AzureRMR::az_resource} class:
 \itemize{
-\item \code{new(...)}: Initialize a new VM object.
 \item \code{start(wait=TRUE)}: Start the VM. By default, wait until the startup process is complete.
 \item \code{stop(deallocate=TRUE, wait=FALSE)}: Stop the VM. By default, deallocate it as well.
 \item \code{restart(wait=TRUE)}: Restart the VM.
 \item \code{run_deployed_command(command, parameters, script)}: Run a PowerShell command on the VM.
 \item \code{run_script(script, parameters)}: Run a script on the VM. For a Linux VM, this will be a shell script; for a Windows VM, a PowerShell script. Pass the script as a character vector.
-\item \code{sync_vm_status()}: Update the VM status fields in this object with information from the host.
-\item \code{resize(size, deallocate=FALSE, wait=FALSE)}: Resize the VM. Optionally deallocate it first (may sometimes be necessary).
+\item \code{sync_vm_status()}: Check the status of the VM.
+\item \code{resize(size, deallocate=FALSE, wait=FALSE)}: Resize the VM. Optionally stop and deallocate it first (may sometimes be necessary).
+\item \code{get_public_ip_address(nic=1, config=1)}: Get the public IP address of the VM. Returns NULL if the VM is shut down, or is not publicly accessible.
+\item \code{get_private_ip_address(nic=1, config=1)}: Get the private IP address of the VM.
+\item \code{add_extension(publisher, type, version, settings=list(), protected_settings=list(), key_vault_settings=list())}: Add an extension to the VM.
+\item \code{do_vm_operation(...)}: Carry out an arbitrary operation on the VM resource. See the \code{do_operation} method of the \link[AzureRMR:az_resource]{AzureRMR::az_resource} class for more details.
 }
 }
 
 \seealso{
-\link[AzureRMR:az_resource]{AzureRMR::az_resource},
+\link[AzureRMR:az_resource]{AzureRMR::az_resource}, \link{get_vm_resource}, \link{az_vm_template}
+
 \href{https://docs.microsoft.com/en-us/rest/api/compute/virtualmachines}{VM API reference}
 }
 \keyword{datasets}

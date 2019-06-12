@@ -78,6 +78,41 @@ debian_9_backports_ss(nsg = nsg_config(list(nsg_rule_allow_ssh)),
 
 \item{...}{For the specific VM configurations, other customisation arguments to be passed to \code{vm_config}.}
 }
+\value{
+An object of S3 class \code{vmss_config}, that can be used by the \code{create_vm_scaleset} method.
+}
 \description{
 Virtual machine scaleset configuration functions
+}
+\details{
+These functions are for specifying the details of a new virtual machine scaleset deployment: the base VM image and related options, along with the Azure resources that the scaleset may need. These include the network security group, virtual network, load balancer and associated public IP address, and autoscaler.
+
+Each resource can be specified in a number of ways:
+\itemize{
+\item To \emph{create} a new resource as part of the deployment, call the corresponding \code{*_config} function.
+\item To use an \emph{existing} resource, supply either an \code{AzureRMR::az_resource} object (recommended) or a string containing the resource ID.
+\item If the resource is not needed, specify it as NULL.
+\item For the \code{other_resources} argument, supply a list of resources, each of which should be a list of resource fields (name, type, properties, sku, etc).
+}
+
+Currently, AzureVM does not support adding datadisks to a scaleset as part of the deployment.
+
+The \code{vmss_config} function is the base configuration function, and the others call it to create VM scalesets with specific operating systems and other image details.
+\itemize{
+\item \code{ubuntu_dsvm_ss}: Data Science Virtual Machine, based on Ubuntu 16.04
+\item \code{windows_dsvm_ss}: Data Science Virtual Machine, based on Windows Server 2016
+\item \code{ubuntu_16.04_ss}, \code{ubuntu_18.04}: Ubuntu operating system
+\item \code{windows_2016_ss}, \code{windows_2019}: Windows Server Datacenter edition
+\item \code{rhel_7.6_ss}, \code{rhel_8_ss}: Red Hat Enterprise Linux
+\item \code{debian_9_backports_ss}: Debian
+}
+}
+\seealso{
+\link{scaleset_options} for options relating to the scaleset resource itself
+
+\link{nsg_config}, \link{ip_config}, \link{vnet_config}, \link{lb_config}, \link{autoscaler_config} for other resource configs
+
+\link{vmss_config} for configuring a virtual machine scaleset
+
+\link{create_vm_scaleset}
 }
