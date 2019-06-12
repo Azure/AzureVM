@@ -140,6 +140,17 @@ windows_dsvm_ss <- function(nsg=nsg_config(list(nsg_rule_allow_rdp)),
 
 #' @rdname vmss_config
 #' @export
+ubuntu_16.04_ss <- function(nsg=nsg_config(list(nsg_rule_allow_ssh)),
+                           load_balancer=lb_config(rules=list(lb_rule_ssh),
+                                                   probes=list(lb_probe_ssh)),
+                           ...)
+{
+    vmss_config(image_config("Canonical", "UbuntuServer", "16.04-LTS"),
+                nsg=nsg, load_balancer=load_balancer, ...)
+}
+
+#' @rdname vmss_config
+#' @export
 ubuntu_18.04_ss <- function(nsg=nsg_config(list(nsg_rule_allow_ssh)),
                            load_balancer=lb_config(rules=list(lb_rule_ssh),
                                                    probes=list(lb_probe_ssh)),
@@ -151,6 +162,19 @@ ubuntu_18.04_ss <- function(nsg=nsg_config(list(nsg_rule_allow_ssh)),
 
 #' @rdname vmss_config
 #' @export
+windows_2016_ss <- function(nsg=nsg_config(list(nsg_rule_allow_rdp)),
+                            load_balancer=lb_config(rules=list(lb_rule_rdp),
+                                                    probes=list(lb_probe_rdp)),
+                            options=scaleset_options(keylogin=FALSE),
+                            ...)
+{
+    win_key_check(scaleset_options$keylogin)
+    vmss_config(image_config("MicrosoftWindowsServer", "WindowsServer", "2016-Datacenter"),
+                options=options, nsg=nsg, load_balancer=load_balancer, ...)
+}
+
+#' @rdname vmss_config
+#' @export
 windows_2019_ss <- function(nsg=nsg_config(list(nsg_rule_allow_rdp)),
                             load_balancer=lb_config(rules=list(lb_rule_rdp),
                                                     probes=list(lb_probe_rdp)),
@@ -158,8 +182,41 @@ windows_2019_ss <- function(nsg=nsg_config(list(nsg_rule_allow_rdp)),
                             ...)
 {
     win_key_check(scaleset_options$keylogin)
-    vmss_config(image_config("Canonical", "UbuntuServer", "18.04-LTS"),
+    vmss_config(image_config("MicrosoftWindowsServer", "WindowsServer", "2019-Datacenter"),
                 options=options, nsg=nsg, load_balancer=load_balancer, ...)
+}
+
+#' @rdname vmss_config
+#' @export
+rhel_7.6_ss <- function(nsg=nsg_config(list(nsg_rule_allow_ssh)),
+                           load_balancer=lb_config(rules=list(lb_rule_ssh),
+                                                   probes=list(lb_probe_ssh)),
+                           ...)
+{
+    vmss_config(image_config("RedHat", "RHEL", "7-RAW"),
+                nsg=nsg, load_balancer=load_balancer, ...)
+}
+
+#' @rdname vmss_config
+#' @export
+rhel_8_ss <- function(nsg=nsg_config(list(nsg_rule_allow_ssh)),
+                           load_balancer=lb_config(rules=list(lb_rule_ssh),
+                                                   probes=list(lb_probe_ssh)),
+                           ...)
+{
+    vmss_config(image_config("RedHat", "RHEL", "8"),
+                nsg=nsg, load_balancer=load_balancer, ...)
+}
+
+#' @rdname vmss_config
+#' @export
+debian_9_backports_ss <- function(nsg=nsg_config(list(nsg_rule_allow_ssh)),
+                           load_balancer=lb_config(rules=list(lb_rule_ssh),
+                                                   probes=list(lb_probe_ssh)),
+                           ...)
+{
+    vmss_config(image_config("Credativ", "Debian", "9-backports"),
+                nsg=nsg, load_balancer=load_balancer, ...)
 }
 
 

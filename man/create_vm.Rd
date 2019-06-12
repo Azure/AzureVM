@@ -2,42 +2,34 @@
 % Please edit documentation in R/add_methods.R
 \name{create_vm}
 \alias{create_vm}
-\alias{create_vm_cluster}
-\title{Create a new virtual machine or cluster of virtual machines}
+\alias{create_vm_scaleset}
+\title{Create a new virtual machine or scaleset of virtual machines}
 \description{
 Method for the \link[AzureRMR:az_subscription]{AzureRMR::az_subscription} and \link[AzureRMR:az_resource_group]{AzureRMR::az_resource_group} classes.
 }
 \section{Usage}{
 \preformatted{## R6 method for class 'az_resource_group'
-create_vm(name, os = c("Windows", "Ubuntu"), size = "Standard_DS3_v2",
-          username, passkey, userauth_type = c("password", "key"),
-          ext_file_uris = NULL, inst_command = NULL,
-          template, parameters, ..., wait = TRUE)
+create_vm(name, login_user, size = "Standard_DS3_v2", config = "ubuntu_dsvm",
+          managed = TRUE, datadisks = numeric(0), ...,
+          template, parameters, mode = "Incremental", wait = TRUE)
 
 ## R6 method for class 'az_subscription'
-create_vm(name, location, os = c("Windows", "Ubuntu"), size = "Standard_DS3_v2",
-          username, passkey, userauth_type = c("password", "key"),
-          ext_file_uris = NULL, inst_command = NULL,
-          template, parameters, ..., wait = TRUE)
+create_vm(name, ..., resource_group = name, location)
 
 ## R6 method for class 'az_resource_group'
-create_vm_cluster(name, os = c("Windows", "Ubuntu"), size = "Standard_DS3_v2",
-                  username, passkey, userauth_type = c("password", "key"),
-                  ext_file_uris = NULL, inst_command = NULL, clust_size,
-                  template, parameters, ..., wait = TRUE)
+create_vm_scaleset(name, login_user, instances, size = "Standard_DS1_v2",
+                   config = "ubuntu_dsvm_ss", ...,
+                   template, parameters, mode = "Incremental", wait = TRUE)
 
 ## R6 method for class 'az_subscription'
-create_vm_cluster(name, location, os = c("Windows", "Ubuntu"), size = "Standard_DS3_v2",
-                  username, passkey, userauth_type = c("password", "key"),
-                  ext_file_uris = NULL, inst_command = NULL, clust_size,
-                  template, parameters, ..., wait = TRUE)
+create_vm_scaleset(name, ..., resource_group = name, location)
 }
 }
 
 \section{Arguments}{
 
 \itemize{
-\item \code{name}: The name of the VM or cluster.
+\item \code{name}: The name of the VM or scaleset.
 \item \code{location}: For the subscription class methods, the location for the VM. Use the \code{list_locations()} method of the \code{AzureRMR::az_subscription} class to see what locations are available.
 \item \code{os}: The operating system for the VM.
 \item \code{size}: The VM size. Use the \code{list_vm_sizes()} method of the \code{AzureRMR::az_subscription} class to see what sizes are available.
@@ -46,7 +38,7 @@ create_vm_cluster(name, location, os = c("Windows", "Ubuntu"), size = "Standard_
 \item \code{userauth_type}: The type of login authentication to use. Only has an effect for Linux-based VMs; Windows VMs will always use \code{"password"}.
 \item \code{ext_file_uris}: Optional link to download extension packages.
 \item \code{inst_command}: If \code{ext_file_uris} is supplied, the install script to run. Defaults to \code{install.sh} for an Ubuntu VM, or \code{install.ps1} for a Windows VM.
-\item \code{clust_size}: For a cluster, the number of nodes to create.
+\item \code{clust_size}: For a scaleset, the number of nodes to create.
 \item \code{template}: Optional: the VM template to deploy. By default, this is determined by the values of the other arguments; see 'Details' below.
 \item \code{parameters}: Optional: other parameters to pass to the deployment.
 \item \code{wait}: Whether to wait until the deployment is complete.
@@ -56,18 +48,18 @@ create_vm_cluster(name, location, os = c("Windows", "Ubuntu"), size = "Standard_
 
 \section{Details}{
 
-This method deploys a template to create a new virtual machine or cluster of VMs. Currently, seven templates are supplied with this package, based on the Azure Data Science Virtual Machine:
+This method deploys a template to create a new virtual machine or scaleset of VMs. Currently, seven templates are supplied with this package, based on the Azure Data Science Virtual Machine:
 \itemize{
 \item Ubuntu DSVM
 \item Ubuntu DSVM using public key authentication
 \item Ubuntu DSVM with extensions
-\item Ubuntu DSVM cluster
-\item Ubuntu DSVM cluster with extensions
+\item Ubuntu DSVM scaleset
+\item Ubuntu DSVM scaleset with extensions
 \item Windows Server 2016 DSVM
-\item Windows Server 2016 DSVM cluster with extensions
+\item Windows Server 2016 DSVM scaleset with extensions
 }
 
-An individual virtual machine is treated as a cluster containing only a single node.
+An individual virtual machine is treated as a scaleset containing only a single node.
 
 You can also supply your own VM template for deployment, via the \code{template} argument. See \link[AzureRMR:az_template]{AzureRMR::az_template} for information how to supply templates. Note that if you do this, you may also have to supply a \code{parameters} argument, as the standard parameters for this method are customised for the DSVM.
 
@@ -100,7 +92,7 @@ sub$create_vm("myLinuxDSVM",
    passkey=readLines("~/id_rsa.pub"),
    size="Standard_DS13_v2")
 
-sub$create_vm_cluster("myLinuxCluster",
+sub$create_vm_scaleset("myLinuxscaleset",
    location="australiaeast",
    os="Linux",
    username="ds",

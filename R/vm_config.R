@@ -140,7 +140,7 @@ rhel_8 <- function(keylogin=TRUE, managed=TRUE, datadisks=numeric(0),
 
 #' @rdname vm_config
 #' @export
-debian9_backports <- function(keylogin=TRUE, managed=TRUE, datadisks=numeric(0),
+debian_9_backports <- function(keylogin=TRUE, managed=TRUE, datadisks=numeric(0),
                               nsg=nsg_config(list(nsg_rule_allow_ssh)), ...)
 {
     vm_config(image_config("Credativ", "Debian", "9-backports"), keylogin, managed, datadisks, nsg, ...)
@@ -150,5 +150,5 @@ debian9_backports <- function(keylogin=TRUE, managed=TRUE, datadisks=numeric(0),
 win_key_check <- function(keylogin)
 {
     if(keylogin)
-        warning("Windows does not support SSH key logins", call.=FALSE)
+        stop("Windows does not support SSH key logins", call.=FALSE)
 }

@@ -10,7 +10,7 @@
 \alias{windows_2019}
 \alias{rhel_7.6}
 \alias{rhel_8}
-\alias{debian9_backports}
+\alias{debian_9_backports}
 \title{VM configuration functions}
 \usage{
 vm_config(image, keylogin, managed = TRUE, datadisks = numeric(0),
@@ -45,7 +45,7 @@ rhel_7.6(keylogin = TRUE, managed = TRUE, datadisks = numeric(0),
 rhel_8(keylogin = TRUE, managed = TRUE, datadisks = numeric(0),
   nsg = nsg_config(list(nsg_rule_allow_ssh)), ...)
 
-debian9_backports(keylogin = TRUE, managed = TRUE,
+debian_9_backports(keylogin = TRUE, managed = TRUE,
   datadisks = numeric(0), nsg = nsg_config(list(nsg_rule_allow_ssh)),
   ...)
 }

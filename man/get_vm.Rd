@@ -2,7 +2,7 @@
 % Please edit documentation in R/add_methods.R
 \name{get_vm}
 \alias{get_vm}
-\alias{get_vm_cluster}
+\alias{get_vm_scaleset}
 \alias{list_vms}
 \title{Get existing virtual machine(s)}
 \description{
@@ -16,10 +16,10 @@ get_vm(name, resource_group = name)
 get_vm(name)
 
 ## R6 method for class 'az_subscription'
-get_vm_cluster(name, resource_group = name)
+get_vm_scaleset(name, resource_group = name)
 
 ## R6 method for class 'az_resource_group'
-get_vm_cluster(name)
+get_vm_scaleset(name)
 
 ## R6 method for class 'az_resource_group'
 ## R6 method for class 'az_subscription'
@@ -30,14 +30,14 @@ list_vms()
 \section{Arguments}{
 
 \itemize{
-\item \code{name}: The name of the VM or cluster.
+\item \code{name}: The name of the VM or scaleset.
 \item \code{resource_group}: For the \code{az_subscription} method, the resource group in which \code{get_vm()} will look for the VM. Defaults to the VM name.
 }
 }
 
 \section{Details}{
 
-Despite the names, \code{get_vm} and \code{get_vm_cluster} can both be used to retrieve individual VMs and clusters. The main difference is in their behaviour if a deployment template is not found. In the case of \code{get_vm}, it also searches for a raw VM resource of the given name, whereas \code{get_vm_cluster} will throw an error immediately.
+Despite the names, \code{get_vm} and \code{get_vm_scaleset} can both be used to retrieve individual VMs and scalesets. The main difference is in their behaviour if a deployment template is not found. In the case of \code{get_vm}, it also searches for a raw VM resource of the given name, whereas \code{get_vm_scaleset} will throw an error immediately.
 }
 
 \section{Value}{
@@ -46,7 +46,7 @@ For \code{get_vm()}, an object representing the VM, either of class \code{az_vm_
 
 For \code{list_vms()}, a list of such objects.
 
-For \code{get_vm_cluster()}, an object representing the cluster.
+For \code{get_vm_scaleset()}, an object representing the scaleset.
 }
 
 \examples{

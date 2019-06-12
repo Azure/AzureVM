@@ -172,17 +172,17 @@ private=list(
     {
         is_type <- function(id, type)
         {
-            grepl(type, id, fixed=TRUE, ignore.case=TRUE)
+            grepl(type, id, fixed=TRUE)
         }
         new_order <- sapply(self$properties$outputResources, function(x)
         {
             id <- x$id
-            if(is_type(id, "Microsoft.Compute/virtualMachines")) 0.1
-            else if(is_type(id, "Microsoft.Network/networkInterfaces")) 0.2
-            else if(is_type(id, "Microsoft.Network/virtualNetworks")) 0.3
-            else if(is_type(id, "Microsoft.Network/publicIPAddresses")) 0.4
-            else if(is_type(id, "Microsoft.Network/networkSecurityGroups")) 0.5
-            else stop("Unknown resource type:\n", id, call.=FALSE)
+            if(is_type(id, "Microsoft.Compute/virtualMachines")) 1
+            else if(is_type(id, "Microsoft.Network/networkInterfaces")) 2
+            else if(is_type(id, "Microsoft.Network/virtualNetworks")) 3
+            else if(is_type(id, "Microsoft.Network/publicIPAddresses")) 4
+            else if(is_type(id, "Microsoft.Network/networkSecurityGroups")) 5
+            else 0 # delete all other resources first
         })
         self$properties$outputResources <- self$properties$outputResources[order(new_order)]
     }

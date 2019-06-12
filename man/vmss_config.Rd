@@ -4,8 +4,13 @@
 \alias{vmss_config}
 \alias{ubuntu_dsvm_ss}
 \alias{windows_dsvm_ss}
+\alias{ubuntu_16.04_ss}
 \alias{ubuntu_18.04_ss}
+\alias{windows_2016_ss}
 \alias{windows_2019_ss}
+\alias{rhel_7.6_ss}
+\alias{rhel_8_ss}
+\alias{debian_9_backports_ss}
 \title{Virtual machine scaleset configuration functions}
 \usage{
 vmss_config(image, options = scaleset_options(), nsg = nsg_config(),
@@ -24,13 +29,33 @@ windows_dsvm_ss(nsg = nsg_config(list(nsg_rule_allow_rdp)),
   load_balancer = lb_config(rules = list(lb_rule_rdp), probes =
   list(lb_probe_rdp)), options = scaleset_options(keylogin = FALSE), ...)
 
+ubuntu_16.04_ss(nsg = nsg_config(list(nsg_rule_allow_ssh)),
+  load_balancer = lb_config(rules = list(lb_rule_ssh), probes =
+  list(lb_probe_ssh)), ...)
+
 ubuntu_18.04_ss(nsg = nsg_config(list(nsg_rule_allow_ssh)),
   load_balancer = lb_config(rules = list(lb_rule_ssh), probes =
   list(lb_probe_ssh)), ...)
 
+windows_2016_ss(nsg = nsg_config(list(nsg_rule_allow_rdp)),
+  load_balancer = lb_config(rules = list(lb_rule_rdp), probes =
+  list(lb_probe_rdp)), options = scaleset_options(keylogin = FALSE), ...)
+
 windows_2019_ss(nsg = nsg_config(list(nsg_rule_allow_rdp)),
   load_balancer = lb_config(rules = list(lb_rule_rdp), probes =
   list(lb_probe_rdp)), options = scaleset_options(keylogin = FALSE), ...)
+
+rhel_7.6_ss(nsg = nsg_config(list(nsg_rule_allow_ssh)),
+  load_balancer = lb_config(rules = list(lb_rule_ssh), probes =
+  list(lb_probe_ssh)), ...)
+
+rhel_8_ss(nsg = nsg_config(list(nsg_rule_allow_ssh)),
+  load_balancer = lb_config(rules = list(lb_rule_ssh), probes =
+  list(lb_probe_ssh)), ...)
+
+debian_9_backports_ss(nsg = nsg_config(list(nsg_rule_allow_ssh)),
+  load_balancer = lb_config(rules = list(lb_rule_ssh), probes =
+  list(lb_probe_ssh)), ...)
 }
 \arguments{
 \item{image}{For \code{vmss_config}, the VM image to deploy. This should be an object of class \code{image_config}, created by the function of the same name.}

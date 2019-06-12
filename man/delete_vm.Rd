@@ -3,7 +3,7 @@
 \docType{class}
 \name{delete_vm}
 \alias{delete_vm}
-\alias{delete_vm_cluster}
+\alias{delete_vm_scaleset}
 \title{Delete virtual machine}
 \description{
 Method for the \link[AzureRMR:az_subscription]{AzureRMR::az_subscription} and \link[AzureRMR:az_resource_group]{AzureRMR::az_resource_group} classes.
@@ -17,10 +17,10 @@ delete_vm(name, confirm = TRUE, free_resources = TRUE,
           resource_group = name)
 
 ## R6 method for class 'az_resource_group'
-delete_vm_cluster(name, confirm = TRUE, free_resources = TRUE)
+delete_vm_scaleset(name, confirm = TRUE, free_resources = TRUE)
 
 ## R6 method for class 'az_subscription'
-delete_vm_cluster(name, confirm = TRUE, free_resources = TRUE,
+delete_vm_scaleset(name, confirm = TRUE, free_resources = TRUE,
                   resource_group = name)
 }
 }
@@ -28,16 +28,16 @@ delete_vm_cluster(name, confirm = TRUE, free_resources = TRUE,
 \section{Arguments}{
 
 \itemize{
-\item \code{name}: The name of the VM or cluster.
+\item \code{name}: The name of the VM or scaleset.
 \item \code{confirm}: Whether to confirm the delete.
 \item \code{free_resources}: If this was a deployed template, whether to free all resources created during the deployment process.
-\item \code{resource_group}: For the \code{AzureRMR::az_subscription} method, the resource group containing the VM or cluster.
+\item \code{resource_group}: For the \code{AzureRMR::az_subscription} method, the resource group containing the VM or scaleset.
 }
 }
 
 \section{Details}{
 
-If the VM or cluster is of class \link{az_vm_template} and was created in exclusive mode, this method deletes the entire resource group that it occupies. This automatically frees all resources that were created during the deployment process. Otherwise, if \code{free_resources=TRUE}, it manually deletes each individual resource in turn. This is done synchronously (the method does not return until the deletion is complete) to allow for dependencies.
+If the VM or scaleset is of class \link{az_vm_template} and was created in exclusive mode, this method deletes the entire resource group that it occupies. This automatically frees all resources that were created during the deployment process. Otherwise, if \code{free_resources=TRUE}, it manually deletes each individual resource in turn. This is done synchronously (the method does not return until the deletion is complete) to allow for dependencies.
 
 If the VM is of class \link{az_vm_resource}, this method only deletes the VM resource itself, not any other resources it may depend on.
 }
