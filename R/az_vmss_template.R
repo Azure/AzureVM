@@ -6,7 +6,7 @@
 #' @section Methods:
 #' The following methods are available, in addition to those provided by the [AzureRMR::az_template] class.
 #' - `sync_vmss_status`: Check the status of the scaleset.
-#' - `list_instances()`: Return a list of [az_vm_resource] objects, one for each VM instance in the scaleset. Note that if the scaleset has a load balancer attached, the number of instances will vary depending on the load.
+#' - `list_instances()`: Return a list of [az_vm_resource] objects, one for each VM instance in the scaleset. Note that if the scaleset has an autoscaler attached, the number of instances will vary depending on the load.
 #' - `get_instance(id)`: Return a specific VM instance in the scaleset.
 #' - `start(id=NULL, wait=FALSE)`: Start the scaleset. In this and the other methods listed here, `id` can be an optional character vector of instance IDs; if supplied, only carry out the operation for those instances.
 #' - `restart(id=NULL, wait=FALSE)`: Restart the scaleset.

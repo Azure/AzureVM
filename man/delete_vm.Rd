@@ -35,22 +35,14 @@ delete_vm_scaleset(name, confirm = TRUE, free_resources = TRUE,
 }
 }
 
-\section{Details}{
-
-If the VM or scaleset is of class \link{az_vm_template} and was created in exclusive mode, this method deletes the entire resource group that it occupies. This automatically frees all resources that were created during the deployment process. Otherwise, if \code{free_resources=TRUE}, it manually deletes each individual resource in turn. This is done synchronously (the method does not return until the deletion is complete) to allow for dependencies.
-
-If the VM is of class \link{az_vm_resource}, this method only deletes the VM resource itself, not any other resources it may depend on.
-}
-
 \examples{
 \dontrun{
 
-sub <- AzureRMR::az_rm$
-    new(tenant="myaadtenant.onmicrosoft.com", app="app_id", password="password")$
+sub <- AzureRMR::get_azure_login()$
     get_subscription("subscription_id")
 
-sub$delete_vm("myWindowsDSVM")
-sub$delete_vm("myLinuxDSVM")
+sub$delete_vm("myvm")
+sub$delete_vm_scaleset("myscaleset")
 
 }
 }

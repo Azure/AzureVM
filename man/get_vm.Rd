@@ -3,6 +3,8 @@
 \name{get_vm}
 \alias{get_vm}
 \alias{get_vm_scaleset}
+\alias{get_vm_resource}
+\alias{get_vm_scaleset_resource}
 \title{Get existing virtual machine(s)}
 \description{
 Method for the \link[AzureRMR:az_subscription]{AzureRMR::az_subscription} and \link[AzureRMR:az_resource_group]{AzureRMR::az_resource_group} classes.

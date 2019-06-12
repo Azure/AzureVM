@@ -96,7 +96,7 @@ NULL
 #'
 #' }
 #' @rdname get_vm
-#' @aliases get_vm get_vm_scaleset
+#' @aliases get_vm get_vm_scaleset get_vm_resource get_vm_scaleset_resource
 #' @name get_vm
 NULL
 
@@ -125,72 +125,99 @@ NULL
 #' ```
 #' @section Arguments:
 #' - `name`: The name of the VM or scaleset.
-#' - `location`: For the subscription class methods, the location for the VM. Use the `list_locations()` method of the `AzureRMR::az_subscription` class to see what locations are available.
-#' - `os`: The operating system for the VM.
-#' - `size`: The VM size. Use the `list_vm_sizes()` method of the `AzureRMR::az_subscription` class to see what sizes are available.
-#' - `username`: The login username for the VM.
-#' - `passkey`: The login password or public key.
-#' - `userauth_type`: The type of login authentication to use. Only has an effect for Linux-based VMs; Windows VMs will always use `"password"`.
-#' - `ext_file_uris`: Optional link to download extension packages.
-#' - `inst_command`: If `ext_file_uris` is supplied, the install script to run. Defaults to `install.sh` for an Ubuntu VM, or `install.ps1` for a Windows VM.
-#' - `clust_size`: For a scaleset, the number of nodes to create.
-#' - `template`: Optional: the VM template to deploy. By default, this is determined by the values of the other arguments; see 'Details' below.
-#' - `parameters`: Optional: other parameters to pass to the deployment.
+#' - `location`: For the subscription class methods, the location for the VM or scaleset. Use the `list_locations()` method of the `AzureRMR::az_subscription` class to see what locations are available.
+#' - `resource_group`: For the subscription class methods, the resource group in which to place the VM or scaleset. Defaults to a new resource group with the same name as the VM.
+#' - `login_user`: The details for the admin login account. An object of class `user_config`, obtained by a call to the `user_config` function.
+#' - `size`: The VM (instance) size. Use the `list_vm_sizes()` method of the `AzureRMR::az_subscription` class to see what sizes are available.
+#' - `config`: The VM or scaleset configuration. See 'Details' below for how to specify this. The default is to use an Ubuntu Data Science Virtual Machine.
+#' - `managed`: For `create_vm`, whether the VM should have a managed identity attached.
+#' - `datadisks`: For `create_vm`, any data disks to attach to the VM. See 'Details' below.
+#' - `instances`: For `create_vm_scaleset`, the initial number of instances in the scaleset.
+#' - `...` Additional arguments to pass to the VM/scaleset configuration function.
+#' - `template,parameters`: The template definition and parameters to deploy. By default, these are constructed from the values of the other arguments, but you can supply your own template and/or parameters as well.
 #' - `wait`: Whether to wait until the deployment is complete.
-#' - `...`: Other arguments to lower-level methods.
+#' - `mode`: The template deployment mode. If "Complete", any existing resources in the resource group will be deleted. You shouldn't change this argument unless you know what you're doing.
 #'
 #' @section Details:
-#' This method deploys a template to create a new virtual machine or scaleset of VMs. Currently, seven templates are supplied with this package, based on the Azure Data Science Virtual Machine:
-#' - Ubuntu DSVM
-#' - Ubuntu DSVM using public key authentication
-#' - Ubuntu DSVM with extensions
-#' - Ubuntu DSVM scaleset
-#' - Ubuntu DSVM scaleset with extensions
-#' - Windows Server 2016 DSVM
-#' - Windows Server 2016 DSVM scaleset with extensions
+#' These methods deploy a template to create a new virtual machine or scaleset.
 #'
-#' An individual virtual machine is treated as a scaleset containing only a single node.
+#' The `config` argument can be specified in the following ways:
+#' - As the name of a supplied VM or scaleset configuration, like "ubuntu_dsvm" or "ubuntu_dsvm_ss". AzureVM comes with a number of supplied configurations to deploy commonly used images, which can be seen at [vm_config] and [vmss_config]. Any arguments in `...` will be passed to the configuration, allowing you to customise the deployment.
+#' - As a call to the `vm_config` or `vmss_config` functions, to deploy a custom VM image.
+#' - As an object of class `vm_config` or `vmss_config`.
 #'
-#' You can also supply your own VM template for deployment, via the `template` argument. See [AzureRMR::az_template] for information how to supply templates. Note that if you do this, you may also have to supply a `parameters` argument, as the standard parameters for this method are customised for the DSVM.
+#' The data disks for the VM can be specified in the following ways:
+#' - As a vector of numeric disk sizes, in GB.
+#' - As a list of `datadisk_config` objects, created via calls to the `datadisk_config` function.
 #'
-#' For the `AzureRMR::az_subscription` method, this will by default create the VM in _exclusive_ mode, meaning a new resource group is created solely to hold the VM. This simplifies managing the VM considerably, in particular deleting the resource group will also automatically delete all the VM's resources.
+#' You can also supply your own template definition and parameters for deployment, via the `template` and `parameters` arguments. See [AzureRMR::az_template] for information how to create templates.
+#'
+#' The `AzureRMR::az_subscription` methods will by default create the VM in _exclusive_ mode, meaning a new resource group is created solely to hold the VM or scaleset. This simplifies managing the VM considerably; in particular deleting the resource group will also automatically delete all the deployed resources.
 #'
 #' @section Value:
-#' An object of class `az_vm_template` representing the created VM.
+#' For `create_vm`, an object of class `az_vm_template` representing the created VM. For `create_vm_scaleset`, an object of class `az_vmss_template` representing the scaleset.
 #'
 #' @seealso
-#' [az_vm_template],
+#' [az_vm_template], [az_vmss_template]
+#'
+#' [vm_config], [vmss_config], [user_config], [datadisk_config]
+#'
 #' [AzureRMR::az_subscription], [AzureRMR::az_resource_group],
 #' [Data Science Virtual Machine](https://azure.microsoft.com/en-us/services/virtual-machines/data-science-virtual-machines/)
 #'
 #' @examples
 #' \dontrun{
 #'
-#' sub <- AzureRMR::az_rm$
-#'     new(tenant="myaadtenant.onmicrosoft.com", app="app_id", password="password")$
+#' sub <- AzureRMR::get_azure_login()$
 #'     get_subscription("subscription_id")
 #'
-#' # default Windows Server DSVM: make sure to use a strong password!
-#' sub$create_vm("myWindowsDSVM",
-#'    location="australiaeast",
-#'    username="ds",
-#'    passkey="Password123!")
+#' # default Ubuntu DSVM:
+#' # SSH key login, Standard_DS3_v2, publicly accessible via SSH, JuypterHub and Rstudio
+#' sub$create_vm("myubuntudsvm", user_config("myname", "~/.ssh/id_rsa.pub"),
+#'               location="australiaeast")
 #'
-#' # upsized Linux (Ubuntu) DSVM
-#' sub$create_vm("myLinuxDSVM",
-#'    location="australiaeast",
-#'    os="Linux",
-#'    username="ds",
-#'    passkey=readLines("~/id_rsa.pub"),
-#'    size="Standard_DS13_v2")
+#' # Windows Server 2019, with a 500GB datadisk attached, not publicly accessible
+#' sub$create_vm("mywinvm", user_config("myname", password="strong-password-here!"),
+#'               config="windows_2019", datadisks=500, ip=NULL,
+#'               location="australiaeast")
 #'
-#" # Linux scaleset with 5 nodes
-#' sub$create_vm_scaleset("myLinuxscaleset",
-#'    location="australiaeast",
-#'    os="Linux",
-#'    username="ds",
-#'    passkey=readLines("~/id_rsa.pub"),
-#'    clust_size=5)
+#' # custom VM configuration
+#' user <- user_config("myname", password="strong-password-here!")
+#' image <- image_config(publisher="publisher_name", offer="offer_name", sku="sku_name")
+#' datadisks <- list(
+#'     datadisk_config(250, type="Premium_LRS"),
+#'     datadisk_config(1000, type="Standard_LRS")
+#' )
+#' config <- vm_config(image=image, keylogin=FALSE, datadisks=datadisks)
+#' sub$create_vm("mycustomvm", user_config, size="Standard_H8", config=config,
+#'               location="australiaeast")
+#'
+#'
+#' # RHEL VM scaleset with 5 GPU-enabled instances
+#' sub$create_vm_scaleset("myrhelss", user_config("myname", "~/.ssh/id_rsa.pub"),
+#'                        instances=5, size="Standard_NV6", config="rhel_8_ss",
+#'                        location="australiaeast")
+#'
+#' # Debian scaleset with no load balancer or autoscaler, using low-priority VMs
+#' sub$create_vm_scaleset("mydebss", user_config("myname", "~/.ssh/id_rsa.pub"),
+#'                        instances=5, size="Standard_DS3_v2", config="debian_9_ss",
+#'                        load_balancer=NULL, autoscaler=NULL,
+#'                        options=scaleset_options(low_priority=TRUE),
+#'                        location="australiaeast")
+#'
+#'
+#' ## create a VM and scaleset in the same resource group and virtual network
+#' rg <- sub$create_resource_group("rgname", "australiaeast")
+#'
+#' # create the master
+#' rg$create_vm("mastervm", user_config("myname", "~/.ssh/id_rsa.pub"))
+#'
+#' # vnet resource
+#' vnet <- rg$get_resource(type="Microsoft.Network/virtualNetworks", name="mynewvm-vnet")
+#'
+#' # create the scaleset
+#' rg$create_vm_scaleset("slavess", user_config("myname", "~/.ssh/id_rsa.pub"),
+#'                        instances=5, vnet=vnet, load_balancer=NULL)
 #'
 #' }
 #' @rdname create_vm
@@ -226,11 +253,6 @@ NULL
 #' - `free_resources`: If this was a deployed template, whether to free all resources created during the deployment process.
 #' - `resource_group`: For the `AzureRMR::az_subscription` method, the resource group containing the VM or scaleset.
 #'
-#' @section Details:
-#' If the VM or scaleset is of class [az_vm_template] and was created in exclusive mode, this method deletes the entire resource group that it occupies. This automatically frees all resources that were created during the deployment process. Otherwise, if `free_resources=TRUE`, it manually deletes each individual resource in turn. This is done synchronously (the method does not return until the deletion is complete) to allow for dependencies.
-#'
-#' If the VM is of class [az_vm_resource], this method only deletes the VM resource itself, not any other resources it may depend on.
-#'
 #' @seealso
 #' [create_vm], [az_vm_template], [az_vm_resource],
 #' [AzureRMR::az_subscription], [AzureRMR::az_resource_group]
@@ -238,12 +260,11 @@ NULL
 #' @examples
 #' \dontrun{
 #'
-#' sub <- AzureRMR::az_rm$
-#'     new(tenant="myaadtenant.onmicrosoft.com", app="app_id", password="password")$
+#' sub <- AzureRMR::get_azure_login()$
 #'     get_subscription("subscription_id")
 #'
-#' sub$delete_vm("myWindowsDSVM")
-#' sub$delete_vm("myLinuxDSVM")
+#' sub$delete_vm("myvm")
+#' sub$delete_vm_scaleset("myscaleset")
 #'
 #' }
 #' @rdname delete_vm

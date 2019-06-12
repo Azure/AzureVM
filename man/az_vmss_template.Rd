@@ -29,7 +29,7 @@ By wrapping the deployment template used to create these resources, the \code{az
 The following methods are available, in addition to those provided by the \link[AzureRMR:az_template]{AzureRMR::az_template} class.
 \itemize{
 \item \code{sync_vmss_status}: Check the status of the scaleset.
-\item \code{list_instances()}: Return a list of \link{az_vm_resource} objects, one for each VM instance in the scaleset. Note that if the scaleset has a load balancer attached, the number of instances will vary depending on the load.
+\item \code{list_instances()}: Return a list of \link{az_vm_resource} objects, one for each VM instance in the scaleset. Note that if the scaleset has an autoscaler attached, the number of instances will vary depending on the load.
 \item \code{get_instance(id)}: Return a specific VM instance in the scaleset.
 \item \code{start(id=NULL, wait=FALSE)}: Start the scaleset. In this and the other methods listed here, \code{id} can be an optional character vector of instance IDs; if supplied, only carry out the operation for those instances.
 \item \code{restart(id=NULL, wait=FALSE)}: Restart the scaleset.
