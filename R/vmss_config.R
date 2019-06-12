@@ -9,7 +9,7 @@
 #' @param autoscaler The autoscaler for the scaleset. Can be a call to `autoscaler_config` to create a new autoscaler; an AzureRMR resource object or resource ID to reuse an existing autoscaler; or NULL if autoscaling is not required.
 #' @param other_resources An optional list of other resources to include in the deployment.
 #' @param variables An optional named list of variables to add to the template.
-#' @param ... For the specific VM configurations, other customisation arguments to be passed to `vm_config`.
+#' @param ... For the specific VM configurations, other customisation arguments to be passed to `vm_config`. For `vmss_config`, an optional named list of parameters that will be folded into the scaleset resource definition in the template.
 #'
 #' @details
 #' These functions are for specifying the details of a new virtual machine scaleset deployment: the base VM image and related options, along with the Azure resources that the scaleset may need. These include the network security group, virtual network, load balancer and associated public IP address, and autoscaler.
@@ -25,7 +25,7 @@
 #' The `vmss_config` function is the base configuration function, and the others call it to create VM scalesets with specific operating systems and other image details.
 #' - `ubuntu_dsvm_ss`: Data Science Virtual Machine, based on Ubuntu 16.04
 #' - `windows_dsvm_ss`: Data Science Virtual Machine, based on Windows Server 2016
-#' - `ubuntu_16.04_ss`, `ubuntu_18.04`: Ubuntu operating system
+#' - `ubuntu_16.04_ss`, `ubuntu_18.04`: Ubuntu
 #' - `windows_2016_ss`, `windows_2019`: Windows Server Datacenter edition
 #' - `rhel_7.6_ss`, `rhel_8_ss`: Red Hat Enterprise Linux
 #' - `debian_9_backports_ss`: Debian
@@ -41,6 +41,38 @@
 #' [vmss_config] for configuring a virtual machine scaleset
 #'
 #' [create_vm_scaleset]
+#'
+#' @examples
+#'
+#' # basic Linux (Ubuntu) and Windows configs
+#' ubuntu_18.04_ss()
+#' windows_2019_ss()
+#'
+#' # Windows DSVM scaleset, no load balancer and autoscaler
+#' windows_dsvm_ss(load_balancer=NULL, autoscaler=NULL)
+#'
+#' # RHEL VM exposing ports 80 (HTTP) and 443 (HTTPS)
+#' rhel_8(nsg=nsg_config(nsg_rule_allow_http, nsg_rule_allow_https))
+#'
+#' # exposing no ports externally
+#' rhel_8(nsg=nsg_config(list()))
+#'
+#' # low-priority VMs, large scaleset (>100 instances allowed), no managed identity
+#' ubuntu_18.04_ss(options=scaleset_options(low_priority=TRUE, large_scaleset=TRUE, managed=FALSE))
+#'
+#'
+#' \dontrun{
+#'
+#' # reusing existing resources: placing a scaleset in an existing vnet/subnet
+#' rg <- AzureRMR::get_azure_login()$
+#'     get_subscription("sub_id")$
+#'     get_resource_group("rgname")
+#'
+#' # we don't need a new network security group either
+#' ubuntu_18.04(vnet=rg$get_resource(type="Microsoft.Network/virtualNetworks", name="myvnet"),
+#'              nsg=NULL)
+#'
+#' }
 #' @export
 vmss_config <- function(image, options=scaleset_options(),
                         nsg=nsg_config(),
@@ -49,7 +81,8 @@ vmss_config <- function(image, options=scaleset_options(),
                         load_balancer_address=ip_config(),
                         autoscaler=autoscaler_config(),
                         other_resources=list(),
-                        variables=list())
+                        variables=list(),
+                        ...)
 {
     stopifnot(inherits(image, "image_config"))
     stopifnot(inherits(options, "scaleset_options"))
@@ -67,7 +100,8 @@ vmss_config <- function(image, options=scaleset_options(),
         ip=ip,
         as=autoscaler,
         other=other_resources,
-        variables=variables
+        variables=variables,
+        vmss_fields=list(...)
     )
     structure(obj, class="vmss_config")
 }
@@ -164,7 +198,7 @@ windows_dsvm_ss <- function(nsg=nsg_config(list(nsg_rule_allow_rdp)),
                             options=scaleset_options(keylogin=FALSE),
                             ...)
 {
-    win_key_check(scaleset_options$keylogin)
+    options$keylogin <- FALSE
     vmss_config(image_config("microsoft-dsvm", "dsvm-windows", "server-2016"),
                 options=options, nsg=nsg, load_balancer=load_balancer, ...)
 }
@@ -199,7 +233,7 @@ windows_2016_ss <- function(nsg=nsg_config(list(nsg_rule_allow_rdp)),
                             options=scaleset_options(keylogin=FALSE),
                             ...)
 {
-    win_key_check(scaleset_options$keylogin)
+    options$keylogin <- FALSE
     vmss_config(image_config("MicrosoftWindowsServer", "WindowsServer", "2016-Datacenter"),
                 options=options, nsg=nsg, load_balancer=load_balancer, ...)
 }
@@ -212,7 +246,7 @@ windows_2019_ss <- function(nsg=nsg_config(list(nsg_rule_allow_rdp)),
                             options=scaleset_options(keylogin=FALSE),
                             ...)
 {
-    win_key_check(scaleset_options$keylogin)
+    options$keylogin <- FALSE
     vmss_config(image_config("MicrosoftWindowsServer", "WindowsServer", "2019-Datacenter"),
                 options=options, nsg=nsg, load_balancer=load_balancer, ...)
 }
@@ -220,9 +254,9 @@ windows_2019_ss <- function(nsg=nsg_config(list(nsg_rule_allow_rdp)),
 #' @rdname vmss_config
 #' @export
 rhel_7.6_ss <- function(nsg=nsg_config(list(nsg_rule_allow_ssh)),
-                           load_balancer=lb_config(rules=list(lb_rule_ssh),
-                                                   probes=list(lb_probe_ssh)),
-                           ...)
+                        load_balancer=lb_config(rules=list(lb_rule_ssh),
+                                                probes=list(lb_probe_ssh)),
+                        ...)
 {
     vmss_config(image_config("RedHat", "RHEL", "7-RAW"),
                 nsg=nsg, load_balancer=load_balancer, ...)
@@ -231,9 +265,9 @@ rhel_7.6_ss <- function(nsg=nsg_config(list(nsg_rule_allow_ssh)),
 #' @rdname vmss_config
 #' @export
 rhel_8_ss <- function(nsg=nsg_config(list(nsg_rule_allow_ssh)),
-                           load_balancer=lb_config(rules=list(lb_rule_ssh),
-                                                   probes=list(lb_probe_ssh)),
-                           ...)
+                      load_balancer=lb_config(rules=list(lb_rule_ssh),
+                                              probes=list(lb_probe_ssh)),
+                      ...)
 {
     vmss_config(image_config("RedHat", "RHEL", "8"),
                 nsg=nsg, load_balancer=load_balancer, ...)
@@ -242,9 +276,9 @@ rhel_8_ss <- function(nsg=nsg_config(list(nsg_rule_allow_ssh)),
 #' @rdname vmss_config
 #' @export
 debian_9_backports_ss <- function(nsg=nsg_config(list(nsg_rule_allow_ssh)),
-                           load_balancer=lb_config(rules=list(lb_rule_ssh),
-                                                   probes=list(lb_probe_ssh)),
-                           ...)
+                                  load_balancer=lb_config(rules=list(lb_rule_ssh),
+                                                          probes=list(lb_probe_ssh)),
+                                  ...)
 {
     vmss_config(image_config("Credativ", "Debian", "9-backports"),
                 nsg=nsg, load_balancer=load_balancer, ...)

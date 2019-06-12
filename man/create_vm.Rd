@@ -30,15 +30,15 @@ create_vm_scaleset(name, ..., resource_group = name, location)
 
 \itemize{
 \item \code{name}: The name of the VM or scaleset.
-\item \code{location}: For the subscription class methods, the location for the VM or scaleset. Use the \code{list_locations()} method of the \code{AzureRMR::az_subscription} class to see what locations are available.
-\item \code{resource_group}: For the subscription class methods, the resource group in which to place the VM or scaleset. Defaults to a new resource group with the same name as the VM.
+\item \code{location}: For the subscription methods, the location for the VM or scaleset. Use the \code{list_locations()} method of the \code{AzureRMR::az_subscription} class to see what locations are available.
+\item \code{resource_group}: For the subscription methods, the resource group in which to place the VM or scaleset. Defaults to a new resource group with the same name as the VM.
 \item \code{login_user}: The details for the admin login account. An object of class \code{user_config}, obtained by a call to the \code{user_config} function.
 \item \code{size}: The VM (instance) size. Use the \code{list_vm_sizes()} method of the \code{AzureRMR::az_subscription} class to see what sizes are available.
 \item \code{config}: The VM or scaleset configuration. See 'Details' below for how to specify this. The default is to use an Ubuntu Data Science Virtual Machine.
 \item \code{managed}: For \code{create_vm}, whether the VM should have a managed identity attached.
 \item \code{datadisks}: For \code{create_vm}, any data disks to attach to the VM. See 'Details' below.
 \item \code{instances}: For \code{create_vm_scaleset}, the initial number of instances in the scaleset.
-\item \code{...} Additional arguments to pass to the VM/scaleset configuration function.
+\item \code{...} For the subscription methods, any of the other arguments listed here, which will be passed to the resource group method. For the resource group method, additional arguments to pass to the VM/scaleset configuration function. See \link{vm_config} and \link{vmss_config} for what arguments are available.
 \item \code{template,parameters}: The template definition and parameters to deploy. By default, these are constructed from the values of the other arguments, but you can supply your own template and/or parameters as well.
 \item \code{wait}: Whether to wait until the deployment is complete.
 \item \code{mode}: The template deployment mode. If "Complete", any existing resources in the resource group will be deleted. You shouldn't change this argument unless you know what you're doing.
@@ -56,11 +56,7 @@ The \code{config} argument can be specified in the following ways:
 \item As an object of class \code{vm_config} or \code{vmss_config}.
 }
 
-The data disks for the VM can be specified in the following ways:
-\itemize{
-\item As a vector of numeric disk sizes, in GB.
-\item As a list of \code{datadisk_config} objects, created via calls to the \code{datadisk_config} function.
-}
+The data disks for the VM can be specified as either a vector of numeric disk sizes in GB, or as a list of \code{datadisk_config} objects, created via calls to the \code{datadisk_config} function.
 
 You can also supply your own template definition and parameters for deployment, via the \code{template} and \code{parameters} arguments. See \link[AzureRMR:az_template]{AzureRMR::az_template} for information how to create templates.
 
@@ -79,30 +75,38 @@ sub <- AzureRMR::get_azure_login()$
     get_subscription("subscription_id")
 
 # default Ubuntu DSVM:
-# SSH key login, Standard_DS3_v2, publicly accessible via SSH, JuypterHub and Rstudio
+# SSH key login, Standard_DS3_v2, publicly accessible via SSH, JuypterHub and Rstudio Server
 sub$create_vm("myubuntudsvm", user_config("myname", "~/.ssh/id_rsa.pub"),
               location="australiaeast")
 
 # Windows Server 2019, with a 500GB datadisk attached, not publicly accessible
 sub$create_vm("mywinvm", user_config("myname", password="strong-password-here!"),
-              config="windows_2019", datadisks=500, ip=NULL,
+              size="Standard_DS4_v2", config="windows_2019", datadisks=500, ip=NULL,
               location="australiaeast")
 
-# custom VM configuration
+## custom VM configuration: Windows 10 Pro 1903
+## this assumes you have a valid desktop license
 user <- user_config("myname", password="strong-password-here!")
-image <- image_config(publisher="publisher_name", offer="offer_name", sku="sku_name")
+image_config(publisher="MicrosoftWindowsDesktop", offer="Windows-10", sku="19h1-pro")
 datadisks <- list(
     datadisk_config(250, type="Premium_LRS"),
     datadisk_config(1000, type="Standard_LRS")
 )
-config <- vm_config(image=image, keylogin=FALSE, datadisks=datadisks)
-sub$create_vm("mycustomvm", user_config, size="Standard_H8", config=config,
+nsg <- nsg_config(list(nsg_rule_allow_http, nsg_rule_allow_https))
+config <- vm_config(image=image, keylogin=FALSE, datadisks=datadisks, nsg=nsg,
+                    properties=list(licenseType="Windows_Client"))
+sub$create_vm("mywin10vm", user_config, size="Standard_H8", config=config,
               location="australiaeast")
 
 
-# RHEL VM scaleset with 5 GPU-enabled instances
+# default Ubuntu DSVM scaleset
+sub$create_vm_scaleset("mydsvmss", user_config("myname", "~/.ssh/id_rsa.pub"),
+                       instances=5,
+                       location="australiaeast"))
+
+# RHEL VM scaleset with GPU-enabled instances
 sub$create_vm_scaleset("myrhelss", user_config("myname", "~/.ssh/id_rsa.pub"),
-                       instances=5, size="Standard_NV6", config="rhel_8_ss",
+                       instances=5, size="Standard_NC12", config="rhel_8_ss",
                        location="australiaeast")
 
 # Debian scaleset with no load balancer or autoscaler, using low-priority VMs
@@ -113,18 +117,19 @@ sub$create_vm_scaleset("mydebss", user_config("myname", "~/.ssh/id_rsa.pub"),
                        location="australiaeast")
 
 
-## create a VM and scaleset in the same resource group and virtual network
+## VM and scaleset in the same resource group and virtual network
+# first, create the resgroup
 rg <- sub$create_resource_group("rgname", "australiaeast")
 
 # create the master
 rg$create_vm("mastervm", user_config("myname", "~/.ssh/id_rsa.pub"))
 
-# vnet resource
+# get the vnet resource
 vnet <- rg$get_resource(type="Microsoft.Network/virtualNetworks", name="mynewvm-vnet")
 
 # create the scaleset
 rg$create_vm_scaleset("slavess", user_config("myname", "~/.ssh/id_rsa.pub"),
-                       instances=5, vnet=vnet, load_balancer=NULL)
+                      instances=5, vnet=vnet, nsg=NULL, load_balancer=NULL, autoscaler=NULL)
 
 }
 }

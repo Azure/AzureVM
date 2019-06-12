@@ -65,6 +65,9 @@ add_template_resources.vm_config <- function(config, ...)
     if(inherits(config$image, "image_custom"))
         vm$properties$storageProfile$imageReference <- list(id="[parameters('imageId')]")
 
+    if(!is_empty(config$vm_fields))
+        vm <- utils::modifyList(vm, config$vm_fields)
+
     resources <- config[c("nsg", "ip", "vnet", "nic")]
 
     existing <- sapply(resources, existing_resource)

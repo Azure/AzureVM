@@ -17,7 +17,7 @@ vmss_config(image, options = scaleset_options(), nsg = nsg_config(),
   vnet = vnet_config(), load_balancer = lb_config(),
   load_balancer_address = ip_config(),
   autoscaler = autoscaler_config(), other_resources = list(),
-  variables = list())
+  variables = list(), ...)
 
 ubuntu_dsvm_ss(nsg = nsg_config(list(nsg_rule_allow_ssh,
   nsg_rule_allow_jupyter, nsg_rule_allow_rstudio)),
@@ -76,7 +76,7 @@ debian_9_backports_ss(nsg = nsg_config(list(nsg_rule_allow_ssh)),
 
 \item{variables}{An optional named list of variables to add to the template.}
 
-\item{...}{For the specific VM configurations, other customisation arguments to be passed to \code{vm_config}.}
+\item{...}{For the specific VM configurations, other customisation arguments to be passed to \code{vm_config}. For \code{vmss_config}, an optional named list of parameters that will be folded into the scaleset resource definition in the template.}
 }
 \value{
 An object of S3 class \code{vmss_config}, that can be used by the \code{create_vm_scaleset} method.
@@ -101,10 +101,42 @@ The \code{vmss_config} function is the base configuration function, and the othe
 \itemize{
 \item \code{ubuntu_dsvm_ss}: Data Science Virtual Machine, based on Ubuntu 16.04
 \item \code{windows_dsvm_ss}: Data Science Virtual Machine, based on Windows Server 2016
-\item \code{ubuntu_16.04_ss}, \code{ubuntu_18.04}: Ubuntu operating system
+\item \code{ubuntu_16.04_ss}, \code{ubuntu_18.04}: Ubuntu
 \item \code{windows_2016_ss}, \code{windows_2019}: Windows Server Datacenter edition
 \item \code{rhel_7.6_ss}, \code{rhel_8_ss}: Red Hat Enterprise Linux
 \item \code{debian_9_backports_ss}: Debian
+}
+}
+\examples{
+
+# basic Linux (Ubuntu) and Windows configs
+ubuntu_18.04_ss()
+windows_2019_ss()
+
+# Windows DSVM scaleset, no load balancer and autoscaler
+windows_dsvm_ss(load_balancer=NULL, autoscaler=NULL)
+
+# RHEL VM exposing ports 80 (HTTP) and 443 (HTTPS)
+rhel_8(nsg=nsg_config(nsg_rule_allow_http, nsg_rule_allow_https))
+
+# exposing no ports externally
+rhel_8(nsg=nsg_config(list()))
+
+# low-priority VMs, large scaleset (>100 instances allowed), no managed identity
+ubuntu_18.04_ss(options=scaleset_options(low_priority=TRUE, large_scaleset=TRUE, managed=FALSE))
+
+
+\dontrun{
+
+# reusing existing resources: placing a scaleset in an existing vnet/subnet
+rg <- AzureRMR::get_azure_login()$
+    get_subscription("sub_id")$
+    get_resource_group("rgname")
+
+# we don't need a new network security group either
+ubuntu_18.04(vnet=rg$get_resource(type="Microsoft.Network/virtualNetworks", name="myvnet"),
+             nsg=NULL)
+
 }
 }
 \seealso{

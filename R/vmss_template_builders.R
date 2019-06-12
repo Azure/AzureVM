@@ -89,6 +89,8 @@ add_template_resources.vmss_config <- function(config, ...)
     }
 
     vmss$properties$virtualMachineProfile <- vm
+    if(!is_empty(config$vmss_fields))
+        vmss <- utils::modifyList(vmss, config$vmss_fields)
 
     resources <- config[c("nsg", "vnet", "lb", "ip", "as")]
 

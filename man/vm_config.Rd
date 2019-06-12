@@ -15,15 +15,15 @@
 \usage{
 vm_config(image, keylogin, managed = TRUE, datadisks = numeric(0),
   nsg = nsg_config(), ip = ip_config(), vnet = vnet_config(),
-  nic = nic_config(), other_resources = list(), variables = list())
+  nic = nic_config(), other_resources = list(), variables = list(),
+  ...)
 
 ubuntu_dsvm(keylogin = TRUE, managed = TRUE, datadisks = numeric(0),
   nsg = nsg_config(list(nsg_rule_allow_ssh, nsg_rule_allow_jupyter,
   nsg_rule_allow_rstudio)), ...)
 
-windows_dsvm(keylogin = FALSE, managed = TRUE,
-  datadisks = numeric(0), nsg = nsg_config(list(nsg_rule_allow_rdp)),
-  ...)
+windows_dsvm(managed = TRUE, datadisks = numeric(0),
+  nsg = nsg_config(list(nsg_rule_allow_rdp)), ...)
 
 ubuntu_16.04(keylogin = TRUE, managed = TRUE, datadisks = numeric(0),
   nsg = nsg_config(list(nsg_rule_allow_ssh)), ...)
@@ -31,13 +31,11 @@ ubuntu_16.04(keylogin = TRUE, managed = TRUE, datadisks = numeric(0),
 ubuntu_18.04(keylogin = TRUE, managed = TRUE, datadisks = numeric(0),
   nsg = nsg_config(list(nsg_rule_allow_ssh)), ...)
 
-windows_2016(keylogin = FALSE, managed = TRUE,
-  datadisks = numeric(0), nsg = nsg_config(list(nsg_rule_allow_rdp)),
-  ...)
+windows_2016(managed = TRUE, datadisks = numeric(0),
+  nsg = nsg_config(list(nsg_rule_allow_rdp)), ...)
 
-windows_2019(keylogin = FALSE, managed = TRUE,
-  datadisks = numeric(0), nsg = nsg_config(list(nsg_rule_allow_rdp)),
-  ...)
+windows_2019(managed = TRUE, datadisks = numeric(0),
+  nsg = nsg_config(list(nsg_rule_allow_rdp)), ...)
 
 rhel_7.6(keylogin = TRUE, managed = TRUE, datadisks = numeric(0),
   nsg = nsg_config(list(nsg_rule_allow_ssh)), ...)
@@ -58,7 +56,7 @@ debian_9_backports(keylogin = TRUE, managed = TRUE,
 
 \item{datadisks}{The data disks to attach to the VM. Specify this as either a vector of numeric disk sizes in GB, or a list of \code{datadisk_config} objects for more control over the specification.}
 
-\item{nsg}{The network security group for the VM. Can be a call to \code{nsg_config} to create a new NSG; an AzureRMR resource object or resource ID to reuse an existing NSG; or NULL to not use an NSG (not recommended).}
+\item{nsg}{The network security group for the VM. Can be a call to \code{nsg_config} to create a new NSG; an AzureRMR resource object or resource ID to reuse an existing NSG; or NULL to not use an NSG (not recommended). Note that by default, AzureVM will associate a created NSG with the virtual network/subnet, not with the VM's network interface.}
 
 \item{ip}{The public IP address for the VM. Can be a call to \code{ip_config} to create a new IP address; an AzureRMR resource object or resource ID to reuse an existing address resource; or NULL if the VM should not be accessible from outside its subnet.}
 
@@ -70,7 +68,7 @@ debian_9_backports(keylogin = TRUE, managed = TRUE,
 
 \item{variables}{An optional named list of variables to add to the template.}
 
-\item{...}{For the specific VM configurations, other customisation arguments to be passed to \code{vm_config}.}
+\item{...}{For the specific VM configurations, other customisation arguments to be passed to \code{vm_config}. For \code{vm_config}, an optional named list of parameters that will be folded into the VM resource definition in the template.}
 }
 \value{
 An object of S3 class \code{vm_config}, that can be used by the \code{create_vm} method.
@@ -93,10 +91,69 @@ The \code{vm_config} function is the base configuration function, and the others
 \itemize{
 \item \code{ubuntu_dsvm}: Data Science Virtual Machine, based on Ubuntu 16.04
 \item \code{windows_dsvm}: Data Science Virtual Machine, based on Windows Server 2016
-\item \code{ubuntu_16.04}, \code{ubuntu_18.04}: Ubuntu operating system
+\item \code{ubuntu_16.04}, \code{ubuntu_18.04}: Ubuntu
 \item \code{windows_2016}, \code{windows_2019}: Windows Server Datacenter edition
 \item \code{rhel_7.6}, \code{rhel_8}: Red Hat Enterprise Linux
 \item \code{debian_9_backports}: Debian
+}
+}
+\examples{
+
+# basic Linux (Ubuntu) and Windows configs
+ubuntu_18.04()
+windows_2019()
+
+# Windows DSVM with 500GB data disk, no public IP address
+windows_dsvm(datadisks=500, ip=NULL)
+
+# RHEL VM exposing ports 80 (HTTP) and 443 (HTTPS)
+rhel_8(nsg=nsg_config(nsg_rule_allow_http, nsg_rule_allow_https))
+
+# exposing no ports externally
+rhel_8(nsg=nsg_config(list()))
+
+# deploying an extra resource: storage account
+ubuntu_18.04(
+    variables=list(storName="[concat(variables('vmName'), 'stor')]"),
+    other_resources=list(
+        list(
+            type="Microsoft.Storage/storageAccounts",
+            name="[variables('storName')]",
+            apiVersion="2018-07-01",
+            location="[variables('location')]",
+            properties=list(supportsHttpsTrafficOnly=TRUE),
+            sku=list(name="Standard_LRS"),
+            kind="Storage"
+        )
+    )
+)
+
+## custom VM configuration: Windows 10 Pro 1903
+## this assumes you have a valid desktop license
+image <- image_config(publisher="MicrosoftWindowsDesktop", offer="Windows-10", sku="19h1-pro")
+datadisks <- list(
+    datadisk_config(250, type="Premium_LRS"),
+    datadisk_config(1000, type="Standard_LRS")
+)
+nsg <- nsg_config(list(nsg_rule_allow_http, nsg_rule_allow_https))
+config <- vm_config(image=image, keylogin=FALSE, datadisks=datadisks, nsg=nsg,
+                    properties=list(licenseType="Windows_Client"))
+
+
+\dontrun{
+
+# reusing existing resources: placing multiple VMs in one vnet/subnet
+rg <- AzureRMR::get_azure_login()$
+    get_subscription("sub_id")$
+    get_resource_group("rgname")
+
+vnet <- rg$get_resource(type="Microsoft.Network/virtualNetworks", name="myvnet")
+
+# by default, the NSG is associated with the subnet, so we don't need a new NSG either
+vmconfig1 <- ubuntu_18.04(vnet=vnet, nsg=NULL)
+vmconfig2 <- debian_9_backports(vnet=vnet, nsg=NULL)
+vmconfig3 <- windows_2019(vnet=vnet, nsg=NULL)
+
 }
 }
 \seealso{
