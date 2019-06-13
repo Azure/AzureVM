@@ -130,7 +130,7 @@ ubuntu_18.04(
 
 ## custom VM configuration: Windows 10 Pro 1903 with data disks
 ## this assumes you have a valid Win10 desktop license
-user <- user_config("myname", password="use-strong-passwords!")
+user <- user_config("myname", password="Use-strong-passwords!")
 image <- image_config(
      publisher="MicrosoftWindowsDesktop",
      offer="Windows-10",

@@ -80,7 +80,7 @@ sub$create_vm("myubuntuvm", user_config("myname", "~/.ssh/id_rsa.pub"),
               location="australiaeast")
 
 # Windows Server 2019, with a 500GB datadisk attached, not publicly accessible
-sub$create_vm("mywinvm", user_config("myname", password="use-strong-passwords!"),
+sub$create_vm("mywinvm", user_config("myname", password="Use-strong-passwords!"),
               size="Standard_DS4_v2", config="windows_2019", datadisks=500, ip=NULL,
               location="australiaeast")
 
@@ -91,7 +91,7 @@ sub$create_vm("mydsvm", user_config("myname", "~/.ssh/id_rsa.pub"), size="Standa
 
 ## custom VM configuration: Windows 10 Pro 1903 with data disks
 ## this assumes you have a valid Win10 desktop license
-user <- user_config("myname", password="use-strong-passwords!")
+user <- user_config("myname", password="Use-strong-passwords!")
 image <- image_config(
      publisher="MicrosoftWindowsDesktop",
      offer="Windows-10",
