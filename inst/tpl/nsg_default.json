@@ -4,6 +4,6 @@
     "name": "[variables('nsgName')]",
     "location": "[variables('location')]",
     "properties": {
-        "securityRules": "[parameters('nsgRules')]"
+        "securityRules": []
     }
 }

@@ -1,7 +1,7 @@
 #' Resource configuration functions for a virtual machine deployment
 #'
 #' @param username For `user_config`, the name for the admin user account.
-#' @param sshkey For `user_config`, an SSH public key. Can be a string, or the name of the public key file.
+#' @param sshkey For `user_config`, string containing an SSH public key. Can be the key itself, or the name of the public key file.
 #' @param password For `user_config`, the admin password. Supply either `sshkey` or `password`, but not both; also, note that Windows does not support SSH logins.
 #' @param size For `datadisk_config`, the size of the data disk in GB. St this to NULL for a disk that will be created from an image.
 #' @param name For `datadisk_config`, the disk name. Duplicate names will automatically be disambiguated prior to VM deployment.
@@ -11,7 +11,7 @@
 #' @param publisher,offer,sku,version For `image_config`, the details for a marketplace image.
 #' @param id For `image_config`, the resource ID for a disk to use as a custom image.
 #'
-#' @rdname resource_config
+#' @rdname vm_resource_config
 #' @export
 user_config <- function(username, sshkey=NULL, password=NULL)
 {
@@ -29,7 +29,7 @@ user_config <- function(username, sshkey=NULL, password=NULL)
 }
 
 
-#' @rdname resource_config
+#' @rdname vm_resource_config
 #' @export
 datadisk_config <- function(size, name="datadisk", create="empty", type="StandardSSD_LRS", write_accelerator=FALSE)
 {
@@ -60,7 +60,7 @@ datadisk_config <- function(size, name="datadisk", create="empty", type="Standar
 }
 
 
-#' @rdname resource_config
+#' @rdname vm_resource_config
 #' @export
 image_config <- function(publisher=NULL, offer=NULL, sku=NULL, version="latest", id=NULL)
 {

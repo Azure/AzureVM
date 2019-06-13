@@ -17,7 +17,7 @@ image_config(publisher = NULL, offer = NULL, sku = NULL,
 \arguments{
 \item{username}{For \code{user_config}, the name for the admin user account.}
 
-\item{sshkey}{For \code{user_config}, an SSH public key. Can be a string, or the name of the public key file.}
+\item{sshkey}{For \code{user_config}, string containing an SSH public key. Can be the key itself, or the name of the public key file.}
 
 \item{password}{For \code{user_config}, the admin password. Supply either \code{sshkey} or \code{password}, but not both; also, note that Windows does not support SSH logins.}
 
