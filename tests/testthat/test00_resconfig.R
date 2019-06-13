@@ -1,4 +1,4 @@
-context("Template builders")
+context("Resource configs")
 
 
 test_that("User config works",
