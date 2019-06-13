@@ -64,7 +64,7 @@ debian_9_backports_ss(nsg = nsg_config(list(nsg_rule_allow_ssh)),
 
 \item{nsg}{The network security group for the scaleset. Can be a call to \code{nsg_config} to create a new NSG; an AzureRMR resource object or resource ID to reuse an existing NSG; or NULL to not use an NSG (not recommended).}
 
-\item{vnet}{The virtual network for the scaleset. Can be a call to \code{vnet_config} to create a new virtual network, or an AzureRMR resource object or resource ID to reuse an existing virtual network.}
+\item{vnet}{The virtual network for the scaleset. Can be a call to \code{vnet_config} to create a new virtual network, or an AzureRMR resource object or resource ID to reuse an existing virtual network. Note that by default, AzureVM will associate the NSG with the virtual network/subnet, not with the VM's network interface.}
 
 \item{load_balancer}{The load balancer for the scaleset. Can be a call to \code{lb_config} to create a new load balancer;  an AzureRMR resource object or resource ID to reuse an existing load balancer; or NULL if load balancing is not required.}
 
@@ -76,7 +76,7 @@ debian_9_backports_ss(nsg = nsg_config(list(nsg_rule_allow_ssh)),
 
 \item{variables}{An optional named list of variables to add to the template.}
 
-\item{...}{For the specific VM configurations, other customisation arguments to be passed to \code{vm_config}. For \code{vmss_config}, an optional named list of parameters that will be folded into the scaleset resource definition in the template.}
+\item{...}{For the specific VM configurations, other customisation arguments to be passed to \code{vm_config}. For \code{vmss_config}, named arguments that will be folded into the scaleset resource definition in the template.}
 }
 \value{
 An object of S3 class \code{vmss_config}, that can be used by the \code{create_vm_scaleset} method.
@@ -94,8 +94,6 @@ Each resource can be specified in a number of ways:
 \item If the resource is not needed, specify it as NULL.
 \item For the \code{other_resources} argument, supply a list of resources, each of which should be a list of resource fields (name, type, properties, sku, etc).
 }
-
-Currently, AzureVM does not support adding datadisks to a scaleset as part of the deployment.
 
 The \code{vmss_config} function is the base configuration function, and the others call it to create VM scalesets with specific operating systems and other image details.
 \itemize{
@@ -117,25 +115,25 @@ windows_2019_ss()
 windows_dsvm_ss(load_balancer=NULL, autoscaler=NULL)
 
 # RHEL VM exposing ports 80 (HTTP) and 443 (HTTPS)
-rhel_8(nsg=nsg_config(nsg_rule_allow_http, nsg_rule_allow_https))
+rhel_8_ss(nsg=nsg_config(nsg_rule_allow_http, nsg_rule_allow_https))
 
 # exposing no ports externally
-rhel_8(nsg=nsg_config(list()))
+rhel_8_ss(nsg=nsg_config(list()))
 
 # low-priority VMs, large scaleset (>100 instances allowed), no managed identity
-ubuntu_18.04_ss(options=scaleset_options(low_priority=TRUE, large_scaleset=TRUE, managed=FALSE))
+rhel_8_ss(options=scaleset_options(low_priority=TRUE, large_scaleset=TRUE, managed=FALSE))
 
 
 \dontrun{
 
 # reusing existing resources: placing a scaleset in an existing vnet/subnet
-rg <- AzureRMR::get_azure_login()$
-    get_subscription("sub_id")$
-    get_resource_group("rgname")
-
 # we don't need a new network security group either
-ubuntu_18.04(vnet=rg$get_resource(type="Microsoft.Network/virtualNetworks", name="myvnet"),
-             nsg=NULL)
+vnet <- AzureRMR::get_azure_login()$
+    get_subscription("sub_id")$
+    get_resource_group("rgname")$
+    get_resource(type="Microsoft.Network/virtualNetworks", name="myvnet")
+
+ubuntu_18.04_ss(vnet=vnet, nsg=NULL)
 
 }
 }
@@ -144,7 +142,7 @@ ubuntu_18.04(vnet=rg$get_resource(type="Microsoft.Network/virtualNetworks", name
 
 \link{nsg_config}, \link{ip_config}, \link{vnet_config}, \link{lb_config}, \link{autoscaler_config} for other resource configs
 
-\link{vmss_config} for configuring a virtual machine scaleset
+\link{vm_config} for configuring an individual virtual machine
 
 \link{create_vm_scaleset}
 }

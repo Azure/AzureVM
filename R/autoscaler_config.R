@@ -8,6 +8,8 @@
 #' @param interval For `autoscaler_profile`, The interval between samples, in ISO 8601 format. The default is 1 minute.
 #' @param window For `autoscaler_profile`, the window width over which to compute the percentage CPU. The default is 5 minutes.
 #'
+#' @seealso
+#' [create_vm_scaleset], [vmss_config]
 #' @export
 autoscaler_config <- function(profiles=list(autoscaler_profile()), ...)
 {

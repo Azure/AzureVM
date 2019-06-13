@@ -5,6 +5,9 @@
 #' @param ipv6 Whether to create an IPv6 address. The default is IPv4.
 #' @param domain_name The domain name label to associate with the address.
 #' @param ... Other named arguments that will be treated as resource properties.
+#'
+#' @seealso
+#' [create_vm], [vm_config], [vmss_config]
 #' @export
 ip_config <- function(type=NULL, dynamic=NULL, ipv6=FALSE, domain_name="[parameters('vmName')]", ...)
 {

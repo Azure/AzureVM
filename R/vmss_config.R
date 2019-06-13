@@ -3,13 +3,13 @@
 #' @param image For `vmss_config`, the VM image to deploy. This should be an object of class `image_config`, created by the function of the same name.
 #' @param options Scaleset options, as obtained via a call to `scaleset_options`.
 #' @param nsg The network security group for the scaleset. Can be a call to `nsg_config` to create a new NSG; an AzureRMR resource object or resource ID to reuse an existing NSG; or NULL to not use an NSG (not recommended).
-#' @param vnet The virtual network for the scaleset. Can be a call to `vnet_config` to create a new virtual network, or an AzureRMR resource object or resource ID to reuse an existing virtual network.
+#' @param vnet The virtual network for the scaleset. Can be a call to `vnet_config` to create a new virtual network, or an AzureRMR resource object or resource ID to reuse an existing virtual network. Note that by default, AzureVM will associate the NSG with the virtual network/subnet, not with the VM's network interface.
 #' @param load_balancer The load balancer for the scaleset. Can be a call to `lb_config` to create a new load balancer;  an AzureRMR resource object or resource ID to reuse an existing load balancer; or NULL if load balancing is not required.
 #' @param load_balancer_address The public IP address for the load balancer. Can be a call to `ip_config` to create a new IP address, or an AzureRMR resource object or resource ID to reuse an existing address resource. Ignored if `load_balancer` is NULL.
 #' @param autoscaler The autoscaler for the scaleset. Can be a call to `autoscaler_config` to create a new autoscaler; an AzureRMR resource object or resource ID to reuse an existing autoscaler; or NULL if autoscaling is not required.
 #' @param other_resources An optional list of other resources to include in the deployment.
 #' @param variables An optional named list of variables to add to the template.
-#' @param ... For the specific VM configurations, other customisation arguments to be passed to `vm_config`. For `vmss_config`, an optional named list of parameters that will be folded into the scaleset resource definition in the template.
+#' @param ... For the specific VM configurations, other customisation arguments to be passed to `vm_config`. For `vmss_config`, named arguments that will be folded into the scaleset resource definition in the template.
 #'
 #' @details
 #' These functions are for specifying the details of a new virtual machine scaleset deployment: the base VM image and related options, along with the Azure resources that the scaleset may need. These include the network security group, virtual network, load balancer and associated public IP address, and autoscaler.
@@ -19,8 +19,6 @@
 #' - To use an _existing_ resource, supply either an `AzureRMR::az_resource` object (recommended) or a string containing the resource ID.
 #' - If the resource is not needed, specify it as NULL.
 #' - For the `other_resources` argument, supply a list of resources, each of which should be a list of resource fields (name, type, properties, sku, etc).
-#'
-#' Currently, AzureVM does not support adding datadisks to a scaleset as part of the deployment.
 #'
 #' The `vmss_config` function is the base configuration function, and the others call it to create VM scalesets with specific operating systems and other image details.
 #' - `ubuntu_dsvm_ss`: Data Science Virtual Machine, based on Ubuntu 16.04
@@ -38,7 +36,7 @@
 #'
 #' [nsg_config], [ip_config], [vnet_config], [lb_config], [autoscaler_config] for other resource configs
 #'
-#' [vmss_config] for configuring a virtual machine scaleset
+#' [vm_config] for configuring an individual virtual machine
 #'
 #' [create_vm_scaleset]
 #'
@@ -52,25 +50,25 @@
 #' windows_dsvm_ss(load_balancer=NULL, autoscaler=NULL)
 #'
 #' # RHEL VM exposing ports 80 (HTTP) and 443 (HTTPS)
-#' rhel_8(nsg=nsg_config(nsg_rule_allow_http, nsg_rule_allow_https))
+#' rhel_8_ss(nsg=nsg_config(nsg_rule_allow_http, nsg_rule_allow_https))
 #'
 #' # exposing no ports externally
-#' rhel_8(nsg=nsg_config(list()))
+#' rhel_8_ss(nsg=nsg_config(list()))
 #'
 #' # low-priority VMs, large scaleset (>100 instances allowed), no managed identity
-#' ubuntu_18.04_ss(options=scaleset_options(low_priority=TRUE, large_scaleset=TRUE, managed=FALSE))
+#' rhel_8_ss(options=scaleset_options(low_priority=TRUE, large_scaleset=TRUE, managed=FALSE))
 #'
 #'
 #' \dontrun{
 #'
 #' # reusing existing resources: placing a scaleset in an existing vnet/subnet
-#' rg <- AzureRMR::get_azure_login()$
-#'     get_subscription("sub_id")$
-#'     get_resource_group("rgname")
-#'
 #' # we don't need a new network security group either
-#' ubuntu_18.04(vnet=rg$get_resource(type="Microsoft.Network/virtualNetworks", name="myvnet"),
-#'              nsg=NULL)
+#' vnet <- AzureRMR::get_azure_login()$
+#'     get_subscription("sub_id")$
+#'     get_resource_group("rgname")$
+#'     get_resource(type="Microsoft.Network/virtualNetworks", name="myvnet")
+#'
+#' ubuntu_18.04_ss(vnet=vnet, nsg=NULL)
 #'
 #' }
 #' @export

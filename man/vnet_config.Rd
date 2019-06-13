@@ -27,3 +27,6 @@ subnet_config(name = "subnet", addresses = "10.0.0.0/16",
 \description{
 Virtual network configuration
 }
+\seealso{
+\link{create_vm}, \link{vm_config}, \link{vmss_config}
+}

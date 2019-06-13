@@ -36,16 +36,13 @@ get_vm_scaleset_resource(name)
 }
 }
 
-\section{Details}{
-
-Despite the names, \code{get_vm} and \code{get_vm_scaleset} can both be used to retrieve individual VMs and scalesets. The main difference is in their behaviour if a deployment template is not found. In the case of \code{get_vm}, it also searches for a raw VM resource of the given name, whereas \code{get_vm_scaleset} will throw an error immediately.
-}
-
 \section{Value}{
 
-For \code{get_vm()}, an object representing the VM deployment. This will include other resources besides the VM itself, such as the network interface, virtual network, etc. For \code{get_vm_resource()}, an object representing the specific VM resource.
+For \code{get_vm()}, an object representing the VM deployment. This will include other resources besides the VM itself, such as the network interface, virtual network, etc.
 
-For \code{get_vm_scaleset()}, an object representing the scaleset deployment. Similarly to \code{get_vm()}, this includes other resources besides the scaleset. For \code{get_vm_scaleset_resource()}, the scaleset resource itself.
+For \code{get_vm_scaleset()}, an object representing the scaleset deployment. Similarly to \code{get_vm()}, this includes other resources besides the scaleset.
+
+For \code{get_vm_resource()} and \code{get_vm_scaleset_resource()}, the VM or scaleset resource itself.
 }
 
 \examples{

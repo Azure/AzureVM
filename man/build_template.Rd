@@ -18,18 +18,32 @@
   size, instances, ...)
 }
 \arguments{
-\item{config}{An object of class \code{vm_config} representing a virtual machine deployment.}
+\item{config}{An object of class \code{vm_config} or \code{vmss_config} representing a virtual machine or scaleset deployment.}
 
-\item{...}{For \code{build_template_parameters}, any additional parameters that the VM deployment template may need. Unused for \code{build_template_definition}.}
+\item{...}{Unused.}
 
-\item{name}{The VM name. Will also be used for the domain name label.}
+\item{name}{The VM or scaleset name. Will also be used for the domain name label, if a public IP address is included in the deployment.}
 
 \item{login_user}{An object of class \code{user_config} representing the login details for the admin user account on the VM.}
 
-\item{size}{The VM size.}
+\item{size}{The VM (instance) size.}
 
 \item{instances}{For \code{vmss_config}, the number of (initial) instances in the VM scaleset.}
 }
 \description{
 Build template definition and parameters
+}
+\details{
+These are methods for the generics defined in the AzureRMR package.
+}
+\examples{
+
+vm <- ubuntu_18.04()
+build_template_definition(vm)
+build_template_parameters(vm, "myubuntuvm",
+    user_config("username", "~/.ssh/id_rsa.pub"), "Standard_DS3_v2")
+
+}
+\seealso{
+\link{create_vm}, \link{vm_config}, \link{vmss_config}
 }

@@ -3,6 +3,7 @@
 \docType{data}
 \name{nsg_rule_allow_ssh}
 \alias{nsg_rule_allow_ssh}
+\alias{nsg_rules}
 \alias{nsg_rule_allow_http}
 \alias{nsg_rule_allow_https}
 \alias{nsg_rule_allow_rdp}
@@ -33,7 +34,7 @@ nsg_rule_allow_mssql_browser
 Network security rules
 }
 \details{
-Some predefined network security rule objects, to unblock commonly-used ports.
+Some predefined network security rule objects, to unblock commonly used ports.
 \itemize{
 \item HTTP: TCP port 80
 \item HTTPS: TCP port 443
@@ -44,5 +45,8 @@ Some predefined network security rule objects, to unblock commonly-used ports.
 \item SQL Server: TCP port 1433
 \item SQL Server browser service: TCP port 1434
 }
+}
+\seealso{
+\link{nsg_config}
 }
 \keyword{datasets}

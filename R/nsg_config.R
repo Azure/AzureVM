@@ -9,6 +9,9 @@
 #' @param direction For `nsg_rule`, the direction of traffic: "inbound" or "outbound".
 #' @param protocol For `nsg_rule`, the network protocol: either "Tcp" or "Udp".
 #' @param priority For `nsg_rule`, the rule priority. If NULL, this will be set automatically by AzureVM.
+#'
+#' @seealso
+#' [create_vm], [vm_config], [vmss_config], [nsg_rules] for some predefined security rules
 #' @export
 nsg_config <- function(rules=list(), ...)
 {
@@ -45,9 +48,9 @@ add_template_variables.nsg_config <- function(config, ...)
 #' @rdname nsg_config
 #' @export
 nsg_rule <- function(name, dest_port="*", dest_addr="*", dest_asgs=NULL,
-                            source_port="*", source_addr="*", source_asgs=NULL,
-                            access="allow", direction="inbound",
-                            protocol="Tcp", priority=NULL)
+                     source_port="*", source_addr="*", source_asgs=NULL,
+                     access="allow", direction="inbound",
+                     protocol="Tcp", priority=NULL)
 {
     if(is_empty(dest_asgs))
         dest_asgs <- logical(0)
@@ -78,7 +81,7 @@ nsg_rule <- function(name, dest_port="*", dest_addr="*", dest_asgs=NULL,
 #' @format
 #' Objects of class `nsg_rule`.
 #' @details
-#' Some predefined network security rule objects, to unblock commonly-used ports.
+#' Some predefined network security rule objects, to unblock commonly used ports.
 #' - HTTP: TCP port 80
 #' - HTTPS: TCP port 443
 #' - JupyterHub: TCP port 8000
@@ -88,7 +91,10 @@ nsg_rule <- function(name, dest_port="*", dest_addr="*", dest_asgs=NULL,
 #' - SQL Server: TCP port 1433
 #' - SQL Server browser service: TCP port 1434
 #' @docType data
+#' @seealso
+#' [nsg_config]
 #' @rdname nsg_rules
+#' @aliases nsg_rules
 #' @export
 nsg_rule_allow_ssh <- nsg_rule("Allow-ssh", 22)
 

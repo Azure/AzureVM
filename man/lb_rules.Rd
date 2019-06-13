@@ -3,6 +3,7 @@
 \docType{data}
 \name{lb_rule_ssh}
 \alias{lb_rule_ssh}
+\alias{lb_rules}
 \alias{lb_rule_http}
 \alias{lb_rule_https}
 \alias{lb_rule_rdp}
@@ -57,7 +58,7 @@ lb_probe_mssql_browser
 Load balancing rules
 }
 \details{
-Some predefined load balancing objects, for commonly-used ports.
+Some predefined load balancing objects, for commonly used ports. Each load balancing rule comes with its own health probe.
 \itemize{
 \item HTTP: TCP port 80
 \item HTTPS: TCP port 443
@@ -68,5 +69,8 @@ Some predefined load balancing objects, for commonly-used ports.
 \item SQL Server: TCP port 1433
 \item SQL Server browser service: TCP port 1434
 }
+}
+\seealso{
+\link{lb_config}
 }
 \keyword{datasets}

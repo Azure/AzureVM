@@ -25,8 +25,7 @@
 #' @examples
 #' \dontrun{
 #'
-#' sub <- AzureRMR::az_rm$
-#'     new(tenant="myaadtenant.onmicrosoft.com", app="app_id", password="password")$
+#' sub <- AzureRMR::get_azure_login$
 #'     get_subscription("subscription_id")
 #'
 #' sub$list_vm_sizes("australiaeast")
@@ -68,13 +67,12 @@ NULL
 #' - `name`: The name of the VM or scaleset.
 #' - `resource_group`: For the `az_subscription` methods, the resource group in which `get_vm()` and `get_vm_scaleset()`  will look for the VM or scaleset. Defaults to the VM name.
 #'
-#' @section Details:
-#' Despite the names, `get_vm` and `get_vm_scaleset` can both be used to retrieve individual VMs and scalesets. The main difference is in their behaviour if a deployment template is not found. In the case of `get_vm`, it also searches for a raw VM resource of the given name, whereas `get_vm_scaleset` will throw an error immediately.
-#'
 #' @section Value:
-#' For `get_vm()`, an object representing the VM deployment. This will include other resources besides the VM itself, such as the network interface, virtual network, etc. For `get_vm_resource()`, an object representing the specific VM resource.
+#' For `get_vm()`, an object representing the VM deployment. This will include other resources besides the VM itself, such as the network interface, virtual network, etc.
 #'
-#' For `get_vm_scaleset()`, an object representing the scaleset deployment. Similarly to `get_vm()`, this includes other resources besides the scaleset. For `get_vm_scaleset_resource()`, the scaleset resource itself.
+#' For `get_vm_scaleset()`, an object representing the scaleset deployment. Similarly to `get_vm()`, this includes other resources besides the scaleset.
+#'
+#' For `get_vm_resource()` and `get_vm_scaleset_resource()`, the VM or scaleset resource itself.
 #'
 #' @seealso
 #' [az_vm_template], [az_vm_resource], [az_vmss_template], [az_vmss_resource] for the methods available for working with VMs and VM scalesets.
@@ -128,15 +126,15 @@ NULL
 #' - `location`: For the subscription methods, the location for the VM or scaleset. Use the `list_locations()` method of the `AzureRMR::az_subscription` class to see what locations are available.
 #' - `resource_group`: For the subscription methods, the resource group in which to place the VM or scaleset. Defaults to a new resource group with the same name as the VM.
 #' - `login_user`: The details for the admin login account. An object of class `user_config`, obtained by a call to the `user_config` function.
-#' - `size`: The VM (instance) size. Use the `list_vm_sizes()` method of the `AzureRMR::az_subscription` class to see what sizes are available.
+#' - `size`: The VM (instance) size. Use the [list_vm_sizes] method to see what sizes are available.
 #' - `config`: The VM or scaleset configuration. See 'Details' below for how to specify this. The default is to use an Ubuntu Data Science Virtual Machine.
 #' - `managed`: For `create_vm`, whether the VM should have a managed identity attached.
 #' - `datadisks`: For `create_vm`, any data disks to attach to the VM. See 'Details' below.
 #' - `instances`: For `create_vm_scaleset`, the initial number of instances in the scaleset.
-#' - `...` For the subscription methods, any of the other arguments listed here, which will be passed to the resource group method. For the resource group method, additional arguments to pass to the VM/scaleset configuration function. See [vm_config] and [vmss_config] for what arguments are available.
+#' - `...` For the subscription methods, any of the other arguments listed here, which will be passed to the resource group method. For the resource group method, additional arguments to pass to the VM/scaleset configuration functions [vm_config] and [vmss_config]. See the examples below.
 #' - `template,parameters`: The template definition and parameters to deploy. By default, these are constructed from the values of the other arguments, but you can supply your own template and/or parameters as well.
 #' - `wait`: Whether to wait until the deployment is complete.
-#' - `mode`: The template deployment mode. If "Complete", any existing resources in the resource group will be deleted. You shouldn't change this argument unless you know what you're doing.
+#' - `mode`: The template deployment mode. If "Complete", any existing resources in the resource group will be deleted.
 #'
 #' @section Details:
 #' These methods deploy a template to create a new virtual machine or scaleset.
@@ -146,7 +144,7 @@ NULL
 #' - As a call to the `vm_config` or `vmss_config` functions, to deploy a custom VM image.
 #' - As an object of class `vm_config` or `vmss_config`.
 #'
-#' The data disks for the VM can be specified as either a vector of numeric disk sizes in GB, or as a list of `datadisk_config` objects, created via calls to the `datadisk_config` function.
+#' The data disks for the VM can be specified as either a vector of numeric disk sizes in GB, or as a list of `datadisk_config` objects, created via calls to the `datadisk_config` function. Currently, AzureVM only supports creating data disks at deployment time for single VMs, not scalesets.
 #'
 #' You can also supply your own template definition and parameters for deployment, via the `template` and `parameters` arguments. See [AzureRMR::az_template] for information how to create templates.
 #'
@@ -169,46 +167,71 @@ NULL
 #' sub <- AzureRMR::get_azure_login()$
 #'     get_subscription("subscription_id")
 #'
-#' # default Ubuntu DSVM:
-#' # SSH key login, Standard_DS3_v2, publicly accessible via SSH, JuypterHub and Rstudio Server
-#' sub$create_vm("myubuntudsvm", user_config("myname", "~/.ssh/id_rsa.pub"),
+#' # default Ubuntu 18.04 VM:
+#' # SSH key login, Standard_DS3_v2, publicly accessible via SSH
+#' sub$create_vm("myubuntuvm", user_config("myname", "~/.ssh/id_rsa.pub"),
 #'               location="australiaeast")
 #'
 #' # Windows Server 2019, with a 500GB datadisk attached, not publicly accessible
-#' sub$create_vm("mywinvm", user_config("myname", password="strong-password-here!"),
+#' sub$create_vm("mywinvm", user_config("myname", password="Use-strong-passwords!"),
 #'               size="Standard_DS4_v2", config="windows_2019", datadisks=500, ip=NULL,
 #'               location="australiaeast")
 #'
-#' ## custom VM configuration: Windows 10 Pro 1903
-#' ## this assumes you have a valid desktop license
-#' user <- user_config("myname", password="strong-password-here!")
-#' image_config(publisher="MicrosoftWindowsDesktop", offer="Windows-10", sku="19h1-pro")
+#' # Ubuntu DSVM, GPU-enabled
+#' sub$create_vm("mydsvm", user_config("myname", "~/.ssh/id_rsa.pub"), size="Standard_NC12",
+#'               config="ubuntu_dsvm_ss",
+#'               location="australiaeast")
+#'
+#' ## custom VM configuration: Windows 10 Pro 1903 with data disks
+#' ## this assumes you have a valid Win10 desktop license
+#' user <- user_config("myname", password="Use-strong-passwords!")
+#' image <- image_config(
+#'      publisher="MicrosoftWindowsDesktop",
+#'      offer="Windows-10",
+#'      sku="19h1-pro"
+#' )
 #' datadisks <- list(
 #'     datadisk_config(250, type="Premium_LRS"),
 #'     datadisk_config(1000, type="Standard_LRS")
 #' )
-#' nsg <- nsg_config(list(nsg_rule_allow_http, nsg_rule_allow_https))
-#' config <- vm_config(image=image, keylogin=FALSE, datadisks=datadisks, nsg=nsg,
-#'                     properties=list(licenseType="Windows_Client"))
-#' sub$create_vm("mywin10vm", user_config, size="Standard_H8", config=config,
+#' nsg <- nsg_config(
+#'     list(nsg_rule_allow_rdp)
+#' )
+#' config <- vm_config(
+#'     image=image,
+#'     keylogin=FALSE,
+#'     datadisks=datadisks,
+#'     nsg=nsg,
+#'     properties=list(licenseType="Windows_Client")
+#' )
+#' sub$create_vm("mywin10vm", user, size="Standard_DS2_v2", config=config,
 #'               location="australiaeast")
 #'
 #'
-#' # default Ubuntu DSVM scaleset
+#' # default Ubuntu scaleset:
+#' # load balancer and autoscaler enabled, Standard_DS1_v2
 #' sub$create_vm_scaleset("mydsvmss", user_config("myname", "~/.ssh/id_rsa.pub"),
 #'                        instances=5,
 #'                        location="australiaeast"))
 #'
-#' # RHEL VM scaleset with GPU-enabled instances
-#' sub$create_vm_scaleset("myrhelss", user_config("myname", "~/.ssh/id_rsa.pub"),
-#'                        instances=5, size="Standard_NC12", config="rhel_8_ss",
+#' # Ubuntu DSVM scaleset with public GPU-enabled instances, no load balancer or autoscaler
+#' sub$create_vm_scaleset("mydsvmss", user_config("myname", "~/.ssh/id_rsa.pub"),
+#'                        instances=5, size="Standard_NC12", config="ubuntu_dsvm_ss",
+#'                        options=scaleset_options(public=TRUE),
+#'                        load_balancer=NULL, autoscaler=NULL,
 #'                        location="australiaeast")
 #'
-#' # Debian scaleset with no load balancer or autoscaler, using low-priority VMs
+#' # RHEL scaleset, allow http/https access
+#' sub$create_vm_scaleset("myrhelss", user_config("myname", "~/.ssh/id_rsa.pub"),
+#'                         instances=5, config="rhel_8_ss",
+#'                         nsg=nsg_config(list(nsg_rule_allow_http, nsg_rule_allow_https)),
+#'                         location="australiaeast")
+#'
+#' # Large Debian scaleset, using low-priority VMs
+#' # need to set the instance size to something that supports low-pri
 #' sub$create_vm_scaleset("mydebss", user_config("myname", "~/.ssh/id_rsa.pub"),
-#'                        instances=5, size="Standard_DS3_v2", config="debian_9_backports_ss",
-#'                        load_balancer=NULL, autoscaler=NULL,
-#'                        options=scaleset_options(low_priority=TRUE),
+#'                        instances=50, size="Standard_DS3_v2", config="debian_9_backports_ss",
+#'                        options=scaleset_options(low_priority=TRUE, large_scaleset=TRUE),
 #'                        location="australiaeast")
 #'
 #'
@@ -220,7 +243,7 @@ NULL
 #' rg$create_vm("mastervm", user_config("myname", "~/.ssh/id_rsa.pub"))
 #'
 #' # get the vnet resource
-#' vnet <- rg$get_resource(type="Microsoft.Network/virtualNetworks", name="mynewvm-vnet")
+#' vnet <- rg$get_resource(type="Microsoft.Network/virtualNetworks", name="mastervm-vnet")
 #'
 #' # create the scaleset
 #' rg$create_vm_scaleset("slavess", user_config("myname", "~/.ssh/id_rsa.pub"),
@@ -327,7 +350,7 @@ add_sub_methods <- function()
         }
         else mode <- "Incremental" # if passed a resource group object, assume it already exists in Azure
 
-        res <- try(resource_group$create_vm(..., mode=mode))
+        res <- try(resource_group$create_vm(name, ..., mode=mode))
 
         if(inherits(res, "try-error") && mode == "Complete")
         {
@@ -357,7 +380,7 @@ add_sub_methods <- function()
         }
         else mode <- "Incremental" # if passed a resource group object, assume it already exists in Azure
 
-        res <- try(resource_group$create_vm_scaleset(..., mode=mode))
+        res <- try(resource_group$create_vm_scaleset(name, ..., mode=mode))
 
         if(inherits(res, "try-error") && mode == "Complete")
         {
@@ -409,7 +432,7 @@ add_sub_methods <- function()
 add_rg_methods <- function()
 {
     az_resource_group$set("public", "create_vm", overwrite=TRUE,
-    function(name, login_user, size="Standard_DS3_v2", config="ubuntu_dsvm", managed=TRUE, datadisks=numeric(0),
+    function(name, login_user, size="Standard_DS3_v2", config="ubuntu_18.04", managed=TRUE, datadisks=numeric(0),
              ..., template, parameters, mode="Incremental", wait=TRUE)
     {
         stopifnot(inherits(login_user, "user_config"))
@@ -432,7 +455,7 @@ add_rg_methods <- function()
     })
 
     az_resource_group$set("public", "create_vm_scaleset", overwrite=TRUE,
-    function(name, login_user, instances, size="Standard_DS1_v2", config="ubuntu_dsvm_ss",
+    function(name, login_user, instances, size="Standard_DS1_v2", config="ubuntu_18.04_ss",
              ..., template, parameters, mode="Incremental", wait=TRUE)
     {
         stopifnot(inherits(login_user, "user_config"))

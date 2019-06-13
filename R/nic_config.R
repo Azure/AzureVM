@@ -6,6 +6,9 @@
 #' @param subnet For `nic_ip_config`, the subnet to associate with this private IP address.
 #' @param public_address For `nic_ip_config`, the public IP address. Defaults to the public IP address created or used as part of this VM deployment. Ignored if the deployment does not include a public address.
 #' @param ... Other named arguments that will be treated as resource properties.
+#'
+#' @seealso
+#' [create_vm], [vm_config]
 #' @export
 nic_config <- function(nic_ip=list(nic_ip_config()), ...)
 {

@@ -29,3 +29,6 @@ autoscaler_profile(name = "Profile", minsize = 1, maxsize = NA,
 \description{
 Autoscaler configuration
 }
+\seealso{
+\link{create_vm_scaleset}, \link{vmss_config}
+}

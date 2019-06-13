@@ -6,6 +6,9 @@
 #' @param addresses For `subnet_config`, the address ranges spanned by this subnet. Must be a subset of the address space available to the parent virtual network.
 #' @param nsg The network security group associated with this subnet. Defaults to the NSG created as part of this VM deployment.
 #' @param ... Other named arguments that will be treated as resource properties.
+#'
+#' @seealso
+#' [create_vm], [vm_config], [vmss_config]
 #' @export
 vnet_config <- function(address_space="10.0.0.0/16", subnets=list(subnet_config()), ...)
 {

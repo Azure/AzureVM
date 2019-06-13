@@ -4,13 +4,13 @@
 #' @param keylogin Boolean: whether to use an SSH public key to login (TRUE) or a password (FALSE). Note that Windows does not support SSH key logins.
 #' @param managed Whether to provide a managed system identity for the VM.
 #' @param datadisks The data disks to attach to the VM. Specify this as either a vector of numeric disk sizes in GB, or a list of `datadisk_config` objects for more control over the specification.
-#' @param nsg The network security group for the VM. Can be a call to `nsg_config` to create a new NSG; an AzureRMR resource object or resource ID to reuse an existing NSG; or NULL to not use an NSG (not recommended). Note that by default, AzureVM will associate a created NSG with the virtual network/subnet, not with the VM's network interface.
+#' @param nsg The network security group for the VM. Can be a call to `nsg_config` to create a new NSG; an AzureRMR resource object or resource ID to reuse an existing NSG; or NULL to not use an NSG (not recommended).
 #' @param ip The public IP address for the VM. Can be a call to `ip_config` to create a new IP address; an AzureRMR resource object or resource ID to reuse an existing address resource; or NULL if the VM should not be accessible from outside its subnet.
-#' @param vnet The virtual network for the VM. Can be a call to `vnet_config` to create a new virtual network, or an AzureRMR resource object or resource ID to reuse an existing virtual network.
+#' @param vnet The virtual network for the VM. Can be a call to `vnet_config` to create a new virtual network, or an AzureRMR resource object or resource ID to reuse an existing virtual network. Note that by default, AzureVM will associate the NSG with the virtual network/subnet, not with the VM's network interface.
 #' @param nic The network interface for the VM. Can be a call to `nic_config` to create a new interface, or an AzureRMR resource object or resource ID to reuse an existing interface.
 #' @param other_resources An optional list of other resources to include in the deployment.
 #' @param variables An optional named list of variables to add to the template.
-#' @param ... For the specific VM configurations, other customisation arguments to be passed to `vm_config`. For `vm_config`, an optional named list of parameters that will be folded into the VM resource definition in the template.
+#' @param ... For the specific VM configurations, other customisation arguments to be passed to `vm_config`. For `vm_config`, named arguments that will be folded into the VM resource definition in the template.
 #'
 #' @details
 #' These functions are for specifying the details of a new virtual machine deployment: the VM image and related options, along with the Azure resources that the VM may need. These include the datadisks, network security group, public IP address (if the VM is to be accessible from outside its subnet), virtual network, and network interface.
@@ -72,16 +72,28 @@
 #'     )
 #' )
 #'
-#' ## custom VM configuration: Windows 10 Pro 1903
-#' ## this assumes you have a valid desktop license
-#' image <- image_config(publisher="MicrosoftWindowsDesktop", offer="Windows-10", sku="19h1-pro")
+#' ## custom VM configuration: Windows 10 Pro 1903 with data disks
+#' ## this assumes you have a valid Win10 desktop license
+#' user <- user_config("myname", password="Use-strong-passwords!")
+#' image <- image_config(
+#'      publisher="MicrosoftWindowsDesktop",
+#'      offer="Windows-10",
+#'      sku="19h1-pro"
+#' )
 #' datadisks <- list(
 #'     datadisk_config(250, type="Premium_LRS"),
 #'     datadisk_config(1000, type="Standard_LRS")
 #' )
-#' nsg <- nsg_config(list(nsg_rule_allow_http, nsg_rule_allow_https))
-#' config <- vm_config(image=image, keylogin=FALSE, datadisks=datadisks, nsg=nsg,
-#'                     properties=list(licenseType="Windows_Client"))
+#' nsg <- nsg_config(
+#'     list(nsg_rule_allow_rdp)
+#' )
+#' vm_config(
+#'     image=image,
+#'     keylogin=FALSE,
+#'     datadisks=datadisks,
+#'     nsg=nsg,
+#'     properties=list(licenseType="Windows_Client")
+#' )
 #'
 #'
 #' \dontrun{

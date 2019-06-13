@@ -21,3 +21,6 @@ ip_config(type = NULL, dynamic = NULL, ipv6 = FALSE,
 \description{
 Public IP address configuration
 }
+\seealso{
+\link{create_vm}, \link{vm_config}, \link{vmss_config}
+}

@@ -74,7 +74,8 @@ add_template_resources.vm_config <- function(config, ...)
     unused <- sapply(resources, is.null)
     create <- !existing & !unused
 
-    resources <- lapply(resources[create], build_resource_fields)
+    # cannot use lapply(*, build_resource_fields) because of lapply wart
+    resources <- lapply(resources[create], function(x) build_resource_fields(x))
 
     ## fixup dependencies between resources
     # vnet depends on nsg
@@ -105,7 +106,7 @@ add_template_resources.vm_config <- function(config, ...)
     resources <- c(resources, list(vm))
 
     if(!is_empty(config$other))
-        resources <- c(resources, lapply(config$other, build_resource_fields))
+        resources <- c(resources, lapply(config$other, function(x) build_resource_fields(x)))
 
     unname(resources)
 }

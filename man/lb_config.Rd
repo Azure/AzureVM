@@ -8,11 +8,10 @@
 \usage{
 lb_config(type = NULL, rules = list(), probes = list(), ...)
 
-lb_probe(port, interval = 5, fail_on = 2, protocol = "Tcp")
+lb_probe(name, port, interval = 5, fail_on = 2, protocol = "Tcp")
 
 lb_rule(name, frontend_port, backend_port = frontend_port,
-  protocol = "Tcp", timeout = 5, floating_ip = FALSE,
-  probe_name = paste("probe", protocol, frontend_port, sep = "-"))
+  protocol = "Tcp", timeout = 5, floating_ip = FALSE, probe_name)
 }
 \arguments{
 \item{type}{The SKU of the load balancer resource: "basic" or "standard". If NULL (the default), this will be determined based on the VM scaleset's configuration. Note that the load balancer SKU must be the same as that of its public IP address.}
@@ -23,24 +22,27 @@ lb_rule(name, frontend_port, backend_port = frontend_port,
 
 \item{...}{Other named arguments that will be treated as resource properties.}
 
+\item{name}{For \code{lb_rule}, a name for the load balancing rule.}
+
 \item{port}{For \code{lb_probe}, the port to probe.}
 
-\item{interval}{For \code{lb_probe}, the interval between probes.}
+\item{interval}{For \code{lb_probe}, the time interval between probes in seconds.}
 
 \item{fail_on}{For \code{lb_probe}, the probe health check will fail after this many non-responses.}
 
 \item{protocol}{For \code{lb_probe} and \code{lb_rule}, the protocol: either "Tcp" or "Ip".}
 
-\item{name}{For \code{lb_rule}, a name for the load balancing rule.}
-
 \item{frontend_port, backend_port}{For \code{lb_rule}, the ports for this rule.}
 
 \item{timeout}{The timeout interval for the rule. The default is 5 minutes.}
 
-\item{floating_ip}{Whether to use floating IP addresses. Only needed for specific scenarios.}
+\item{floating_ip}{Whether to use floating IP addresses (direct server return). Only needed for specific scenarios, and when the frontend and backend ports don't match.}
 
 \item{probe_name}{The name of the corresponding health check probe.}
 }
 \description{
 Load balancer configuration
+}
+\seealso{
+\link{create_vm_scaleset}, \link{vmss_config}, \link{lb_rules} for some predefined load balancing rules and probes
 }

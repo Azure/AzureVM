@@ -34,3 +34,6 @@ nsg_rule(name, dest_port = "*", dest_addr = "*", dest_asgs = NULL,
 \description{
 Network security group configuration
 }
+\seealso{
+\link{create_vm}, \link{vm_config}, \link{vmss_config}, \link{nsg_rules} for some predefined security rules
+}

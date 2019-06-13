@@ -1,10 +1,23 @@
 #' Build template definition and parameters
 #'
-#' @param config An object of class `vm_config` representing a virtual machine deployment.
-#' @param name The VM name. Will also be used for the domain name label.
+#' @param config An object of class `vm_config` or `vmss_config` representing a virtual machine or scaleset deployment.
+#' @param name The VM or scaleset name. Will also be used for the domain name label, if a public IP address is included in the deployment.
 #' @param login_user An object of class `user_config` representing the login details for the admin user account on the VM.
-#' @param size The VM size.
-#' @param ... For `build_template_parameters`, any additional parameters that the VM deployment template may need. Unused for `build_template_definition`.
+#' @param size The VM (instance) size.
+#' @param ... Unused.
+#'
+#' @details
+#' These are methods for the generics defined in the AzureRMR package.
+#'
+#' @seealso
+#' [create_vm], [vm_config], [vmss_config]
+#'
+#' @examples
+#'
+#' vm <- ubuntu_18.04()
+#' build_template_definition(vm)
+#' build_template_parameters(vm, "myubuntuvm",
+#'     user_config("username", "~/.ssh/id_rsa.pub"), "Standard_DS3_v2")
 #'
 #' @rdname build_template
 #' @export
