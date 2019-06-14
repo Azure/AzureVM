@@ -137,7 +137,7 @@ A VM scaleset configuration defines the following template variables by default,
 \code{asScaleValue} \tab \code{[max(div(int(parameters('instanceCount')), 5), 1)]} \tab Default capacity for the autoscaler. Only defined if an autoscaler was created.
 }
 
-Thus, for example, if you are creating a VM scaleset named "myvmss" along with all its associated resources, the NSG is named "myvmss-nsg", the virtual network is "myvmss-vnet", the load balancer name is "myvmss-lb", the public IP address is "myvmss-ip", and the autoscaler is "myvm-as".
+Thus, for example, if you are creating a VM scaleset named "myvmss" along with all its associated resources, the NSG is named "myvmss-nsg", the virtual network is "myvmss-vnet", the load balancer is "myvmss-lb", the public IP address is "myvmss-ip", and the autoscaler is "myvm-as".
 }
 \examples{
 

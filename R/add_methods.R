@@ -283,6 +283,9 @@ NULL
 #' - `free_resources`: If this was a deployed template, whether to free all resources created during the deployment process.
 #' - `resource_group`: For the `AzureRMR::az_subscription` method, the resource group containing the VM or scaleset.
 #'
+#' @section Details:
+#' For the subscription methods, deleting the VM or scaleset will also delete its resource group.
+#'
 #' @seealso
 #' [create_vm], [az_vm_template], [az_vm_resource],
 #' [AzureRMR::az_subscription], [AzureRMR::az_resource_group]

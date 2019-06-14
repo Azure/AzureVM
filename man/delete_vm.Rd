@@ -35,6 +35,11 @@ delete_vm_scaleset(name, confirm = TRUE, free_resources = TRUE,
 }
 }
 
+\section{Details}{
+
+For the subscription methods, deleting the VM or scaleset will also delete its resource group.
+}
+
 \examples{
 \dontrun{
 

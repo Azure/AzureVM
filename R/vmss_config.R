@@ -60,7 +60,7 @@
 #' `asScaleValue` \tab `[max(div(int(parameters('instanceCount')), 5), 1)]` \tab Default capacity for the autoscaler. Only defined if an autoscaler was created.
 #' }
 #'
-#' Thus, for example, if you are creating a VM scaleset named "myvmss" along with all its associated resources, the NSG is named "myvmss-nsg", the virtual network is "myvmss-vnet", the load balancer name is "myvmss-lb", the public IP address is "myvmss-ip", and the autoscaler is "myvm-as".
+#' Thus, for example, if you are creating a VM scaleset named "myvmss" along with all its associated resources, the NSG is named "myvmss-nsg", the virtual network is "myvmss-vnet", the load balancer is "myvmss-lb", the public IP address is "myvmss-ip", and the autoscaler is "myvm-as".
 
 #'
 #' @return
@@ -322,12 +322,12 @@ debian_9_backports_ss <- function(nsg=nsg_config(list(nsg_rule_allow_ssh)),
 
 #' Virtual machine scaleset options
 #'
-#' @param keylogin Boolean: whether to use an SSH public key to login (TRUE) or a password (FALSE). Note that Windows does not support SSH key logins.
+#' @param keylogin Whether to use an SSH public key to login (TRUE) or a password (FALSE). Note that Windows does not support SSH key logins.
 #' @param managed Whether to provide a managed system identity for the VM.
 #' @param public Whether the instances (nodes) of the scaleset should be visible from the public internet.
 #' @param low_priority Whether to use low-priority VMs. Note that this option is only available for certain VM sizes.
 #' @param delete_on_evict If low-priority VMs are being used, whether evicting (shutting down) a VM should delete it, as opposed to just deallocating it.
-#' @param network_accel Whether to enable accelerated networking.
+#' @param network_accel Whether to enable accelerated networking. This option is only available for certain VM sizes.
 #' @param large_scaleset Whether to enable scaleset sizes > 100 instances.
 #' @param overprovision Whether to overprovision the scaleset on creation.
 #' @param upgrade_policy A list, giving the VM upgrade policy for the scaleset.

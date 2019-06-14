@@ -10,7 +10,7 @@ scaleset_options(keylogin = TRUE, managed = TRUE, public = FALSE,
   overprovision = TRUE, upgrade_policy = list(mode = "manual"))
 }
 \arguments{
-\item{keylogin}{Boolean: whether to use an SSH public key to login (TRUE) or a password (FALSE). Note that Windows does not support SSH key logins.}
+\item{keylogin}{Whether to use an SSH public key to login (TRUE) or a password (FALSE). Note that Windows does not support SSH key logins.}
 
 \item{managed}{Whether to provide a managed system identity for the VM.}
 
@@ -20,7 +20,7 @@ scaleset_options(keylogin = TRUE, managed = TRUE, public = FALSE,
 
 \item{delete_on_evict}{If low-priority VMs are being used, whether evicting (shutting down) a VM should delete it, as opposed to just deallocating it.}
 
-\item{network_accel}{Whether to enable accelerated networking.}
+\item{network_accel}{Whether to enable accelerated networking. This option is only available for certain VM sizes.}
 
 \item{large_scaleset}{Whether to enable scaleset sizes > 100 instances.}
 

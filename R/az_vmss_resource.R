@@ -22,6 +22,19 @@
 #' - `add_extension(publisher, type, version, settings=list(), protected_settings=list(), key_vault_settings=list())`: Add an extension to the scaleset.
 #' - `do_vmss_operation(...)` Carry out an arbitrary operation on the scaleset resource (as opposed to the instances in the scaleset).
 #'
+#' @details
+#' With the exception of `get_public_ip_address`, the scaleset operations listed above are actually provided by the [az_vmss_resource] class, and propagated to the template as active bindings.
+#'
+#' A single virtual machine scaleset in Azure is actually a collection of resources, including any and all of the following.
+#' - Network security group (Azure resource type `Microsoft.Network/networkSecurityGroups`)
+#' - Virtual network (Azure resource type `Microsoft.Network/virtualNetworks`)
+#' - Load balancer (Azure resource type `Microsoft.Network/loadBalancers`)
+#' - Public IP address (Azure resource type `Microsoft.Network/publicIPAddresses`)
+#' - Autoscaler (Azure resource type `Microsoft.Insights/autoscaleSettings`)
+#' - The scaleset itself (Azure resource type `Microsoft.Compute/virtualMachineScaleSets`)
+#'
+#' By wrapping the deployment template used to create these resources, the `az_vmss_template` class allows managing them all as a single entity.
+#'
 #' @seealso
 #' [AzureRMR::az_resource], [get_vm_scaleset_resource], [az_vmss_template]
 #'

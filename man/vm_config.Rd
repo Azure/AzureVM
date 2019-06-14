@@ -53,7 +53,7 @@ debian_9_backports(keylogin = TRUE, managed = TRUE,
 \arguments{
 \item{image}{For \code{vm_config}, the VM image to deploy. This should be an object of class \code{image_config}, created by the function of the same name.}
 
-\item{keylogin}{Boolean: whether to use an SSH public key to login (TRUE) or a password (FALSE). Note that Windows does not support SSH key logins.}
+\item{keylogin}{Whether to use an SSH public key to login (TRUE) or a password (FALSE). Note that Windows does not support SSH key logins.}
 
 \item{managed}{Whether to provide a managed system identity for the VM.}
 
@@ -140,7 +140,7 @@ rhel_8(nsg=nsg_config(list()))
 
 # deploying an extra resource: storage account
 ubuntu_18.04(
-    variables=list(storName="[concat(variables('vmName'), 'stor')]"),
+    variables=list(storName="[concat(parameters('vmName'), 'stor')]"),
     other_resources=list(
         list(
             type="Microsoft.Storage/storageAccounts",

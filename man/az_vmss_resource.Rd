@@ -11,6 +11,21 @@ az_vmss_resource
 \description{
 Class representing a virtual machine scaleset resource. In general, the methods in this class should not be called directly, nor should objects be directly instantiated from it. Use the \code{az_vmss_template} class for interacting with scalesets instead.
 }
+\details{
+With the exception of \code{get_public_ip_address}, the scaleset operations listed above are actually provided by the \link{az_vmss_resource} class, and propagated to the template as active bindings.
+
+A single virtual machine scaleset in Azure is actually a collection of resources, including any and all of the following.
+\itemize{
+\item Network security group (Azure resource type \code{Microsoft.Network/networkSecurityGroups})
+\item Virtual network (Azure resource type \code{Microsoft.Network/virtualNetworks})
+\item Load balancer (Azure resource type \code{Microsoft.Network/loadBalancers})
+\item Public IP address (Azure resource type \code{Microsoft.Network/publicIPAddresses})
+\item Autoscaler (Azure resource type \code{Microsoft.Insights/autoscaleSettings})
+\item The scaleset itself (Azure resource type \code{Microsoft.Compute/virtualMachineScaleSets})
+}
+
+By wrapping the deployment template used to create these resources, the \code{az_vmss_template} class allows managing them all as a single entity.
+}
 \section{Methods}{
 
 The following methods are available, in addition to those provided by the \link[AzureRMR:az_template]{AzureRMR::az_template} class.

@@ -1,7 +1,7 @@
 #' VM configuration functions
 #'
 #' @param image For `vm_config`, the VM image to deploy. This should be an object of class `image_config`, created by the function of the same name.
-#' @param keylogin Boolean: whether to use an SSH public key to login (TRUE) or a password (FALSE). Note that Windows does not support SSH key logins.
+#' @param keylogin Whether to use an SSH public key to login (TRUE) or a password (FALSE). Note that Windows does not support SSH key logins.
 #' @param managed Whether to provide a managed system identity for the VM.
 #' @param datadisks The data disks to attach to the VM. Specify this as either a vector of numeric disk sizes in GB, or a list of `datadisk_config` objects for more control over the specification.
 #' @param nsg The network security group for the VM. Can be a call to `nsg_config` to create a new NSG; an AzureRMR resource object or resource ID to reuse an existing NSG; or NULL to not use an NSG (not recommended).
@@ -83,7 +83,7 @@
 #'
 #' # deploying an extra resource: storage account
 #' ubuntu_18.04(
-#'     variables=list(storName="[concat(variables('vmName'), 'stor')]"),
+#'     variables=list(storName="[concat(parameters('vmName'), 'stor')]"),
 #'     other_resources=list(
 #'         list(
 #'             type="Microsoft.Storage/storageAccounts",
