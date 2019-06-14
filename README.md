@@ -8,13 +8,13 @@ AzureVM is a package for interacting with virtual machines and virtual machine s
 
 ## Virtual machines
 
-Here is a simple example. We create a VM using the default settings, run a shell command, and then delete the VM.
+Here is a simple example. We create a VM using the default settings, run a shell command, resize the VM, and then delete it.
 
 ```r
 library(AzureVM)
 
 sub <- AzureRMR::get_azure_login()$
-    get_subscription("5710aa44-281f-49fe-bfa6-69e66bb55b11")
+    get_subscription("sub_id")
 
 # calling create_vm() from a subscription object will create the VM in its own resource group
 # default is an Ubuntu 18.04 VM, size Standard_DS3_v2, login via SSH key
@@ -23,7 +23,7 @@ vm <- sub$create_vm("myubuntuvm", user_config("myname", "~/.ssh/id_rsa.pub"),
                     location="australiaeast")
 
 # run a shell script or command remotely (will be PowerShell on a Windows VM)
-vm$run_script("ifconfig > /tmp/ifc.txt")
+vm$run_script("echo hello world! > /tmp/hello.txt")
 
 # ... and stop it
 vm$stop()
@@ -52,7 +52,7 @@ The available predefined configurations are `ubuntu_18.04` (the default), `ubunt
 
 - `size`: VM size. Use the `list_vm_sizes` method for the subscription and resource group classes to see the available sizes.
 - `datadisks`: The data disk sizes/configurations to attach.
-- `ip`: Public ip address. Set this to NULL if you don't want the VM to be accessible outside its subnet.
+- `ip`: Public IP address. Set this to NULL if you don't want the VM to be accessible outside its subnet.
 - `vnet`: Virtual network/subnet.
 - `nsg`: Network security group. AzureVM will associate the NSG with the vnet/subnet, not with the VM's network interface.
 - `nic`: Network interface.
@@ -115,7 +115,7 @@ sub$create_vm_scaleset("myubuntuss", user_config("myname", "~/.ssh/id_rsa.pub"),
                        location="australiaeast")
 ```
 
-Each predefined VM configuration has a corresponding scaleset configuration. To specify low-level scaleset settings, use the `scaleset_options` argument. Here are some sample scaleset deployments:
+Each predefined VM configuration has a corresponding scaleset configuration. To specify low-level scaleset options, use the `scaleset_options` function. Here are some sample scaleset deployments:
 
 ```r
 # Windows Server 2019
@@ -162,7 +162,7 @@ vnet <- rg$get_resource(type="Microsoft.Network/virtualNetworks", name="mastervm
 # create the scaleset
 # since the NSG is associated with the vnet, we don't need to create a new NSG either
 rg$create_vm_scaleset("slavess", user_config("myname", "~/.ssh/id_rsa.pub"),
-                      instances=5, vnet=vnet, nsg=NULL, load_balancer=NULL, autoscaler=NULL)
+                      instances=5, vnet=vnet, nsg=NULL)
 ```
 
 ---
