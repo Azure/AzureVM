@@ -2,6 +2,7 @@
 % Please edit documentation in R/build_json.R
 \name{build_template_definition.vm_config}
 \alias{build_template_definition.vm_config}
+\alias{build_template}
 \alias{build_template_definition.vmss_config}
 \alias{build_template_parameters.vm_config}
 \alias{build_template_parameters.vmss_config}
@@ -29,6 +30,9 @@
 \item{size}{The VM (instance) size.}
 
 \item{instances}{For \code{vmss_config}, the number of (initial) instances in the VM scaleset.}
+}
+\value{
+Objects of class \code{json}, which are JSON character strings representing the deployment template and its parameters.
 }
 \description{
 Build template definition and parameters

@@ -9,6 +9,9 @@
 #' @details
 #' These are methods for the generics defined in the AzureRMR package.
 #'
+#' @return
+#' Objects of class `json`, which are JSON character strings representing the deployment template and its parameters.
+#'
 #' @seealso
 #' [create_vm], [vm_config], [vmss_config]
 #'
@@ -20,6 +23,7 @@
 #'     user_config("username", "~/.ssh/id_rsa.pub"), "Standard_DS3_v2")
 #'
 #' @rdname build_template
+#' @aliases build_template
 #' @export
 build_template_definition.vm_config <- function(config, ...)
 {

@@ -13,7 +13,13 @@
 #' @param ... For the specific VM configurations, other customisation arguments to be passed to `vm_config`. For `vm_config`, named arguments that will be folded into the VM resource definition in the template.
 #'
 #' @details
-#' These functions are for specifying the details of a new virtual machine deployment: the VM image and related options, along with the Azure resources that the VM may need. These include the datadisks, network security group, public IP address (if the VM is to be accessible from outside its subnet), virtual network, and network interface.
+#' These functions are for specifying the details of a new virtual machine deployment: the VM image and related options, along with the Azure resources that the VM may need. These include the datadisks, network security group, public IP address (if the VM is to be accessible from outside its subnet), virtual network, and network interface. `vm_config` is the base configuration function, and the others call it to create VMs with specific operating systems and other image details.
+#' - `ubuntu_dsvm`: Data Science Virtual Machine, based on Ubuntu 16.04
+#' - `windows_dsvm`: Data Science Virtual Machine, based on Windows Server 2016
+#' - `ubuntu_16.04`, `ubuntu_18.04`: Ubuntu LTS
+#' - `windows_2016`, `windows_2019`: Windows Server Datacenter edition
+#' - `rhel_7.6`, `rhel_8`: Red Hat Enterprise Linux
+#' - `debian_9_backports`: Debian
 #'
 #' Each resource can be specified in a number of ways:
 #' - To _create_ a new resource as part of the deployment, call the corresponding `*_config` function.
@@ -21,13 +27,30 @@
 #' - If the resource is not needed, specify it as NULL.
 #' - For the `other_resources` argument, supply a list of resources, each of which should be a list of resource fields (name, type, properties, sku, etc).
 #'
-#' The `vm_config` function is the base configuration function, and the others call it to create VMs with specific operating systems and other image details.
-#' - `ubuntu_dsvm`: Data Science Virtual Machine, based on Ubuntu 16.04
-#' - `windows_dsvm`: Data Science Virtual Machine, based on Windows Server 2016
-#' - `ubuntu_16.04`, `ubuntu_18.04`: Ubuntu
-#' - `windows_2016`, `windows_2019`: Windows Server Datacenter edition
-#' - `rhel_7.6`, `rhel_8`: Red Hat Enterprise Linux
-#' - `debian_9_backports`: Debian
+#' A VM configuration defines the following template variables by default, depending on its resources. If a particular resource is created, the corresponding `*Name`, `*Id` and `*Ref` variables will be available. If a resource is referred to but not created, the `*Name*` and `*Id` variables will be available. Other variables can be defined via the `variables` argument.
+#'
+#' \tabular{lll}{
+#'   **Variable name** \tab **Contents** \tab **Description** \cr
+#'  `location` \tab `[resourceGroup().location]` \tab Region to deploy resources \cr
+#'  `vmId` \tab `[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]` \tab VM resource ID \cr
+#'  `vmRef` \tab `[concat('Microsoft.Compute/virtualMachines/', parameters('vmName'))]` \tab VM template reference \cr
+#'  `nsgName` \tab `[concat(parameters('vmName'), '-nsg')]` \tab Network security group resource name \cr
+#'  `nsgId` \tab `[resourceId('Microsoft.Network/networkSecurityGroups', variables('nsgName'))]` \tab NSG resource ID \cr
+#'  `nsgRef` \tab `[concat('Microsoft.Network/networkSecurityGroups/', variables('nsgName'))]` \tab NSG template reference \cr
+#'  `ipName` \tab `[concat(parameters('vmName'), '-ip')]` \tab Public IP address resource name \cr
+#'  `ipId` \tab `[resourceId('Microsoft.Network/publicIPAddresses', variables('ipName'))]` \tab IP resource ID \cr
+#'  `ipRef` \tab `[concat('Microsoft.Network/publicIPAddresses/', variables('ipName'))]` \tab IP template reference \cr
+#'  `vnetName` \tab `[concat(parameters('vmName'), '-vnet')]` \tab Virtual network resource name \cr
+#'  `vnetId` \tab `[resourceId('Microsoft.Network/virtualNetworks', variables('vnetName'))]` \tab Vnet resource ID \cr
+#'  `vnetRef` \tab `[concat('Microsoft.Network/virtualNetworks/', variables('vnetName'))]` \tab Vnet template reference \cr
+#'  `subnet` \tab `subnet` \tab Subnet name. Only defined if a Vnet was created or supplied as an `az_resource` object. \cr
+#'  `subnetId` \tab `[concat(variables('vnetId'), '/subnets/', variables('subnet'))]` \tab Subnet resource ID. Only defined if a Vnet was created or supplied as an `az_resource` object. \cr
+#' `nicName` \tab `[concat(parameters('vmName'), '-nic')]` \tab Network interface resource name \cr
+#' `nicId` \tab `[resourceId('Microsoft.Network/networkInterfaces', variables('nicName'))]` \tab NIC resource ID \cr
+#' `nicRef` \tab `[concat('Microsoft.Network/networkInterfaces/', variables('nicName'))]` \tab NIC template reference
+#' }
+#'
+#' Thus, for example, if you are creating a VM named "myvm" along with all its associated resources, the NSG is named "myvm-nsg", the public IP address is "myvm-ip", the virtual network is "myvm-vnet", and the network interface is "myvm-nic".
 #'
 #' @return
 #' An object of S3 class `vm_config`, that can be used by the `create_vm` method.
@@ -36,6 +59,8 @@
 #' [image_config], [user_config], [datadisk_config] for options relating to the VM resource itself
 #'
 #' [nsg_config], [ip_config], [vnet_config], [nic_config] for other resource configs
+#'
+#' [build_template] for template builder methods
 #'
 #' [vmss_config] for configuring a virtual machine scaleset
 #'

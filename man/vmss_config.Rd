@@ -104,6 +104,40 @@ The \code{vmss_config} function is the base configuration function, and the othe
 \item \code{rhel_7.6_ss}, \code{rhel_8_ss}: Red Hat Enterprise Linux
 \item \code{debian_9_backports_ss}: Debian
 }
+
+A VM scaleset configuration defines the following template variables by default, depending on its resources. If a particular resource is created, the corresponding \code{*Name}, \code{*Id} and \code{*Ref} variables will be available. If a resource is referred to but not created, the \code{*Name*} and \code{*Id} variables will be available. Other variables can be defined via the \code{variables} argument.
+
+\tabular{lll}{
+\strong{Variable name} \tab \strong{Contents} \tab \strong{Description} \cr
+\code{location} \tab \code{[resourceGroup().location]} \tab Region to deploy resources \cr
+\code{vmId} \tab \code{[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]} \tab VM scaleset resource ID \cr
+\code{vmRef} \tab \code{[concat('Microsoft.Compute/virtualMachines/', parameters('vmName'))]} \tab Scaleset template reference \cr
+\code{nsgName} \tab \code{[concat(parameters('vmName'), '-nsg')]} \tab Network security group resource name \cr
+\code{nsgId} \tab \code{[resourceId('Microsoft.Network/networkSecurityGroups', variables('nsgName'))]} \tab NSG resource ID \cr
+\code{nsgRef} \tab \code{[concat('Microsoft.Network/networkSecurityGroups/', variables('nsgName'))]} \tab NSG template reference \cr
+\code{vnetName} \tab \code{[concat(parameters('vmName'), '-vnet')]} \tab Virtual network resource name \cr
+\code{vnetId} \tab \code{[resourceId('Microsoft.Network/virtualNetworks', variables('vnetName'))]} \tab Vnet resource ID \cr
+\code{vnetRef} \tab \code{[concat('Microsoft.Network/virtualNetworks/', variables('vnetName'))]} \tab Vnet template reference \cr
+\code{subnet} \tab \code{subnet} \tab Subnet name. Only defined if a Vnet was created or supplied as an \code{az_resource} object. \cr
+\code{subnetId} \tab \code{[concat(variables('vnetId'), '/subnets/', variables('subnet'))]} \tab Subnet resource ID. Only defined if a Vnet was created or supplied as an \code{az_resource} object. \cr
+\code{lbName} \tab \code{[concat(parameters('vmName'), '-lb')]} \tab Load balancer resource name \cr
+\code{lbId} \tab \code{[resourceId('Microsoft.Network/loadBalancers', variables('lbName'))]} \tab Load balancer resource ID \cr
+\code{lbRef} \tab \code{[concat('Microsoft.Network/loadBalancers/', variables('lbName'))]} \tab Load balancer template reference \cr
+\code{lbFrontendName} \tab \code{frontend} \tab Load balancer frontend IP configuration name. Only defined if a load balancer was created or supplied as an \code{az_resource} object. \cr
+\code{lbBackendName} \tab \code{backend} \tab Load balancer backend address pool name. Only defined if a load balancer was created or supplied as an \code{az_resource} object. \cr
+\code{lbFrontendId} \tab \code{[concat(variables('lbId'), '/frontendIPConfigurations/', variables('lbFrontendName'))]} \tab Load balancer frontend resource ID. Only defined if a load balancer was created or supplied as an \code{az_resource} object. \cr
+\code{lbBackendId} \tab \code{[concat(variables('lbId'), '/backendAddressPools/', variables('lbBackendName'))]} \tab Load balancer backend resource ID. Only defined if a load balancer was created or supplied as an \code{az_resource} object. \cr
+\code{ipName} \tab \code{[concat(parameters('vmName'), '-ip')]} \tab Public IP address resource name \cr
+\code{ipId} \tab \code{[resourceId('Microsoft.Network/publicIPAddresses', variables('ipName'))]} \tab IP resource ID \cr
+\code{ipRef} \tab \code{[concat('Microsoft.Network/publicIPAddresses/', variables('ipName'))]} \tab IP template reference \cr
+\code{asName} \tab \code{[concat(parameters('vmName'), '-as')]} \tab Autoscaler resource name \cr
+\code{asId} \tab \code{[resourceId('Microsoft.Insights/autoscaleSettings', variables('asName'))]} \tab Autoscaler resource ID \cr
+\code{asRef} \tab \code{[concat('Microsoft.Insights/autoscaleSettings/', variables('asName'))]} \tab Autoscaler template reference \cr
+\code{asMaxCapacity} \tab \code{[mul(int(parameters('instanceCount')), 10)]} \tab Maximum capacity for the autoscaler. Only defined if an autoscaler was created. \cr
+\code{asScaleValue} \tab \code{[max(div(int(parameters('instanceCount')), 5), 1)]} \tab Default capacity for the autoscaler. Only defined if an autoscaler was created.
+}
+
+Thus, for example, if you are creating a VM scaleset named "myvmss" along with all its associated resources, the NSG is named "myvmss-nsg", the virtual network is "myvmss-vnet", the load balancer name is "myvmss-lb", the public IP address is "myvmss-ip", and the autoscaler is "myvm-as".
 }
 \examples{
 
@@ -141,6 +175,8 @@ ubuntu_18.04_ss(vnet=vnet, nsg=NULL)
 \link{scaleset_options} for options relating to the scaleset resource itself
 
 \link{nsg_config}, \link{ip_config}, \link{vnet_config}, \link{lb_config}, \link{autoscaler_config} for other resource configs
+
+\link{build_template} for template builder methods
 
 \link{vm_config} for configuring an individual virtual machine
 

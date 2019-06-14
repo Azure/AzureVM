@@ -28,6 +28,41 @@
 #' - `rhel_7.6_ss`, `rhel_8_ss`: Red Hat Enterprise Linux
 #' - `debian_9_backports_ss`: Debian
 #'
+#' A VM scaleset configuration defines the following template variables by default, depending on its resources. If a particular resource is created, the corresponding `*Name`, `*Id` and `*Ref` variables will be available. If a resource is referred to but not created, the `*Name*` and `*Id` variables will be available. Other variables can be defined via the `variables` argument.
+#'
+#' \tabular{lll}{
+#'   **Variable name** \tab **Contents** \tab **Description** \cr
+#'  `location` \tab `[resourceGroup().location]` \tab Region to deploy resources \cr
+#'  `vmId` \tab `[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]` \tab VM scaleset resource ID \cr
+#'  `vmRef` \tab `[concat('Microsoft.Compute/virtualMachines/', parameters('vmName'))]` \tab Scaleset template reference \cr
+#'  `nsgName` \tab `[concat(parameters('vmName'), '-nsg')]` \tab Network security group resource name \cr
+#'  `nsgId` \tab `[resourceId('Microsoft.Network/networkSecurityGroups', variables('nsgName'))]` \tab NSG resource ID \cr
+#'  `nsgRef` \tab `[concat('Microsoft.Network/networkSecurityGroups/', variables('nsgName'))]` \tab NSG template reference \cr
+#'  `vnetName` \tab `[concat(parameters('vmName'), '-vnet')]` \tab Virtual network resource name \cr
+#'  `vnetId` \tab `[resourceId('Microsoft.Network/virtualNetworks', variables('vnetName'))]` \tab Vnet resource ID \cr
+#'  `vnetRef` \tab `[concat('Microsoft.Network/virtualNetworks/', variables('vnetName'))]` \tab Vnet template reference \cr
+#'  `subnet` \tab `subnet` \tab Subnet name. Only defined if a Vnet was created or supplied as an `az_resource` object. \cr
+#'  `subnetId` \tab `[concat(variables('vnetId'), '/subnets/', variables('subnet'))]` \tab Subnet resource ID. Only defined if a Vnet was created or supplied as an `az_resource` object. \cr
+#'  `lbName` \tab `[concat(parameters('vmName'), '-lb')]` \tab Load balancer resource name \cr
+#'  `lbId` \tab `[resourceId('Microsoft.Network/loadBalancers', variables('lbName'))]` \tab Load balancer resource ID \cr
+#'  `lbRef` \tab `[concat('Microsoft.Network/loadBalancers/', variables('lbName'))]` \tab Load balancer template reference \cr
+#'  `lbFrontendName` \tab `frontend` \tab Load balancer frontend IP configuration name. Only defined if a load balancer was created or supplied as an `az_resource` object. \cr
+#'  `lbBackendName` \tab `backend` \tab Load balancer backend address pool name. Only defined if a load balancer was created or supplied as an `az_resource` object. \cr
+#'  `lbFrontendId` \tab `[concat(variables('lbId'), '/frontendIPConfigurations/', variables('lbFrontendName'))]` \tab Load balancer frontend resource ID. Only defined if a load balancer was created or supplied as an `az_resource` object. \cr
+#'  `lbBackendId` \tab `[concat(variables('lbId'), '/backendAddressPools/', variables('lbBackendName'))]` \tab Load balancer backend resource ID. Only defined if a load balancer was created or supplied as an `az_resource` object. \cr
+#'  `ipName` \tab `[concat(parameters('vmName'), '-ip')]` \tab Public IP address resource name \cr
+#'  `ipId` \tab `[resourceId('Microsoft.Network/publicIPAddresses', variables('ipName'))]` \tab IP resource ID \cr
+#'  `ipRef` \tab `[concat('Microsoft.Network/publicIPAddresses/', variables('ipName'))]` \tab IP template reference \cr
+#'  `asName` \tab `[concat(parameters('vmName'), '-as')]` \tab Autoscaler resource name \cr
+#' `asId` \tab `[resourceId('Microsoft.Insights/autoscaleSettings', variables('asName'))]` \tab Autoscaler resource ID \cr
+#' `asRef` \tab `[concat('Microsoft.Insights/autoscaleSettings/', variables('asName'))]` \tab Autoscaler template reference \cr
+#' `asMaxCapacity` \tab `[mul(int(parameters('instanceCount')), 10)]` \tab Maximum capacity for the autoscaler. Only defined if an autoscaler was created. \cr
+#' `asScaleValue` \tab `[max(div(int(parameters('instanceCount')), 5), 1)]` \tab Default capacity for the autoscaler. Only defined if an autoscaler was created.
+#' }
+#'
+#' Thus, for example, if you are creating a VM scaleset named "myvmss" along with all its associated resources, the NSG is named "myvmss-nsg", the virtual network is "myvmss-vnet", the load balancer name is "myvmss-lb", the public IP address is "myvmss-ip", and the autoscaler is "myvm-as".
+
+#'
 #' @return
 #' An object of S3 class `vmss_config`, that can be used by the `create_vm_scaleset` method.
 #'
@@ -35,6 +70,8 @@
 #' [scaleset_options] for options relating to the scaleset resource itself
 #'
 #' [nsg_config], [ip_config], [vnet_config], [lb_config], [autoscaler_config] for other resource configs
+#'
+#' [build_template] for template builder methods
 #'
 #' [vm_config] for configuring an individual virtual machine
 #'

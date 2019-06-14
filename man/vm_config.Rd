@@ -80,7 +80,15 @@ An object of S3 class \code{vm_config}, that can be used by the \code{create_vm}
 VM configuration functions
 }
 \details{
-These functions are for specifying the details of a new virtual machine deployment: the VM image and related options, along with the Azure resources that the VM may need. These include the datadisks, network security group, public IP address (if the VM is to be accessible from outside its subnet), virtual network, and network interface.
+These functions are for specifying the details of a new virtual machine deployment: the VM image and related options, along with the Azure resources that the VM may need. These include the datadisks, network security group, public IP address (if the VM is to be accessible from outside its subnet), virtual network, and network interface. \code{vm_config} is the base configuration function, and the others call it to create VMs with specific operating systems and other image details.
+\itemize{
+\item \code{ubuntu_dsvm}: Data Science Virtual Machine, based on Ubuntu 16.04
+\item \code{windows_dsvm}: Data Science Virtual Machine, based on Windows Server 2016
+\item \code{ubuntu_16.04}, \code{ubuntu_18.04}: Ubuntu LTS
+\item \code{windows_2016}, \code{windows_2019}: Windows Server Datacenter edition
+\item \code{rhel_7.6}, \code{rhel_8}: Red Hat Enterprise Linux
+\item \code{debian_9_backports}: Debian
+}
 
 Each resource can be specified in a number of ways:
 \itemize{
@@ -90,15 +98,30 @@ Each resource can be specified in a number of ways:
 \item For the \code{other_resources} argument, supply a list of resources, each of which should be a list of resource fields (name, type, properties, sku, etc).
 }
 
-The \code{vm_config} function is the base configuration function, and the others call it to create VMs with specific operating systems and other image details.
-\itemize{
-\item \code{ubuntu_dsvm}: Data Science Virtual Machine, based on Ubuntu 16.04
-\item \code{windows_dsvm}: Data Science Virtual Machine, based on Windows Server 2016
-\item \code{ubuntu_16.04}, \code{ubuntu_18.04}: Ubuntu
-\item \code{windows_2016}, \code{windows_2019}: Windows Server Datacenter edition
-\item \code{rhel_7.6}, \code{rhel_8}: Red Hat Enterprise Linux
-\item \code{debian_9_backports}: Debian
+A VM configuration defines the following template variables by default, depending on its resources. If a particular resource is created, the corresponding \code{*Name}, \code{*Id} and \code{*Ref} variables will be available. If a resource is referred to but not created, the \code{*Name*} and \code{*Id} variables will be available. Other variables can be defined via the \code{variables} argument.
+
+\tabular{lll}{
+\strong{Variable name} \tab \strong{Contents} \tab \strong{Description} \cr
+\code{location} \tab \code{[resourceGroup().location]} \tab Region to deploy resources \cr
+\code{vmId} \tab \code{[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]} \tab VM resource ID \cr
+\code{vmRef} \tab \code{[concat('Microsoft.Compute/virtualMachines/', parameters('vmName'))]} \tab VM template reference \cr
+\code{nsgName} \tab \code{[concat(parameters('vmName'), '-nsg')]} \tab Network security group resource name \cr
+\code{nsgId} \tab \code{[resourceId('Microsoft.Network/networkSecurityGroups', variables('nsgName'))]} \tab NSG resource ID \cr
+\code{nsgRef} \tab \code{[concat('Microsoft.Network/networkSecurityGroups/', variables('nsgName'))]} \tab NSG template reference \cr
+\code{ipName} \tab \code{[concat(parameters('vmName'), '-ip')]} \tab Public IP address resource name \cr
+\code{ipId} \tab \code{[resourceId('Microsoft.Network/publicIPAddresses', variables('ipName'))]} \tab IP resource ID \cr
+\code{ipRef} \tab \code{[concat('Microsoft.Network/publicIPAddresses/', variables('ipName'))]} \tab IP template reference \cr
+\code{vnetName} \tab \code{[concat(parameters('vmName'), '-vnet')]} \tab Virtual network resource name \cr
+\code{vnetId} \tab \code{[resourceId('Microsoft.Network/virtualNetworks', variables('vnetName'))]} \tab Vnet resource ID \cr
+\code{vnetRef} \tab \code{[concat('Microsoft.Network/virtualNetworks/', variables('vnetName'))]} \tab Vnet template reference \cr
+\code{subnet} \tab \code{subnet} \tab Subnet name. Only defined if a Vnet was created or supplied as an \code{az_resource} object. \cr
+\code{subnetId} \tab \code{[concat(variables('vnetId'), '/subnets/', variables('subnet'))]} \tab Subnet resource ID. Only defined if a Vnet was created or supplied as an \code{az_resource} object. \cr
+\code{nicName} \tab \code{[concat(parameters('vmName'), '-nic')]} \tab Network interface resource name \cr
+\code{nicId} \tab \code{[resourceId('Microsoft.Network/networkInterfaces', variables('nicName'))]} \tab NIC resource ID \cr
+\code{nicRef} \tab \code{[concat('Microsoft.Network/networkInterfaces/', variables('nicName'))]} \tab NIC template reference
 }
+
+Thus, for example, if you are creating a VM named "myvm" along with all its associated resources, the NSG is named "myvm-nsg", the public IP address is "myvm-ip", the virtual network is "myvm-vnet", and the network interface is "myvm-nic".
 }
 \examples{
 
@@ -175,6 +198,8 @@ vmconfig3 <- windows_2019(vnet=vnet, nsg=NULL)
 \link{image_config}, \link{user_config}, \link{datadisk_config} for options relating to the VM resource itself
 
 \link{nsg_config}, \link{ip_config}, \link{vnet_config}, \link{nic_config} for other resource configs
+
+\link{build_template} for template builder methods
 
 \link{vmss_config} for configuring a virtual machine scaleset
 
