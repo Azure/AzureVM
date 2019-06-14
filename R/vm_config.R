@@ -173,6 +173,8 @@ ubuntu_dsvm <- function(keylogin=TRUE, managed=TRUE, datadisks=numeric(0),
                         nsg=nsg_config(list(nsg_rule_allow_ssh, nsg_rule_allow_jupyter, nsg_rule_allow_rstudio)),
                         ...)
 {
+    if(is.numeric(datadisks))
+        datadisks <- lapply(datadisks, datadisk_config)
     disk0 <- datadisk_config(NULL, NULL, "fromImage", "Premium_LRS")
     vm_config(image_config("microsoft-dsvm", "linux-data-science-vm-ubuntu", "linuxdsvmubuntu"),
               keylogin=keylogin, managed=managed, datadisks=c(list(disk0), datadisks), nsg=nsg, ...)
@@ -180,7 +182,7 @@ ubuntu_dsvm <- function(keylogin=TRUE, managed=TRUE, datadisks=numeric(0),
 
 #' @rdname vm_config
 #' @export
-windows_dsvm <- function(managed=TRUE, datadisks=numeric(0),
+windows_dsvm <- function(keylogin=FALSE, managed=TRUE, datadisks=numeric(0),
                          nsg=nsg_config(list(nsg_rule_allow_rdp)), ...)
 {
     vm_config(image_config("microsoft-dsvm", "dsvm-windows", "server-2016"),
@@ -207,7 +209,7 @@ ubuntu_18.04 <- function(keylogin=TRUE, managed=TRUE, datadisks=numeric(0),
 
 #' @rdname vm_config
 #' @export
-windows_2016 <- function(managed=TRUE, datadisks=numeric(0),
+windows_2016 <- function(keylogin=FALSE, managed=TRUE, datadisks=numeric(0),
                          nsg=nsg_config(list(nsg_rule_allow_rdp)), ...)
 {
     vm_config(image_config("MicrosoftWindowsServer", "WindowsServer", "2016-Datacenter"),
@@ -216,7 +218,7 @@ windows_2016 <- function(managed=TRUE, datadisks=numeric(0),
 
 #' @rdname vm_config
 #' @export
-windows_2019 <- function(managed=TRUE, datadisks=numeric(0),
+windows_2019 <- function(keylogin=FALSE, managed=TRUE, datadisks=numeric(0),
                          nsg=nsg_config(list(nsg_rule_allow_rdp)), ...)
 {
     vm_config(image_config("MicrosoftWindowsServer", "WindowsServer", "2019-Datacenter"),

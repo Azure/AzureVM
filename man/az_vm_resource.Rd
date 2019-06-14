@@ -22,7 +22,7 @@ The following methods are available, in addition to those provided by the \link[
 \item \code{run_script(script, parameters)}: Run a script on the VM. For a Linux VM, this will be a shell script; for a Windows VM, a PowerShell script. Pass the script as a character vector.
 \item \code{sync_vm_status()}: Check the status of the VM.
 \item \code{resize(size, deallocate=FALSE, wait=FALSE)}: Resize the VM. Optionally stop and deallocate it first (may sometimes be necessary).
-\item \code{get_public_ip_address(nic=1, config=1)}: Get the public IP address of the VM. Returns NULL if the VM is shut down, or is not publicly accessible.
+\item \code{get_public_ip_address(nic=1, config=1)}: Get the public IP address of the VM. Returns NA if the VM is shut down, or is not publicly accessible.
 \item \code{get_private_ip_address(nic=1, config=1)}: Get the private IP address of the VM.
 \item \code{add_extension(publisher, type, version, settings=list(), protected_settings=list(), key_vault_settings=list())}: Add an extension to the VM.
 \item \code{do_vm_operation(...)}: Carry out an arbitrary operation on the VM resource. See the \code{do_operation} method of the \link[AzureRMR:az_resource]{AzureRMR::az_resource} class for more details.

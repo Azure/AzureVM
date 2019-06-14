@@ -11,8 +11,8 @@
 #' - `start(id=NULL, wait=FALSE)`: Start the scaleset. In this and the other methods listed here, `id` can be an optional character vector of instance IDs; if supplied, only carry out the operation for those instances.
 #' - `restart(id=NULL, wait=FALSE)`: Restart the scaleset.
 #' - `stop(deallocate=TRUE, id=NULL, wait=FALSE)`: Stop the scaleset.
-#' - `get_public_ip_address()`: Get the public IP address of the scaleset (technically, of the load balancer). If the scaleset doesn't have a load balancer attached, returns NULL.
-#' - `get_vm_public_ip_addresses(id=NULL, nic=1, config=1)`: Get the public IP addresses for the instances in the scaleset. Returns NULL if the instances are not publicly accessible.
+#' - `get_public_ip_address()`: Get the public IP address of the scaleset (technically, of the load balancer). If the scaleset doesn't have a load balancer attached, returns NA.
+#' - `get_vm_public_ip_addresses(id=NULL, nic=1, config=1)`: Get the public IP addresses for the instances in the scaleset. Returns NA if the instances are not publicly accessible.
 #' - `get_vm_private_ip_addresses(id=NULL, nic=1, config=1)`: Get the private IP addresses for the instances in the scaleset.
 #' - `run_deployed_command(command, parameters=NULL, script=NULL, id=NULL)`: Run a PowerShell command on the instances in the scaleset.
 #' - `run_script(script, parameters=NULL, id=NULL)`: Run a script on the VM. For a Linux VM, this will be a shell script; for a Windows VM, a PowerShell script. Pass the script as a character vector.
@@ -126,12 +126,12 @@ public=list(
 
     get_vm_public_ip_addresses=function(id=NULL, nic=1, config=1)
     {
-        private$vm_map(id, function(vm) vm$get_public_ip_address(nic, config))
+        unlist(private$vm_map(id, function(vm) vm$get_public_ip_address(nic, config)))
     },
 
     get_vm_private_ip_addresses=function(id=NULL, nic=1, config=1)
     {
-        private$vm_map(id, function(vm) vm$get_private_ip_address(nic, config))
+        unlist(private$vm_map(id, function(vm) vm$get_private_ip_address(nic, config)))
     },
 
     run_deployed_command=function(command, parameters=NULL, script=NULL, id=NULL)
@@ -221,6 +221,10 @@ private=list(
         params$instanceId <- NULL
         obj <- az_vm_resource$new(self$token, self$subscription, deployed_properties=params)
         obj$nic_api_version <- "2018-10-01"
+
+        # make type and name useful
+        obj$type <- self$type
+        obj$name <- file.path(self$name, "virtualMachines", basename(params$id))
         obj
     },
 

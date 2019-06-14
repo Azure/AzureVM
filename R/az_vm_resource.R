@@ -12,7 +12,7 @@
 #' - `run_script(script, parameters)`: Run a script on the VM. For a Linux VM, this will be a shell script; for a Windows VM, a PowerShell script. Pass the script as a character vector.
 #' - `sync_vm_status()`: Check the status of the VM.
 #' - `resize(size, deallocate=FALSE, wait=FALSE)`: Resize the VM. Optionally stop and deallocate it first (may sometimes be necessary).
-#' - `get_public_ip_address(nic=1, config=1)`: Get the public IP address of the VM. Returns NULL if the VM is shut down, or is not publicly accessible.
+#' - `get_public_ip_address(nic=1, config=1)`: Get the public IP address of the VM. Returns NA if the VM is shut down, or is not publicly accessible.
 #' - `get_private_ip_address(nic=1, config=1)`: Get the private IP address of the VM.
 #' - `add_extension(publisher, type, version, settings=list(), protected_settings=list(), key_vault_settings=list())`: Add an extension to the VM.
 #' - `do_vm_operation(...)`: Carry out an arbitrary operation on the VM resource. See the `do_operation` method of the [AzureRMR::az_resource] class for more details.
@@ -155,9 +155,11 @@ public=list(
         nic <- private$get_nic(nic)
         ip_id <- nic$properties$ipConfigurations[[config]]$properties$publicIPAddress$id
         if(is_empty(ip_id))
-            return(NULL)
-        ip <- az_resource$new(self$token, self$subscription, id=ip_id)
-        ip$properties$ipAddress
+            return(NA_character_)
+        ip <- az_resource$new(self$token, self$subscription, id=ip_id)$properties$ipAddress
+        if(is.null(ip))
+            NA_character_
+        else ip
     },
 
     get_private_ip_address=function(nic=1, config=1)
@@ -205,26 +207,6 @@ public=list(
             exclude=c("subscription", "resource_group", "type", "name", "status", "is_synced", "nic_api_version")))
         cat(AzureRMR::format_public_methods(self))
         invisible(NULL)
-    },
-
-    # add custom deletion method to handle managed disks
-    delete=function(..., confirm=TRUE, wait=TRUE)
-    {
-        managed_disks <- c(
-            self$properties$storageProfile$osDisk$managedDisk$id,
-            lapply(self$properties$storageProfile$dataDisks,
-                function(x) x$managedDisk$id)
-        )
-
-        super$delete(..., confirm=confirm, wait=wait)
-        if(!is_empty(managed_disks))
-        {
-            lapply(managed_disks, function(id)
-                az_resource$
-                    new(self$token, self$subscription, id=id, deployed_properties=list(NULL))$
-                    delete(confirm=confirm, wait=wait)
-            )
-        }
     }
 ),
 

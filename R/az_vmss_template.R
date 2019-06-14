@@ -129,13 +129,14 @@ public=list(
     {
         outputs <- unlist(self$properties$outputResources)
         ip_id <- grep("publicIPAddresses/.+$", outputs, ignore.case=TRUE, value=TRUE)
-        if(!is_empty(ip_id))
-        {
-            ip <- az_resource$new(self$token, self$subscription, id=ip_id)
-            ip$properties$ipAddress
-        }
-        else NULL
-    }),
+        if(is_empty(ip_id))
+            return(NA_character_)
+        ip <- az_resource$new(self$token, self$subscription, id=ip_id)$properties$ipAddress
+        if(!is.null(ip))
+            ip
+        else NA_character_
+    }
+),
 
 # propagate resource methods up to template
 active=list(
@@ -199,11 +200,12 @@ private=list(
         {
             id <- x$id
             if(is_type(id, "Microsoft.Compute/virtualMachineScaleSets")) 1
-            else if(is_type(id, "Microsoft.Insights/autoscaleSettings")) 2
-            else if(is_type(id, "Microsoft.Network/loadBalancers")) 3
-            else if(is_type(id, "Microsoft.Network/publicIPAddresses")) 4
-            else if(is_type(id, "Microsoft.Network/virtualNetworks")) 5
-            else if(is_type(id, "Microsoft.Network/networkSecurityGroups")) 6
+            else if(is_type(id, "Microsoft.Compute/disks")) 2
+            else if(is_type(id, "Microsoft.Insights/autoscaleSettings")) 3
+            else if(is_type(id, "Microsoft.Network/loadBalancers")) 4
+            else if(is_type(id, "Microsoft.Network/publicIPAddresses")) 5
+            else if(is_type(id, "Microsoft.Network/virtualNetworks")) 6
+            else if(is_type(id, "Microsoft.Network/networkSecurityGroups")) 7
             else 0
         })
         self$properties$outputResources <- self$properties$outputResources[order(new_order)]

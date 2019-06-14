@@ -22,8 +22,9 @@ ubuntu_dsvm(keylogin = TRUE, managed = TRUE, datadisks = numeric(0),
   nsg = nsg_config(list(nsg_rule_allow_ssh, nsg_rule_allow_jupyter,
   nsg_rule_allow_rstudio)), ...)
 
-windows_dsvm(managed = TRUE, datadisks = numeric(0),
-  nsg = nsg_config(list(nsg_rule_allow_rdp)), ...)
+windows_dsvm(keylogin = FALSE, managed = TRUE,
+  datadisks = numeric(0), nsg = nsg_config(list(nsg_rule_allow_rdp)),
+  ...)
 
 ubuntu_16.04(keylogin = TRUE, managed = TRUE, datadisks = numeric(0),
   nsg = nsg_config(list(nsg_rule_allow_ssh)), ...)
@@ -31,11 +32,13 @@ ubuntu_16.04(keylogin = TRUE, managed = TRUE, datadisks = numeric(0),
 ubuntu_18.04(keylogin = TRUE, managed = TRUE, datadisks = numeric(0),
   nsg = nsg_config(list(nsg_rule_allow_ssh)), ...)
 
-windows_2016(managed = TRUE, datadisks = numeric(0),
-  nsg = nsg_config(list(nsg_rule_allow_rdp)), ...)
+windows_2016(keylogin = FALSE, managed = TRUE,
+  datadisks = numeric(0), nsg = nsg_config(list(nsg_rule_allow_rdp)),
+  ...)
 
-windows_2019(managed = TRUE, datadisks = numeric(0),
-  nsg = nsg_config(list(nsg_rule_allow_rdp)), ...)
+windows_2019(keylogin = FALSE, managed = TRUE,
+  datadisks = numeric(0), nsg = nsg_config(list(nsg_rule_allow_rdp)),
+  ...)
 
 rhel_7.6(keylogin = TRUE, managed = TRUE, datadisks = numeric(0),
   nsg = nsg_config(list(nsg_rule_allow_ssh)), ...)

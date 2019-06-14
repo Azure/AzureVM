@@ -164,17 +164,28 @@ private=list(
         {
             grepl(type, id, fixed=TRUE)
         }
-        new_order <- sapply(self$properties$outputResources, function(x)
+
+        # insert managed disks into deletion queue
+        stor <- private$vm$properties$storageProfile
+        managed_disks <- c(
+            stor$osDisk$managedDisk$id,
+            lapply(stor$dataDisks, function(x) x$managedDisk$id)
+        )
+        outs <- unique(c(unlist(self$properties$outputResources), unlist(managed_disks)))
+
+        new_order <- sapply(outs, function(id)
         {
-            id <- x$id
             if(is_type(id, "Microsoft.Compute/virtualMachines")) 1
-            else if(is_type(id, "Microsoft.Network/networkInterfaces")) 2
-            else if(is_type(id, "Microsoft.Network/virtualNetworks")) 3
-            else if(is_type(id, "Microsoft.Network/publicIPAddresses")) 4
-            else if(is_type(id, "Microsoft.Network/networkSecurityGroups")) 5
+            else if(is_type(id, "Microsoft.Compute/disks")) 2
+            else if(is_type(id, "Microsoft.Network/networkInterfaces")) 3
+            else if(is_type(id, "Microsoft.Network/virtualNetworks")) 4
+            else if(is_type(id, "Microsoft.Network/publicIPAddresses")) 5
+            else if(is_type(id, "Microsoft.Network/networkSecurityGroups")) 6
             else 0 # delete all other resources first
         })
-        self$properties$outputResources <- self$properties$outputResources[order(new_order)]
+
+        outs <- outs[order(new_order)]
+        self$properties$outputResources <- lapply(outs, function(x) list(id=x))
     }
 ))
 
