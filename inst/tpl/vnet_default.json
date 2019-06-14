@@ -1,0 +1,10 @@
+{
+    "apiVersion": "2018-11-01",
+    "type": "Microsoft.Network/virtualNetworks",
+    "name": "[variables('vnetName')]",
+    "location": "[variables('location')]",
+    "dependsOn": [
+        "[variables('nsgRef')]"
+    ],
+    "properties": {}
+}

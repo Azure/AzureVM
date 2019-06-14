@@ -2,115 +2,167 @@
 % Please edit documentation in R/add_methods.R
 \name{create_vm}
 \alias{create_vm}
-\alias{create_vm_cluster}
-\title{Create a new virtual machine or cluster of virtual machines}
+\alias{create_vm_scaleset}
+\title{Create a new virtual machine or scaleset of virtual machines}
 \description{
 Method for the \link[AzureRMR:az_subscription]{AzureRMR::az_subscription} and \link[AzureRMR:az_resource_group]{AzureRMR::az_resource_group} classes.
 }
 \section{Usage}{
 \preformatted{## R6 method for class 'az_resource_group'
-create_vm(name, os = c("Windows", "Ubuntu"), size = "Standard_DS3_v2",
-          username, passkey, userauth_type = c("password", "key"),
-          ext_file_uris = NULL, inst_command = NULL,
-          template, parameters, ..., wait = TRUE)
+create_vm(name, login_user, size = "Standard_DS3_v2", config = "ubuntu_dsvm",
+          managed = TRUE, datadisks = numeric(0), ...,
+          template, parameters, mode = "Incremental", wait = TRUE)
 
 ## R6 method for class 'az_subscription'
-create_vm(name, location, os = c("Windows", "Ubuntu"), size = "Standard_DS3_v2",
-          username, passkey, userauth_type = c("password", "key"),
-          ext_file_uris = NULL, inst_command = NULL,
-          template, parameters, ..., wait = TRUE)
+create_vm(name, ..., resource_group = name, location)
 
 ## R6 method for class 'az_resource_group'
-create_vm_cluster(name, os = c("Windows", "Ubuntu"), size = "Standard_DS3_v2",
-                  username, passkey, userauth_type = c("password", "key"),
-                  ext_file_uris = NULL, inst_command = NULL, clust_size,
-                  template, parameters, ..., wait = TRUE)
+create_vm_scaleset(name, login_user, instances, size = "Standard_DS1_v2",
+                   config = "ubuntu_dsvm_ss", ...,
+                   template, parameters, mode = "Incremental", wait = TRUE)
 
 ## R6 method for class 'az_subscription'
-create_vm_cluster(name, location, os = c("Windows", "Ubuntu"), size = "Standard_DS3_v2",
-                  username, passkey, userauth_type = c("password", "key"),
-                  ext_file_uris = NULL, inst_command = NULL, clust_size,
-                  template, parameters, ..., wait = TRUE)
+create_vm_scaleset(name, ..., resource_group = name, location)
 }
 }
 
 \section{Arguments}{
 
 \itemize{
-\item \code{name}: The name of the VM or cluster.
-\item \code{location}: For the subscription class methods, the location for the VM. Use the \code{list_locations()} method of the \code{AzureRMR::az_subscription} class to see what locations are available.
-\item \code{os}: The operating system for the VM.
-\item \code{size}: The VM size. Use the \code{list_vm_sizes()} method of the \code{AzureRMR::az_subscription} class to see what sizes are available.
-\item \code{username}: The login username for the VM.
-\item \code{passkey}: The login password or public key.
-\item \code{userauth_type}: The type of login authentication to use. Only has an effect for Linux-based VMs; Windows VMs will always use \code{"password"}.
-\item \code{ext_file_uris}: Optional link to download extension packages.
-\item \code{inst_command}: If \code{ext_file_uris} is supplied, the install script to run. Defaults to \code{install.sh} for an Ubuntu VM, or \code{install.ps1} for a Windows VM.
-\item \code{clust_size}: For a cluster, the number of nodes to create.
-\item \code{template}: Optional: the VM template to deploy. By default, this is determined by the values of the other arguments; see 'Details' below.
-\item \code{parameters}: Optional: other parameters to pass to the deployment.
+\item \code{name}: The name of the VM or scaleset.
+\item \code{location}: For the subscription methods, the location for the VM or scaleset. Use the \code{list_locations()} method of the \code{AzureRMR::az_subscription} class to see what locations are available.
+\item \code{resource_group}: For the subscription methods, the resource group in which to place the VM or scaleset. Defaults to a new resource group with the same name as the VM.
+\item \code{login_user}: The details for the admin login account. An object of class \code{user_config}, obtained by a call to the \code{user_config} function.
+\item \code{size}: The VM (instance) size. Use the \link{list_vm_sizes} method to see what sizes are available.
+\item \code{config}: The VM or scaleset configuration. See 'Details' below for how to specify this. The default is to use an Ubuntu Data Science Virtual Machine.
+\item \code{managed}: For \code{create_vm}, whether the VM should have a managed identity attached.
+\item \code{datadisks}: For \code{create_vm}, any data disks to attach to the VM. See 'Details' below.
+\item \code{instances}: For \code{create_vm_scaleset}, the initial number of instances in the scaleset.
+\item \code{...} For the subscription methods, any of the other arguments listed here, which will be passed to the resource group method. For the resource group method, additional arguments to pass to the VM/scaleset configuration functions \link{vm_config} and \link{vmss_config}. See the examples below.
+\item \code{template,parameters}: The template definition and parameters to deploy. By default, these are constructed from the values of the other arguments, but you can supply your own template and/or parameters as well.
 \item \code{wait}: Whether to wait until the deployment is complete.
-\item \code{...}: Other arguments to lower-level methods.
+\item \code{mode}: The template deployment mode. If "Complete", any existing resources in the resource group will be deleted.
 }
 }
 
 \section{Details}{
 
-This method deploys a template to create a new virtual machine or cluster of VMs. Currently, seven templates are supplied with this package, based on the Azure Data Science Virtual Machine:
+These methods deploy a template to create a new virtual machine or scaleset.
+
+The \code{config} argument can be specified in the following ways:
 \itemize{
-\item Ubuntu DSVM
-\item Ubuntu DSVM using public key authentication
-\item Ubuntu DSVM with extensions
-\item Ubuntu DSVM cluster
-\item Ubuntu DSVM cluster with extensions
-\item Windows Server 2016 DSVM
-\item Windows Server 2016 DSVM cluster with extensions
+\item As the name of a supplied VM or scaleset configuration, like "ubuntu_dsvm" or "ubuntu_dsvm_ss". AzureVM comes with a number of supplied configurations to deploy commonly used images, which can be seen at \link{vm_config} and \link{vmss_config}. Any arguments in \code{...} will be passed to the configuration, allowing you to customise the deployment.
+\item As a call to the \code{vm_config} or \code{vmss_config} functions, to deploy a custom VM image.
+\item As an object of class \code{vm_config} or \code{vmss_config}.
 }
 
-An individual virtual machine is treated as a cluster containing only a single node.
+The data disks for the VM can be specified as either a vector of numeric disk sizes in GB, or as a list of \code{datadisk_config} objects, created via calls to the \code{datadisk_config} function. Currently, AzureVM only supports creating data disks at deployment time for single VMs, not scalesets.
 
-You can also supply your own VM template for deployment, via the \code{template} argument. See \link[AzureRMR:az_template]{AzureRMR::az_template} for information how to supply templates. Note that if you do this, you may also have to supply a \code{parameters} argument, as the standard parameters for this method are customised for the DSVM.
+You can also supply your own template definition and parameters for deployment, via the \code{template} and \code{parameters} arguments. See \link[AzureRMR:az_template]{AzureRMR::az_template} for information how to create templates.
 
-For the \code{AzureRMR::az_subscription} method, this will by default create the VM in \emph{exclusive} mode, meaning a new resource group is created solely to hold the VM. This simplifies managing the VM considerably, in particular deleting the resource group will also automatically delete all the VM's resources.
+The \code{AzureRMR::az_subscription} methods will by default create the VM in \emph{exclusive} mode, meaning a new resource group is created solely to hold the VM or scaleset. This simplifies managing the VM considerably; in particular deleting the resource group will also automatically delete all the deployed resources.
 }
 
 \section{Value}{
 
-An object of class \code{az_vm_template} representing the created VM.
+For \code{create_vm}, an object of class \code{az_vm_template} representing the created VM. For \code{create_vm_scaleset}, an object of class \code{az_vmss_template} representing the scaleset.
 }
 
 \examples{
 \dontrun{
 
-sub <- AzureRMR::az_rm$
-    new(tenant="myaadtenant.onmicrosoft.com", app="app_id", password="password")$
+sub <- AzureRMR::get_azure_login()$
     get_subscription("subscription_id")
 
-# default Windows Server DSVM: make sure to use a strong password!
-sub$create_vm("myWindowsDSVM",
-   location="australiaeast",
-   username="ds",
-   passkey="Password123!")
+# default Ubuntu 18.04 VM:
+# SSH key login, Standard_DS3_v2, publicly accessible via SSH
+sub$create_vm("myubuntuvm", user_config("myname", "~/.ssh/id_rsa.pub"),
+              location="australiaeast")
 
-# upsized Linux (Ubuntu) DSVM
-sub$create_vm("myLinuxDSVM",
-   location="australiaeast",
-   os="Linux",
-   username="ds",
-   passkey=readLines("~/id_rsa.pub"),
-   size="Standard_DS13_v2")
+# Windows Server 2019, with a 500GB datadisk attached, not publicly accessible
+sub$create_vm("mywinvm", user_config("myname", password="Use-strong-passwords!"),
+              size="Standard_DS4_v2", config="windows_2019", datadisks=500, ip=NULL,
+              location="australiaeast")
 
-sub$create_vm_cluster("myLinuxCluster",
-   location="australiaeast",
-   os="Linux",
-   username="ds",
-   passkey=readLines("~/id_rsa.pub"),
-   clust_size=5)
+# Ubuntu DSVM, GPU-enabled
+sub$create_vm("mydsvm", user_config("myname", "~/.ssh/id_rsa.pub"), size="Standard_NC12",
+              config="ubuntu_dsvm_ss",
+              location="australiaeast")
+
+## custom VM configuration: Windows 10 Pro 1903 with data disks
+## this assumes you have a valid Win10 desktop license
+user <- user_config("myname", password="Use-strong-passwords!")
+image <- image_config(
+     publisher="MicrosoftWindowsDesktop",
+     offer="Windows-10",
+     sku="19h1-pro"
+)
+datadisks <- list(
+    datadisk_config(250, type="Premium_LRS"),
+    datadisk_config(1000, type="Standard_LRS")
+)
+nsg <- nsg_config(
+    list(nsg_rule_allow_rdp)
+)
+config <- vm_config(
+    image=image,
+    keylogin=FALSE,
+    datadisks=datadisks,
+    nsg=nsg,
+    properties=list(licenseType="Windows_Client")
+)
+sub$create_vm("mywin10vm", user, size="Standard_DS2_v2", config=config,
+              location="australiaeast")
+
+
+# default Ubuntu scaleset:
+# load balancer and autoscaler enabled, Standard_DS1_v2
+sub$create_vm_scaleset("mydsvmss", user_config("myname", "~/.ssh/id_rsa.pub"),
+                       instances=5,
+                       location="australiaeast"))
+
+# Ubuntu DSVM scaleset with public GPU-enabled instances, no load balancer or autoscaler
+sub$create_vm_scaleset("mydsvmss", user_config("myname", "~/.ssh/id_rsa.pub"),
+                       instances=5, size="Standard_NC12", config="ubuntu_dsvm_ss",
+                       options=scaleset_options(public=TRUE),
+                       load_balancer=NULL, autoscaler=NULL,
+                       location="australiaeast")
+
+# RHEL scaleset, allow http/https access
+sub$create_vm_scaleset("myrhelss", user_config("myname", "~/.ssh/id_rsa.pub"),
+                        instances=5, config="rhel_8_ss",
+                        nsg=nsg_config(list(nsg_rule_allow_http, nsg_rule_allow_https)),
+                        location="australiaeast")
+
+# Large Debian scaleset, using low-priority VMs
+# need to set the instance size to something that supports low-pri
+sub$create_vm_scaleset("mydebss", user_config("myname", "~/.ssh/id_rsa.pub"),
+                       instances=50, size="Standard_DS3_v2", config="debian_9_backports_ss",
+                       options=scaleset_options(low_priority=TRUE, large_scaleset=TRUE),
+                       location="australiaeast")
+
+
+## VM and scaleset in the same resource group and virtual network
+# first, create the resgroup
+rg <- sub$create_resource_group("rgname", "australiaeast")
+
+# create the master
+rg$create_vm("mastervm", user_config("myname", "~/.ssh/id_rsa.pub"))
+
+# get the vnet resource
+vnet <- rg$get_resource(type="Microsoft.Network/virtualNetworks", name="mastervm-vnet")
+
+# create the scaleset
+rg$create_vm_scaleset("slavess", user_config("myname", "~/.ssh/id_rsa.pub"),
+                      instances=5, vnet=vnet, nsg=NULL, load_balancer=NULL, autoscaler=NULL)
 
 }
 }
 \seealso{
-\link{az_vm_template},
+\link{az_vm_template}, \link{az_vmss_template}
+
+\link{vm_config}, \link{vmss_config}, \link{user_config}, \link{datadisk_config}
+
 \link[AzureRMR:az_subscription]{AzureRMR::az_subscription}, \link[AzureRMR:az_resource_group]{AzureRMR::az_resource_group},
 \href{https://azure.microsoft.com/en-us/services/virtual-machines/data-science-virtual-machines/}{Data Science Virtual Machine}
 }

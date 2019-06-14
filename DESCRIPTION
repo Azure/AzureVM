@@ -1,13 +1,12 @@
 Package: AzureVM
 Title: Virtual Machines in 'Azure'
-Version: 1.0.1
+Version: 2.0.0
 Authors@R: c(
     person("Hong", "Ooi", , "hongooi@microsoft.com", role = c("aut", "cre")),
-    person("Data Science Virtual Machine team", role="ctb", comment="DSVM template provider"),
     person("Microsoft", role="cph")
     )
-Description: Functionality for working with virtual machines (VMs) in Microsoft's 'Azure' cloud: <https://azure.microsoft.com/en-us/services/virtual-machines/>. Includes facilities to create, startup, shutdown, and cleanly delete VMs and VM clusters. With a running VM, execute scripts and install optional extensions. A selection of VM templates based on the 'Data Science Virtual Machine' (DSVM) is supplied; this allows fast and easy provisioning of a VM preinstalled with several software packages useful for data science. Alternatively, users can provide VM templates of their own.
-URL: https://github.com/Azure/AzureVM
+Description: Functionality for working with virtual machines (VMs) in Microsoft's 'Azure' cloud: <https://azure.microsoft.com/en-us/services/virtual-machines/>. Includes facilities to deploy, startup, shutdown, and cleanly delete VMs and VM clusters. Deployment configurations can be highly customised, and can make use of existing resources as well as creating new ones. A selection of predefined configurations is provided to allow easy deployment of commonly used Linux and Windows images, including Data Science Virtual Machines. With a running VM, execute scripts and install optional extensions. Part of the 'AzureR' family of packages.
+URL: https://github.com/Azure/AzureVM https://github.com/Azure/AzureR
 BugReports: https://github.com/Azure/AzureVM/issues
 License: MIT + file LICENSE
 VignetteBuilder: knitr
@@ -15,9 +14,11 @@ Depends:
     R (>= 3.3),
 Imports: 
     R6,
-    AzureRMR
+    AzureRMR (>= 2.1.2),
+    jsonlite
 Suggests:
     knitr,
-    testthat
+    testthat,
+    AzureKeyVault
 Roxygen: list(markdown=TRUE)
-RoxygenNote: 6.1.0.9000
+RoxygenNote: 6.1.1

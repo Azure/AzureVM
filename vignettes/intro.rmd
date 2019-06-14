@@ -8,157 +8,164 @@ vignette: >
   %\VignetteEncoding{utf8}
 ---
 
-This is a short introduction on how to use AzureVM.
+AzureVM is a package for interacting with virtual machines and virtual machine scalesets in Azure. You can deploy, start up, shut down, run scripts, deallocate and delete VMs and scalesets from the R command line. It uses the tools provided by the [AzureRMR package](https://github.com/Azure/AzureRMR) to manage VM resources and templates.
 
+## Virtual machines
 
-## Creating a VM
+Here is a simple example. We create a VM using the default settings, run a shell command, and then delete the VM.
 
-Creating a VM is as simple as using the `create_vm` method, which is available as part of the `az_subscription`  and `az_resource_group` classes.
+```r
+library(AzureVM)
 
-```{r, eval=FALSE}
-## using the subscription method
-sub <- az_rm$
-    new(tenant="{tenant_id}", app="{app_id}", password="{password}")$
-    get_subscription("{subscription_id}")
+sub <- AzureRMR::get_azure_login()$
+    get_subscription("5710aa44-281f-49fe-bfa6-69e66bb55b11")
 
-myNewVM <- sub$create_vm("myNewVM",
-    location="australiaeast",
-    username="datascience",
-    passkey="fAs30q-2a5vF!Z")  # be sure to choose a strong password!
+# calling create_vm() from a subscription object will create the VM in its own resource group
+# default is an Ubuntu 18.04 VM, size Standard_DS3_v2, login via SSH key
+# call sub$list_vm_sizes() to get the sizes available in your region
+vm <- sub$create_vm("myubuntuvm", user_config("myname", "~/.ssh/id_rsa.pub"),
+                    location="australiaeast")
 
+# run a shell script or command remotely (will be PowerShell on a Windows VM)
+vm$run_script("ifconfig > /tmp/ifc.txt")
 
-## using the resource group method
-rg <- sub$create_resource_group("myresourcegroup",
-    location="australiaeast")
+# ... and stop it
+vm$stop()
 
-myOtherVM <- rg$create_vm("myOtherVM",
-    username="datascience",
-    passkey="l3Kgrf21%?0DFm")
-```
+# ... and resize it
+vm$resize("Standard_DS4_v2")
 
-Without any other options, this will create a Windows Server 2016 [Data Science Virtual Machine](https://docs.microsoft.com/en-us/azure/machine-learning/data-science-virtual-machine/overview#whats-included-in-the-data-science-vm), which is pre-installed with several tools useful for analytics: Python, R (and RStudio), Tensorflow, XGBoost, SQL Server, and so on. The size will be a Standard DS3 V2 VM, which has 4 cores, 14GB of memory, 1TB primary disk, and up to 16x28GB data disks.
-
-A feature of using the `az_subscription` method is that it creates a new resource group specifically to hold the VM. This simplifies the task of managing and (eventually) deleting the VM considerably. See "Deleting a VM" below.
-
-You can change the specifications for the VM by providing any of the following arguments:
-
-- `os`: either "Windows" or "Ubuntu" (for Ubuntu LTS 16.04).
-- `size`: the VM size. Use the `az_subscription$list_vm_sizes()` method to see what sizes are available in your region. Note that in Azure, a VM's size is really a broad-ranging label that encapsulates the number of cores, memory, and disk available.
-- `passkey`: if creating an Ubuntu VM, you can supply a public key as the `passkey` argument.
-- `userauth_type`: set this to "key" if you supply a public key.
-
-Setting these will determine whether you get a Windows or Ubuntu DSVM, the login details, and how powerful the VM is in terms of cores and memory/disk capacity.
-
-```{r, eval=FALSE}
-# examine VM sizes available in australiaeast region
-sub$list_vm_sizes("australiaeast")
-
-# create a Linux (Ubuntu) NC-series DSVM using public key authentication
-myLinuxVM <- sub$create_vm("myLinuxVM",
-    location="australiaeast",
-    size="Standard_NC6s_v3",
-    os="Ubuntu",
-    username="datascience",
-    passkey=readLines("~/id_rsa.pub"),
-    userauth_type="key")
-```
-
-
-## Retrieving an existing VM
-
-If you have an existing VM, you can retrieve it with the `get_vm()` method. As with `create_vm()`, this is available as part of the `az_subscription` and `az_resource_group` classes. The only argument you need to supply is the name of the VM.
-
-```{r, eval=FALSE}
-## using the subscription method
-sub <- az_rm$
-    new(tenant="{tenant_id}", app="{app_id}", password="{password}")$
-    get_subscription("{subscription_id}")
-
-# retrieve the VM we created above
-myNewVM <- sub$get_vm("myNewVM")
-
-
-## and with the resource group method
-rg <- sub$get_resource_group("myresourcegroup")
-
-myOtherVM <- rg$get_vm("myOtherVM")
-```
-
-
-## Working with a VM
-
-There are various things you can do with a VM object.
-
-To stop (shutdown) a VM, call its `stop()` method. The `deallocate` argument sets whether to deallocate its resources as well, with the default being TRUE; you may want to set this to FALSE if you know you will be restarting the VM soon. To restart it, call either the `start()` or `restart()` method. The main difference between the two is that `restart()` will shutdown the VM first if it is currently running.
-
-To sync the object with the resource in Azure, call the `sync_vm_status()` method. The most common situation where you might want to do this is if you create a VM with the argument `wait=FALSE`. In this case, rather than waiting for provisioning to complete, the `create_vm` method will return an incomplete VM object; you then call its `sync_vm_status()` method to update it with how the provisioning is going in Azure.
-
-To run a script in the VM (without manually logging in first), call the `run_script()` method. This will be a PowerShell script if it is a Windows VM, or a bash script if it is Linux. The script is just a character vector:
-
-```{r, eval=FALSE}
-# simple bash script for executing on a Linux VM
-script <-
-'#!/bin/bash
-
-var=Hello world!
-
-# redirect output to a file so we know whether it ran successfully
-echo "$var" > /tmp/helloworld.txt
-'
-
-vm$run_script(script)
-```
-
-If you login to the VM after running this script, you should find the file `helloworld.txt` in the `/tmp` directory.
-
-
-## Deleting a VM
-
-Simply deleting a virtual machine object in R, eg with `rm()`, will not do anything to the VM itself in Azure. To delete the VM and its resources, call the object's `delete()` method:
-
-```{r, eval=FALSE}
+# ... and delete it (this can be done asynchronously for a VM in its own group)
 vm$delete()
 ```
 
-AzureVM will prompt you for confirmation that you really want to delete the VM. By default, this will also free up all the individual Azure resources used by the VM, such as its storage, network interface, security group, and so on.
+AzureVM comes with a number of predefined configurations, for deploying commonly used VM images. For example, to create an Ubuntu DSVM accessible via SSH, JupyterHub and RStudio Server:
 
-If you created the VM using the `create_vm()` method of the `az_subscription` class, the deletion process is very simple: it simply removes the resource group containing the VM. This is possible because the resource group was created as part of deploying the VM. Be aware that any other resources you may have created in this resource group will also be deleted.
+```r
+sub$create_vm("mydsvm", user_config("myname", "~/.ssh/id_rsa.pub"), config="ubuntu_dsvm",
+              location="australiaeast")
+```
+And to create a Windows Server 2019 VM, accessible via RDP:
 
- Alternatively, you can use the `delete_vm()` method of the `az_subscription` and `az_resource_group` classes. These will retrieve the VM of the given name and then call its `delete()` method.
-
-
-## Other topics
-
-### GPU enabled VMs
-
-If you are running deep learning workloads, you'll want to ensure that your VM is GPU-enabled. In Azure, the various [NC- and ND-series VMs](https://docs.microsoft.com/en-us/azure/virtual-machines/windows/sizes-gpu) are designed for these workloads. You can create a GPU-enabled VM by setting the `size` argument appropriately, for example
-
-```{r, eval=FALSE}
-myGpuVM <- sub$create_vm(size="Standard_NC12s_v3", ...)
+```r
+sub$create_vm("mywinvm", user_config("myname", password="Use-strong-passwords!"), config="windows_2019",
+              location="australiaeast")
 ```
 
-However, the following caveats apply to GPU-enabled VMs:
-- Not all regions have GPUs available. To check on availability, use the `az_subscription$list_vm_sizes()` method and provide your region.
-- Currently, the supply of GPUs is limited. You must [apply for a quota increase](https://docs.microsoft.com/en-us/azure/azure-supportability/resource-manager-core-quotas-request) if you want to deploy a GPU-enabled VM.
+The available predefined configurations are `ubuntu_18.04` (the default), `ubuntu_16.04`, `ubuntu_dsvm`, `windows_2019`, `windows_2016`, `windows_dsvm`, `rhel_7.6`, `rhel_8` and `debian_9_backports`. You can combine these with several other arguments to customise the VM deployment to your needs:
 
-### VM clusters
+- `size`: VM size. Use the `list_vm_sizes` method for the subscription and resource group classes to see the available sizes.
+- `datadisks`: The data disk sizes/configurations to attach.
+- `ip`: Public ip address. Set this to NULL if you don't want the VM to be accessible outside its subnet.
+- `vnet`: Virtual network/subnet.
+- `nsg`: Network security group. AzureVM will associate the NSG with the vnet/subnet, not with the VM's network interface.
+- `nic`: Network interface.
+- `other_resources`: Optionally, a list of other resources to deploy.
 
-You can work with VM clusters (a collection of VMs sharing the same configuration) by using the `get_vm_cluster`, `create_vm_cluster` and `delete_vm_cluster` methods. These work almost identically to `get_vm`, `create_vm` and `delete_vm` with the addition of a `clust_size` argument that sets the size of the cluster.
+```r
+# Windows Server 2016, with a 500GB datadisk attached, not publicly accessible
+sub$create_vm("mywinvm2", user_config("myname", password="Use-strong-passwords!"),
+              size="Standard_DS4_v2", config="windows_2016", datadisks=500, ip=NULL,
+              location="australiaeast")
 
-```{r, eval=FALSE}
-sub <- az_rm$
-    new(tenant="{tenant_id}", app="{app_id}", password="{password}")$
-    get_subscription("{subscription_id}")
+# Ubuntu DSVM, GPU-enabled
+sub$create_vm("mydsvm", user_config("myname", "~/.ssh/id_rsa.pub"), size="Standard_NC12",
+              config="ubuntu_dsvm_ss",
+              location="australiaeast")
 
-# create a cluster of 5 Ubuntu VMs
-vmCluster <- sub$create_vm_cluster("vmCluster",
-    location="australiaeast",
-    os="Ubuntu",
-    username="datascience",
-    passkey=readLines("~/id_rsa.pub"),
-    userauth_type="key",
-    clust_size=5)
+# Red Hat VM, serving HTTP/HTTPS
+sub$create_vm("myrhvm", user_config("myname", "~/.ssh/id_rsa.pub"), config="rhel_8",
+              nsg=nsg_config(list(nsg_rule_allow_http, nsg_rule_allow_https)),
+              location="australiaeast")
 ```
 
-Most things that you can do with a single VM, you can also do with a VM cluster. For example, running a script with the `run_script()` method will run the script on all the VMs in the cluster. Starting, stopping and restarting a cluster similarly carries out the given action on all the VMs.
+Full customisation is provided by the `vm_config` function, which also lets you specify the image to deploy, either from the marketplace or a disk. (The predefined configurations actually call `vm_config`, with the appropriate arguments for each specific config.)
+
+```r
+## custom VM configuration: Windows 10 Pro 1903 with data disks
+## this assumes you have a valid Win10 desktop license
+user <- user_config("myname", password="Use-strong-passwords!")
+image <- image_config(
+     publisher="MicrosoftWindowsDesktop",
+     offer="Windows-10",
+     sku="19h1-pro"
+)
+datadisks <- list(
+    datadisk_config(250, type="Premium_LRS"),
+    datadisk_config(1000, type="Standard_LRS")
+)
+nsg <- nsg_config(
+    list(nsg_rule_allow_rdp)
+)
+sub$create_vm("mywin10vm", user,
+    config=vm_config(
+        image=image,
+        keylogin=FALSE,
+        datadisks=datadisks,
+        nsg=nsg,
+        properties=list(licenseType="Windows_Client")
+    ),
+    location="australiaeast"
+)
+```
+
+## VM scalesets
+
+The equivalent to `create_vm` for scalesets is the `create_vm_scaleset` method. By default, a new scaleset will come with a load balancer and autoscaler attached, but its instances will not be externally accessible.
+
+```r
+# default is Ubuntu 18.04 scaleset, size Standard_DS1_v2
+sub$create_vm_scaleset("myubuntuss", user_config("myname", "~/.ssh/id_rsa.pub"), instances=5,
+                       location="australiaeast")
+```
+
+Each predefined VM configuration has a corresponding scaleset configuration. To specify low-level scaleset settings, use the `scaleset_options` argument. Here are some sample scaleset deployments:
+
+```r
+# Windows Server 2019
+sub$create_vm_scaleset("mywinss", user_config("myname", password="Use-strong-passwords!"), instances=5,
+                       config="windows_2019",
+                       location="australiaeast")
+
+# RHEL scaleset, serving HTTP/HTTPS
+sub$create_vm_scaleset("myrhelss", user_config("myname", "~/.ssh/id_rsa.pub"), instances=5,
+                        config="rhel_8_ss",
+                        nsg=nsg_config(list(nsg_rule_allow_http, nsg_rule_allow_https)),
+                        location="australiaeast")
+
+# Ubuntu DSVM, GPU-enabled, public instances, no load balancer or autoscaler
+sub$create_vm_scaleset("mydsvmss", user_config("myname", "~/.ssh/id_rsa.pub"), instances=5,
+                       size="Standard_NC6", config="ubuntu_dsvm_ss",
+                       options=scaleset_options(public=TRUE),
+                       load_balancer=NULL, autoscaler=NULL,
+                       location="australiaeast")
+
+# Large Debian scaleset (multiple placement groups), using low-priority VMs
+# need to set the instance size to something that supports low-pri
+sub$create_vm_scaleset("mydebss", user_config("myname", "~/.ssh/id_rsa.pub"), instances=10,
+                       size="Standard_DS3_v2", config="debian_9_backports_ss",
+                       options=scaleset_options(low_priority=TRUE, large_scaleset=TRUE),
+                       location="australiaeast")
+```
+
+## Sharing resources
+
+You can also include an existing Azure resource in a deployment, by supplying an AzureRMR `az_resource` object as an argument in the `create_vm` or `create_vm_scaleset` call. For example, here we create a VM and a scaleset that share a single virtual network/subnet.
+
+```r
+## VM and scaleset in the same resource group and virtual network
+# first, create the resgroup
+rg <- sub$create_resource_group("rgname", "australiaeast")
+
+# create the master
+rg$create_vm("mastervm", user_config("myname", "~/.ssh/id_rsa.pub"))
+
+# get the vnet resource
+vnet <- rg$get_resource(type="Microsoft.Network/virtualNetworks", name="mastervm-vnet")
+
+# create the scaleset
+# since the NSG is associated with the vnet, we don't need to create a new NSG either
+rg$create_vm_scaleset("slavess", user_config("myname", "~/.ssh/id_rsa.pub"),
+                      instances=5, vnet=vnet, nsg=NULL, load_balancer=NULL, autoscaler=NULL)
+```
 

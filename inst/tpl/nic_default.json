@@ -1,0 +1,11 @@
+{
+    "apiVersion": "2018-11-01",
+    "type": "Microsoft.Network/networkInterfaces",
+    "name": "[variables('nicName')]",
+    "location": "[variables('location')]",
+    "dependsOn": [
+        "[variables('ipRef')]",
+        "[variables('vnetRef')]"
+    ],
+    "properties": {}
+}

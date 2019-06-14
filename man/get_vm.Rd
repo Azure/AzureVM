@@ -2,8 +2,9 @@
 % Please edit documentation in R/add_methods.R
 \name{get_vm}
 \alias{get_vm}
-\alias{get_vm_cluster}
-\alias{list_vms}
+\alias{get_vm_scaleset}
+\alias{get_vm_resource}
+\alias{get_vm_scaleset_resource}
 \title{Get existing virtual machine(s)}
 \description{
 Method for the \link[AzureRMR:az_subscription]{AzureRMR::az_subscription} and \link[AzureRMR:az_resource_group]{AzureRMR::az_resource_group} classes.
@@ -16,55 +17,51 @@ get_vm(name, resource_group = name)
 get_vm(name)
 
 ## R6 method for class 'az_subscription'
-get_vm_cluster(name, resource_group = name)
+get_vm_scaleset(name, resource_group = name)
 
 ## R6 method for class 'az_resource_group'
-get_vm_cluster(name)
+get_vm_scaleset(name)
 
-## R6 method for class 'az_resource_group'
-## R6 method for class 'az_subscription'
-list_vms()
+## R6 method for class 'az_resource_group')
+get_vm_resource(name)
+get_vm_scaleset_resource(name)
 }
 }
 
 \section{Arguments}{
 
 \itemize{
-\item \code{name}: The name of the VM or cluster.
-\item \code{resource_group}: For the \code{az_subscription} method, the resource group in which \code{get_vm()} will look for the VM. Defaults to the VM name.
+\item \code{name}: The name of the VM or scaleset.
+\item \code{resource_group}: For the \code{az_subscription} methods, the resource group in which \code{get_vm()} and \code{get_vm_scaleset()}  will look for the VM or scaleset. Defaults to the VM name.
 }
-}
-
-\section{Details}{
-
-Despite the names, \code{get_vm} and \code{get_vm_cluster} can both be used to retrieve individual VMs and clusters. The main difference is in their behaviour if a deployment template is not found. In the case of \code{get_vm}, it also searches for a raw VM resource of the given name, whereas \code{get_vm_cluster} will throw an error immediately.
 }
 
 \section{Value}{
 
-For \code{get_vm()}, an object representing the VM, either of class \code{az_vm_template} or \code{az_vm_resource}.
+For \code{get_vm()}, an object representing the VM deployment. This will include other resources besides the VM itself, such as the network interface, virtual network, etc.
 
-For \code{list_vms()}, a list of such objects.
+For \code{get_vm_scaleset()}, an object representing the scaleset deployment. Similarly to \code{get_vm()}, this includes other resources besides the scaleset.
 
-For \code{get_vm_cluster()}, an object representing the cluster.
+For \code{get_vm_resource()} and \code{get_vm_scaleset_resource()}, the VM or scaleset resource itself.
 }
 
 \examples{
 \dontrun{
 
-sub <- AzureRMR::az_rm$
-    new(tenant="myaadtenant.onmicrosoft.com", app="app_id", password="password")$
+sub <- AzureRMR::get_azure_login()$
     get_subscription("subscription_id")
 
-sub$list_vms()
-sub$get_vm("myVirtualMachine")
+sub$get_vm("myvirtualmachine")
+sub$get_vm_scaleset("myscaleset")
 
 rg <- sub$get_resource_group("rgname")
-rg$get_vm("myOtherVirtualMachine")
+rg$get_vm("myothervirtualmachine")
+rg$get_vm_scaleset("myotherscaleset")
 
 }
 }
 \seealso{
-\link{az_vm_template}, \link{az_vm_resource},
+\link{az_vm_template}, \link{az_vm_resource}, \link{az_vmss_template}, \link{az_vmss_resource} for the methods available for working with VMs and VM scalesets.
+
 \link[AzureRMR:az_subscription]{AzureRMR::az_subscription}, \link[AzureRMR:az_resource_group]{AzureRMR::az_resource_group}
 }

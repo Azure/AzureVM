@@ -1,0 +1,32 @@
+{
+    "vmName": {
+        "type": "string"
+    },
+    "vmSize": {
+        "type": "string"
+    },
+    "adminUsername": {
+        "type": "string"
+    },
+    "instanceCount": {
+        "type": "int"
+    },
+    "priority": {
+        "type": "string"
+    },
+    "evictionPolicy": {
+        "type": "string"
+    },
+    "enableAcceleratedNetworking": {
+        "type": "bool"
+    },
+    "singlePlacementGroup": {
+        "type": "bool"
+    },
+    "overprovision":{
+        "type": "bool"
+    },
+    "upgradePolicy":{
+        "type": "object"
+    }
+}

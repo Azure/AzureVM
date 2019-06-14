@@ -1,0 +1,10 @@
+{
+    "vmResource": {
+        "type": "string",
+        "value": "[variables('vmId')]"
+    },
+    "adminUsername": {
+        "type": "string",
+        "value": "[parameters('adminUsername')]"
+    }
+}

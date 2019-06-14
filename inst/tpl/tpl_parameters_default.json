@@ -1,0 +1,11 @@
+{
+    "vmName": {
+        "type": "string"
+    },
+    "vmSize": {
+        "type": "string"
+    },
+    "adminUsername": {
+        "type": "string"
+    }
+}

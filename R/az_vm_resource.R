@@ -5,25 +5,29 @@
 #' @docType class
 #' @section Methods:
 #' The following methods are available, in addition to those provided by the [AzureRMR::az_resource] class:
-#' - `new(...)`: Initialize a new VM object.
 #' - `start(wait=TRUE)`: Start the VM. By default, wait until the startup process is complete.
 #' - `stop(deallocate=TRUE, wait=FALSE)`: Stop the VM. By default, deallocate it as well.
 #' - `restart(wait=TRUE)`: Restart the VM.
 #' - `run_deployed_command(command, parameters, script)`: Run a PowerShell command on the VM.
 #' - `run_script(script, parameters)`: Run a script on the VM. For a Linux VM, this will be a shell script; for a Windows VM, a PowerShell script. Pass the script as a character vector.
-#' - `sync_vm_status()`: Update the VM status fields in this object with information from the host.
-#' - `resize(size, deallocate=FALSE, wait=FALSE)`: Resize the VM. Optionally deallocate it first (may sometimes be necessary).
+#' - `sync_vm_status()`: Check the status of the VM.
+#' - `resize(size, deallocate=FALSE, wait=FALSE)`: Resize the VM. Optionally stop and deallocate it first (may sometimes be necessary).
+#' - `get_public_ip_address(nic=1, config=1)`: Get the public IP address of the VM. Returns NA if the VM is shut down, or is not publicly accessible.
+#' - `get_private_ip_address(nic=1, config=1)`: Get the private IP address of the VM.
+#' - `add_extension(publisher, type, version, settings=list(), protected_settings=list(), key_vault_settings=list())`: Add an extension to the VM.
+#' - `do_vm_operation(...)`: Carry out an arbitrary operation on the VM resource. See the `do_operation` method of the [AzureRMR::az_resource] class for more details.
 #'
 #' @seealso
-#' [AzureRMR::az_resource],
+#' [AzureRMR::az_resource], [get_vm_resource], [az_vm_template]
+#'
 #' [VM API reference](https://docs.microsoft.com/en-us/rest/api/compute/virtualmachines)
 #' @format An R6 object of class `az_vm_resource`, inheriting from `AzureRMR::az_resource`.
 #' @export
 az_vm_resource <- R6::R6Class("az_vm_resource", inherit=AzureRMR::az_resource,
 
 public=list(
-    disks=NULL,
     status=NULL,
+    nic_api_version="2019-04-01", # need to record this since AzureRMR can't currently get API versions for subresources
 
     sync_vm_status=function()
     {
@@ -36,30 +40,26 @@ public=list(
 
         self$sync_fields()
 
-        res <- self$do_operation("instanceView", http_verb="GET")
+        res <- self$do_operation("instanceView")
         self$status <- get_status(res$statuses)
 
-        disks <- named_list(res$disks)
-        self$disks <- lapply(disks, function(d) get_status(d$status))
-
-        invisible(NULL)
+        self$status
     },
 
     start=function(wait=TRUE)
     {
-        message("Starting VM '", self$name, "'")
         self$do_operation("start", http_verb="POST")
-        Sys.sleep(2)
+        # Sys.sleep(2)
         if(wait)
         {
             for(i in 1:100)
             {
+                Sys.sleep(5)
                 self$sync_vm_status()
                 if(length(self$status) == 2 &&
                     self$status[1] == "succeeded" &&
                     self$status[2] == "running")
                     break
-                Sys.sleep(5)
             }
             if(length(self$status) < 2 ||
                 self$status[1] != "succeeded" ||
@@ -70,19 +70,18 @@ public=list(
 
     restart=function(wait=TRUE)
     {
-        message("Restarting VM '", self$name, "'")
         self$do_operation("restart", http_verb="POST")
-        Sys.sleep(2)
+        # Sys.sleep(2)
         if(wait)
         {
             for(i in 1:100)
             {
+                Sys.sleep(5)
                 self$sync_vm_status()
                 if(length(self$status) == 2 &&
                     self$status[1] == "succeeded" &&
                     self$status[2] == "running")
                     break
-                Sys.sleep(5)
             }
             if(length(self$status) < 2 ||
                 self$status[1] != "succeeded" ||
@@ -93,12 +92,6 @@ public=list(
 
     stop=function(deallocate=TRUE, wait=FALSE)
     {
-        msg <- "Shutting down"
-        if(deallocate)
-            msg <- paste(msg, "and deallocating")
-        msg <- paste0(msg, " VM '", self$name, "'")
-        message(msg)
-
         self$do_operation("powerOff", http_verb="POST")
         if(deallocate)
             self$do_operation("deallocate", http_verb="POST")
@@ -106,19 +99,14 @@ public=list(
         {
             for(i in 1:100)
             {
+                Sys.sleep(5)
                 self$sync_vm_status()
                 if(length(self$status) < 2 || self$status[2] %in% c("stopped", "deallocated"))
                     break
-                Sys.sleep(5)
             }
             if(length(self$status) == 2 && !(self$status[2] %in% c("stopped", "deallocated")))
                 stop("Unable to shut down VM", call.=FALSE)
         }
-    },
-
-    add_extension=function(...)
-    {
-        stop("This function is not yet implemented", call.=FALSE)
     },
 
     resize=function(size, deallocate=FALSE, wait=FALSE)
@@ -144,15 +132,13 @@ public=list(
         }
     },
 
-    run_deployed_command=function(command=NULL, parameters=NULL, script=NULL)
+    run_deployed_command=function(command, parameters=NULL, script=NULL)
     {
-        if(is_empty(command))
-            stop("Must supply a command to run", call.=FALSE)
         body <- list(commandId=command, parameters=parameters, script=script)
         self$do_operation("runCommand", body=body, encode="json", http_verb="POST")
     },
 
-    run_script=function(script=NULL, parameters=NULL)
+    run_script=function(script, parameters=NULL)
     {
         os_prof_names <- names(self$properties$osProfile)
         windows <- any(grepl("windows", os_prof_names, ignore.case=TRUE))
@@ -162,6 +148,45 @@ public=list(
 
         cmd <- if(windows) "RunPowerShellScript" else "RunShellScript"
         self$run_deployed_command(cmd, as.list(parameters), as.list(script))
+    },
+
+    get_public_ip_address=function(nic=1, config=1)
+    {
+        nic <- private$get_nic(nic)
+        ip_id <- nic$properties$ipConfigurations[[config]]$properties$publicIPAddress$id
+        if(is_empty(ip_id))
+            return(NA_character_)
+        ip <- az_resource$new(self$token, self$subscription, id=ip_id)$properties$ipAddress
+        if(is.null(ip))
+            NA_character_
+        else ip
+    },
+
+    get_private_ip_address=function(nic=1, config=1)
+    {
+        nic <- private$get_nic(nic)
+        nic$properties$ipConfigurations[[config]]$properties$privateIPAddress
+    },
+
+    add_extension=function(publisher, type, version, settings=list(),
+        protected_settings=list(), key_vault_settings=list())
+    {
+        name <- gsub("[[:punct:]]", "", type)
+        op <- file.path("extensions", name)
+        props <- list(
+            publisher=publisher,
+            type=type,
+            typeHandlerVersion=version,
+            autoUpgradeMinorVersion=TRUE,
+            settings=settings
+        )
+
+        if(!is_empty(protected_settings))
+            props$protectedSettings <- protected_settings
+        if(!is_empty(key_vault_settings))
+            props$protectedSettingsFromKeyVault <- key_vault_settings
+
+        self$do_operation(op, body=list(properties=props), http_verb="PUT")
     },
 
     print=function(...)
@@ -179,40 +204,21 @@ public=list(
         cat("---\n")
 
         cat(AzureRMR::format_public_fields(self,
-            exclude=c("subscription", "resource_group", "type", "name", "status", "is_synced")))
+            exclude=c("subscription", "resource_group", "type", "name", "status", "is_synced", "nic_api_version")))
         cat(AzureRMR::format_public_methods(self))
         invisible(NULL)
-    },
-
-    # add custom deletion method to handle managed disks
-    delete=function(..., confirm=TRUE, wait=TRUE)
-    {
-        managed_disks <- c(
-            self$properties$storageProfile$osDisk$managedDisk$id,
-            lapply(self$properties$storageProfile$dataDisks,
-                function(x) x$managedDisk$id)
-        )
-
-        super$delete(..., confirm=confirm, wait=wait)
-        if(!is_empty(managed_disks))
-        {
-            md_api_ver <- named_list(
-                call_azure_rm(self$token, self$subscription, "providers/Microsoft.Compute")$
-                    resourceTypes, "resourceType"
-                )$
-                disks$
-                apiVersions[[1]]
-
-            lapply(managed_disks, function(id)
-                az_resource$
-                    new(self$token, self$subscription, id=id, deployed_properties=list(NULL))$
-                    delete(confirm=confirm, wait=wait)
-            )
-        }
     }
 ),
 
 private=list(
+
+    get_nic=function(n=1)
+    {
+        nic_id <- self$properties$networkProfile$networkInterfaces[[n]]$id
+        if(is_empty(nic_id))
+            stop("Network interface resource not found", call.=FALSE)
+        az_resource$new(self$token, self$subscription, id=nic_id, api_version=self$nic_api_version)
+    },
 
     init_and_deploy=function(...)
     {

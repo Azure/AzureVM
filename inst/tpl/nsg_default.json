@@ -1,0 +1,9 @@
+{
+    "apiVersion": "2018-11-01",
+    "type": "Microsoft.Network/networkSecurityGroups",
+    "name": "[variables('nsgName')]",
+    "location": "[variables('location')]",
+    "properties": {
+        "securityRules": []
+    }
+}

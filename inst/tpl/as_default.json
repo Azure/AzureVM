@@ -1,0 +1,14 @@
+{
+    "apiVersion": "2015-04-01",
+    "type": "Microsoft.Insights/autoscaleSettings",
+    "name": "[variables('asName')]",
+    "location": "[variables('location')]",
+    "dependsOn": [
+        "[variables('vmRef')]"
+    ],
+    "properties": {
+        "name": "[variables('asName')]",
+        "targetResourceUri": "[variables('vmId')]",
+        "enabled": true
+    }
+}
