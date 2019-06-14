@@ -1,0 +1,71 @@
+context("Custom deployments")
+
+tenant <- Sys.getenv("AZ_TEST_TENANT_ID")
+app <- Sys.getenv("AZ_TEST_APP_ID")
+password <- Sys.getenv("AZ_TEST_PASSWORD")
+subscription <- Sys.getenv("AZ_TEST_SUBSCRIPTION")
+
+if(tenant == "" || app == "" || password == "" || subscription == "")
+    skip("Tests skipped: ARM credentials not set")
+
+rgname <- paste0("vm", paste0(sample(letters, 10, TRUE), collapse=""))
+location <- "australiaeast"
+user <- user_config("username", "../resources/testkey.pub")
+size <- "Standard_DS1_v2"
+
+rg <- AzureRMR::az_rm$
+    new(tenant=tenant, app=app, password=password)$
+    get_subscription(subscription)$
+    create_resource_group(rgname, location)
+
+test_that("Resource sharing works",
+{
+    vmname1 <- paste0(sample(letters, 10, TRUE), collapse="")
+    vmname2 <- paste0(sample(letters, 10, TRUE), collapse="")
+    ssname <- paste0(sample(letters, 10, TRUE), collapse="")
+
+    expect_is(rg$create_vm(vmname1, user, size), "az_vm_template")
+
+    vnet <- rg$get_resource(type="Microsoft.Network/virtualNetworks", name=paste0(vmname1, "-vnet"))
+    expect_is(vnet, "az_resource")
+
+    expect_is(rg$create_vm(vmname2, user, size, vnet=vnet, nsg=NULL), "az_vm_template")
+
+    expect_is(rg$create_vm_scaleset(ssname, user, instances=3, size=size, vnet=vnet, nsg=NULL), "az_vmss_template")
+})
+
+test_that("Custom resource works",
+{
+    vmname <- paste0(sample(letters, 10, TRUE), collapse="")
+
+    stor <- list(
+        type="Microsoft.Storage/storageAccounts",
+        name=paste0(vmname, "stor"),
+        apiVersion="2018-07-01",
+        location="[variables('location')]",
+        properties=list(supportsHttpsTrafficOnly=TRUE),
+        sku=list(name="Standard_LRS"),
+        kind="Storage"
+    )
+    expect_is(rg$create_vm(vmname, user, size, other_resources=list(stor)), "az_vm_template")
+})
+
+test_that("Scaleset options work",
+{
+    ssname <- paste0(sample(letters, 10, TRUE), collapse="")
+    size <- "Standard_DS3_v2"
+    opts <- scaleset_options(
+        managed=FALSE,
+        public=TRUE,
+        low_priority=TRUE,
+        delete_on_evict=TRUE,
+        network_accel=TRUE,
+        large_scaleset=TRUE,
+        overprovision=FALSE
+    )
+
+    expect_is(rg$create_vm_scaleset(ssname, user, instances=3, size=size, options=opts), "az_vmss_template")
+})
+
+rg$delete(confirm=FALSE)
+
