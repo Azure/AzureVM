@@ -5,7 +5,7 @@ Authors@R: c(
     person("Hong", "Ooi", , "hongooi@microsoft.com", role = c("aut", "cre")),
     person("Microsoft", role="cph")
     )
-Description: Functionality for working with virtual machines (VMs) in Microsoft's 'Azure' cloud: <https://azure.microsoft.com/en-us/services/virtual-machines/>. Includes facilities to deploy, startup, shutdown, and cleanly delete VMs and VM scalesets. Deployments can be highly customised, and can make use of existing resources as well as creating new ones. A selection of predefined configurations is included to allow quick deployment of commonly used Linux and Windows images. With a running VM, execute scripts and install optional extensions. Part of the AzureR family of packages.
+Description: Functionality for working with virtual machines (VMs) in Microsoft's 'Azure' cloud: <https://azure.microsoft.com/en-us/services/virtual-machines/>. Includes facilities to deploy, startup, shutdown, and cleanly delete VMs and VM scalesets. Deployments can be highly customised, and can make use of existing resources as well as creating new ones. A selection of predefined configurations is included to allow quick deployment of commonly used Linux and Windows images. With a running VM, execute scripts and install optional extensions. Part of the 'AzureR' family of packages.
 URL: https://github.com/Azure/AzureVM https://github.com/Azure/AzureR
 BugReports: https://github.com/Azure/AzureVM/issues
 License: MIT + file LICENSE
@@ -19,6 +19,6 @@ Imports:
 Suggests:
     knitr,
     testthat,
-    iptools
+    AzureKeyVault
 Roxygen: list(markdown=TRUE)
 RoxygenNote: 6.1.1
