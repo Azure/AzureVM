@@ -246,6 +246,11 @@ private=list(
         vms <- self$list_instances()
         if(!is.null(id))
             vms <- vms[as.character(id)]
-        lapply(vms, f)
+
+        if(length(vms) < 2)
+            return(lapply(vms, f))
+
+        init_pool(length(vms))
+        parallel::parLapply(.AzureVM$pool, vms, f)
     }
 ))

@@ -15,7 +15,8 @@ Depends:
 Imports: 
     R6,
     AzureRMR (>= 2.1.2),
-    jsonlite
+    jsonlite,
+    parallel
 Suggests:
     knitr,
     testthat,
