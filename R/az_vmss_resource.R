@@ -23,10 +23,6 @@
 #' - `do_vmss_operation(...)` Carry out an arbitrary operation on the scaleset resource (as opposed to the instances in the scaleset).
 #'
 #' @details
-#' With the exception of `get_public_ip_address`, the scaleset operations listed above are actually provided by the [az_vmss_resource] class, and propagated to the template as active bindings.
-#'
-#' AzureVM has the ability to parallelise scaleset instance operations using a pool of background processes. This can lead to significant speedups when working with scalesets with high instance counts. The pool is created automatically the first time that it is required, and remains persistent for the session. For more information, see [init_pool].
-#'
 #' A single virtual machine scaleset in Azure is actually a collection of resources, including any and all of the following.
 #' - Network security group (Azure resource type `Microsoft.Network/networkSecurityGroups`)
 #' - Virtual network (Azure resource type `Microsoft.Network/virtualNetworks`)
@@ -36,6 +32,13 @@
 #' - The scaleset itself (Azure resource type `Microsoft.Compute/virtualMachineScaleSets`)
 #'
 #' By wrapping the deployment template used to create these resources, the `az_vmss_template` class allows managing them all as a single entity.
+#'
+#' @section Instance operations:
+#' With the exception of `get_public_ip_address`, the scaleset methods listed above are actually provided by the [az_vmss_resource] class, and propagated to the template as active bindings.
+#'
+#' AzureVM has the ability to parallelise scaleset instance operations using a pool of background processes. This can lead to significant speedups when working with scalesets with high instance counts. The pool is created automatically the first time that it is required, and remains persistent for the session. For more information, see [init_pool].
+#'
+#' The `id` argument lets you specify a subset of instances on which to carry out an operation. This can be a character vector of instance IDs; a list of instance objects such as returned by `list_instances`; or a single instance object. The default (NULL) is to carry out the operation on all instances.
 #'
 #' @seealso
 #' [AzureRMR::az_resource], [get_vm_scaleset_resource], [az_vmss_template], [init_pool]
@@ -245,9 +248,13 @@ private=list(
 
     vm_map=function(id, f)
     {
-        vms <- self$list_instances()
-        if(!is.null(id))
-            vms <- vms[as.character(id)]
+        vms <- if(is.null(id))
+            self$list_instances()
+        else if(is.list(id) && all(sapply(id, is_vm_resource)))
+            id
+        else if(is_vm_resource(id))
+            structure(list(id), names=basename(id$id))
+        else self$list_instances()[as.character(id)]
 
         if(length(vms) < 2 || getOption("azure_vm_maxpoolsize") == 0)
             return(lapply(vms, f))

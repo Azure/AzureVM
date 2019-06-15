@@ -31,9 +31,13 @@ test_that("Scaleset connection pool works",
     expect_true(exists("pool", AzureVM:::.AzureVM) && length(AzureVM:::.AzureVM$pool) == 2)
 
     expect_silent(vm$get_vm_private_ip_addresses(names(inst[1:2])))
+    expect_silent(vm$get_vm_private_ip_addresses(inst[1:2]))
 
     expect_message(vm$get_vm_private_ip_addresses(), "Creating background pool")
     expect_true(exists("pool", AzureVM:::.AzureVM) && length(AzureVM:::.AzureVM$pool) == 5)
+
+    expect_silent(vm$get_vm_private_ip_addresses(inst))
+    expect_silent(vm$get_vm_private_ip_addresses(inst[[1]]))
 
     delete_pool()
     expect_false(exists("pool", AzureVM:::.AzureVM))
