@@ -142,11 +142,20 @@ sub$create_vm_scaleset("mydsvmss", user_config("myname", "~/.ssh/id_rsa.pub"), i
 
 # Large Debian scaleset (multiple placement groups), using low-priority VMs
 # need to set the instance size to something that supports low-pri
-sub$create_vm_scaleset("mydebss", user_config("myname", "~/.ssh/id_rsa.pub"), instances=10,
+sub$create_vm_scaleset("mylargess", user_config("myname", "~/.ssh/id_rsa.pub"), instances=10,
                        size="Standard_DS3_v2", config="debian_9_backports_ss",
                        options=scaleset_options(low_priority=TRUE, large_scaleset=TRUE),
                        location="australiaeast")
 ```
+
+Working with scaleset instances can be tedious if you have a large scaleset, since R can only connect to one instance at a time. To solve this problem, AzureVM creates a pool of background processes that connect in parallel with the scaleset, leading to significant speedups. The pool is created automatically the first time it is needed, and is deleted at the end of the session.
+
+```r
+# this will create a pool of up to 10 processes that talk to the scaleset
+mylargess$run_script("echo hello world! > /tmp/hello.txt")
+```
+
+You can control the size of the pool with the global `azure_vm_minpoolsize` and `azure_vm_maxpoolsize` options, which have default values 2 and 10 respectively. To turn off parallel connections, set `options(azure_vm_maxpoolsize=0)`. Note that the pool size is unrelated to the _scaleset_ size; it only controls how many instances can communicate with AzureVM simultaneously.
 
 ## Sharing resources
 
