@@ -32,6 +32,16 @@ test_that("Resource sharing works",
     expect_is(rg$create_vm(vmname2, user, size, vnet=vnet, nsg=NULL), "az_vm_template")
 
     expect_is(rg$create_vm_scaleset(ssname, user, instances=3, size=size, vnet=vnet, nsg=NULL), "az_vmss_template")
+
+    expect_error(rg$get_resource(type="Microsoft.Network/virtualNetworks", name=paste0(vmname2, "-vnet")))
+    expect_error(rg$get_resource(type="Microsoft.Network/virtualNetworks", name=paste0(vmname2, "-nsg")))
+
+    rg$delete_vm_scaleset(ssname, confirm=FALSE)
+    rg$delete_vm(vmname2, confirm=FALSE)
+    rg$delete_vm(vmname1, confirm=FALSE)
+
+    Sys.sleep(10)
+    expect_true(is_empty(rg$list_resources()))
 })
 
 test_that("Custom resource works",
@@ -48,6 +58,13 @@ test_that("Custom resource works",
         kind="Storage"
     )
     expect_is(rg$create_vm(vmname, user, size, other_resources=list(stor)), "az_vm_template")
+
+    expect_is(rg$get_resource(type="Microsoft.Storage/storageAccounts", name=paste0(vmname, "stor")), "az_resource")
+
+    rg$delete_vm(vmname, confirm=FALSE)
+
+    Sys.sleep(10)
+    expect_true(is_empty(rg$list_resources()))
 })
 
 test_that("Scaleset options work",

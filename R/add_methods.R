@@ -306,15 +306,6 @@ NULL
 NULL
 
 
-# adding methods to classes in external package must go in .onLoad
-.onLoad <- function(libname, pkgname)
-{
-    add_sub_methods()
-    add_rg_methods()
-    add_defunct_methods()
-}
-
-
 # extend subscription methods
 add_sub_methods <- function()
 {

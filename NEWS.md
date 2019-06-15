@@ -8,6 +8,7 @@
   * Clear distinction between a VM deployment template and a resource. `get_vm` and `get_vm_scaleset` will always attempt to retrieve the template; to get the resource, use `get_vm_resource` and `get_vm_scaleset_resource`.
   * New VM resource methods: `get_public_ip_address`, `get_private_ip_address`.
   * New cluster/scaleset resource methods: `get_public_ip_address` (technically the address for the load balancer, if present), `get_vm_public_ip_addresses`, `get_vm_private_ip_addresses`, `list_instances`, `get_instance`.
+  * Use a pool of background processes to talk to scalesets in parallel when carrying out instance operations. The pool size can be controlled with the global options `azure_vm_minpoolsize` and `azure_vm_maxpoolsize`.
   * See the README and/or the vignette for more information.
 
 # AzureVM 1.0.1
