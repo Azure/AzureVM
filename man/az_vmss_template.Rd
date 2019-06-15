@@ -47,6 +47,15 @@ The following methods are available, in addition to those provided by the \link[
 }
 }
 
+\section{Instance operations}{
+
+With the exception of \code{get_public_ip_address}, the scaleset methods listed above are actually provided by the \link{az_vmss_resource} class, and propagated to the template as active bindings.
+
+AzureVM has the ability to parallelise scaleset instance operations using a pool of background processes. This can lead to significant speedups when working with scalesets with high instance counts. The pool is created automatically the first time that it is required, and remains persistent for the session. For more information, see \link{init_pool}.
+
+The \code{id} argument lets you specify a subset of instances on which to carry out an operation. This can be a character vector of instance IDs; a list of instance objects such as returned by \code{list_instances}; or a single instance object. The default (NULL) is to carry out the operation on all instances.
+}
+
 \examples{
 \dontrun{
 
@@ -70,7 +79,7 @@ vmss$sync_vmss_status()
 }
 }
 \seealso{
-\link[AzureRMR:az_template]{AzureRMR::az_template}, \link{create_vm_scaleset}, \link{get_vm_scaleset}, \link{delete_vm_scaleset}
+\link[AzureRMR:az_template]{AzureRMR::az_template}, \link{create_vm_scaleset}, \link{get_vm_scaleset}, \link{delete_vm_scaleset}, \link{init_pool}
 
 \href{https://docs.microsoft.com/en-us/rest/api/compute/virtualmachinescalesets}{VM scaleset API reference}
 }
