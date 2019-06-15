@@ -25,6 +25,8 @@ Parallelise operations on VM scaleset instances
 AzureVM can parallelise operations on scaleset instances by utilizing a pool of R processes in the background. This can lead to significant speedups when working with scalesets with high instance counts. The pool is created automatically the first time that it is required, or it can be (re)created by calling \code{init_pool} manually. It remains persistent for the session or until terminated by \code{delete_pool}.
 
 If \code{init_pool} is called and the current pool is smaller than \code{connections}, it is resized. The size of the pool can be controlled by the global options \code{azure_vm_minpoolsize} and \code{azure_vm_maxpoolsize}, which have default values of 2 and 10 respectively. To disable parallel operations, set \code{options(azure_vm_maxpoolsize=0)}.
+
+Note that the pool size is unrelated to the \emph{scaleset} size, it only controls how many instances can communicate simultaneously with AzureVM.
 }
 \seealso{
 \link{az_vmss_template}, \link[parallel:makeCluster]{parallel::makeCluster}

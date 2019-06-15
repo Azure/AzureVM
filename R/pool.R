@@ -9,6 +9,8 @@
 #'
 #' If `init_pool` is called and the current pool is smaller than `connections`, it is resized. The size of the pool can be controlled by the global options `azure_vm_minpoolsize` and `azure_vm_maxpoolsize`, which have default values of 2 and 10 respectively. To disable parallel operations, set `options(azure_vm_maxpoolsize=0)`.
 #'
+#' Note that the pool size is unrelated to the _scaleset_ size, it only controls how many instances can communicate simultaneously with AzureVM.
+#'
 #' @seealso
 #' [az_vmss_template], [parallel::makeCluster]
 #' @rdname pool
