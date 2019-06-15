@@ -25,6 +25,8 @@
 #' @details
 #' With the exception of `get_public_ip_address`, the scaleset operations listed above are actually provided by the [az_vmss_resource] class, and propagated to the template as active bindings.
 #'
+#' AzureVM has the ability to parallelise scaleset instance operations using a pool of background processes. This can lead to significant speedups when working with scalesets with high instance counts. The pool is created automatically the first time that it is required, and remains persistent for the session. For more information, see [init_pool].
+#'
 #' A single virtual machine scaleset in Azure is actually a collection of resources, including any and all of the following.
 #' - Network security group (Azure resource type `Microsoft.Network/networkSecurityGroups`)
 #' - Virtual network (Azure resource type `Microsoft.Network/virtualNetworks`)
@@ -36,7 +38,7 @@
 #' By wrapping the deployment template used to create these resources, the `az_vmss_template` class allows managing them all as a single entity.
 #'
 #' @seealso
-#' [AzureRMR::az_resource], [get_vm_scaleset_resource], [az_vmss_template]
+#' [AzureRMR::az_resource], [get_vm_scaleset_resource], [az_vmss_template], [init_pool]
 #'
 #' [VM scaleset API reference](https://docs.microsoft.com/en-us/rest/api/compute/virtualmachinescalesets)
 #' @format An R6 object of class `az_vmss_resource`, inheriting from `AzureRMR::az_resource`.
@@ -247,7 +249,7 @@ private=list(
         if(!is.null(id))
             vms <- vms[as.character(id)]
 
-        if(length(vms) < 2)
+        if(length(vms) < 2 || getOption("azure_vm_maxpoolsize") == 0)
             return(lapply(vms, f))
 
         init_pool(length(vms))

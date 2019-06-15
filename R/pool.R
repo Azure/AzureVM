@@ -5,9 +5,9 @@
 #' @param ... Other arguments passed on to `parallel::makeCluster`.
 #'
 #' @details
-#' AzureVM can parallelise operations on scaleset instances by utilizing a pool of R processes in the background. This can lead to significant speedups when working with large numbers of instances. The pool is created automatically the first time that it is required, or it can be (re)created by calling `init_pool` manually. It remains persistent for the session or until terminated by `delete_pool`.
+#' AzureVM can parallelise operations on scaleset instances by utilizing a pool of R processes in the background. This can lead to significant speedups when working with scalesets with high instance counts. The pool is created automatically the first time that it is required, or it can be (re)created by calling `init_pool` manually. It remains persistent for the session or until terminated by `delete_pool`.
 #'
-#' If `init_pool` is called and the current pool is smaller than `connections`, it is resized. The size of the pool can be controlled by the options `azure_vm_minpoolsize` and `azure_vm_maxpoolsize`, which have default values of 2 and 10 respectively.
+#' If `init_pool` is called and the current pool is smaller than `connections`, it is resized. The size of the pool can be controlled by the global options `azure_vm_minpoolsize` and `azure_vm_maxpoolsize`, which have default values of 2 and 10 respectively. To disable parallel operations, set `options(azure_vm_maxpoolsize=0)`.
 #'
 #' @seealso
 #' [az_vmss_template], [parallel::makeCluster]
@@ -22,6 +22,8 @@ init_pool <- function(connections, restart=FALSE, ...)
     minsize <- getOption("azure_vm_minpoolsize")
     maxsize <- getOption("azure_vm_maxpoolsize")
     size <- min(max(connections, minsize), maxsize)
+    if(size < 1)
+        stop("Invalid pool size ", size, call.=FALSE)
 
     if(!exists("pool", envir=.AzureVM) || length(.AzureVM$pool) < size)
     {

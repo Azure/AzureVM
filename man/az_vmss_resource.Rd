@@ -14,6 +14,8 @@ Class representing a virtual machine scaleset resource. In general, the methods 
 \details{
 With the exception of \code{get_public_ip_address}, the scaleset operations listed above are actually provided by the \link{az_vmss_resource} class, and propagated to the template as active bindings.
 
+AzureVM has the ability to parallelise scaleset instance operations using a pool of background processes. This can lead to significant speedups when working with scalesets with high instance counts. The pool is created automatically the first time that it is required, and remains persistent for the session. For more information, see \link{init_pool}.
+
 A single virtual machine scaleset in Azure is actually a collection of resources, including any and all of the following.
 \itemize{
 \item Network security group (Azure resource type \code{Microsoft.Network/networkSecurityGroups})
@@ -50,7 +52,7 @@ The following methods are available, in addition to those provided by the \link[
 }
 
 \seealso{
-\link[AzureRMR:az_resource]{AzureRMR::az_resource}, \link{get_vm_scaleset_resource}, \link{az_vmss_template}
+\link[AzureRMR:az_resource]{AzureRMR::az_resource}, \link{get_vm_scaleset_resource}, \link{az_vmss_template}, \link{init_pool}
 
 \href{https://docs.microsoft.com/en-us/rest/api/compute/virtualmachinescalesets}{VM scaleset API reference}
 }
