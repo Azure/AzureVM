@@ -41,12 +41,23 @@ test_that("Network security group config works",
 {
     nsg <- nsg_config()
     expect_is(nsg, "nsg_config")
-    expect_identical(build_resource_fields(nsg), nsg_default)
+    res <- build_resource_fields(nsg)
+    expect_identical(res$properties,
+        list(securityRules=list())
+    )
 
     nsg <- nsg_config(list(nsg_rule_allow_ssh))
     expect_is(nsg, "nsg_config")
     expect_is(nsg$properties$securityRules[[1]], "nsg_rule")
     expect_identical(nsg$properties$securityRules[[1]]$name, "Allow-ssh")
+
+    res <- build_resource_fields(nsg)
+    rule <- unclass(nsg_rule_allow_ssh)
+    rule$properties$priority <- 1010
+
+    expect_identical(res$properties,
+        list(securityRules=list(rule))
+    )
 })
 
 test_that("Public IP address config works",
