@@ -3,7 +3,5 @@
     "type": "Microsoft.Network/networkSecurityGroups",
     "name": "[variables('nsgName')]",
     "location": "[variables('location')]",
-    "properties": {
-        "securityRules": []
-    }
+    "properties": {}
 }
