@@ -25,6 +25,15 @@ A single virtual machine in Azure is actually a collection of resources, includi
 
 By wrapping the deployment template used to create these resources, the \code{az_vm_template} class allows managing them all as a single entity.
 }
+\section{Fields}{
+
+The following fields are exposed, in addition to those provided by the \link[AzureRMR:az_template]{AzureRMR::az_template} class.
+\itemize{
+\item \code{dns_name}: The DNS name for the VM. Will be NULL if the VM is not publicly visible, or doesn't have a domain name assigned to its public IP address.
+\item \code{identity}: The managed identity details for the VM. Will be NULL if the VM doesn't have an identity assigned.
+}
+}
+
 \section{Methods}{
 
 The following methods are available, in addition to those provided by the \link[AzureRMR:az_template]{AzureRMR::az_template} class.

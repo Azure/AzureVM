@@ -87,6 +87,7 @@ test_that("Scaleset options work",
     expect_is(vmss$get_public_ip_address(), "character")
     expect_is(vmss$get_vm_public_ip_addresses(), "character")
     expect_is(vmss$get_vm_private_ip_addresses(), "character")
+    expect_true(is.null(vmss$identity))
 })
 
 rg$delete(confirm=FALSE)

@@ -3,6 +3,10 @@
 #' Class representing a virtual machine scaleset deployment template. This class keeps track of all resources that are created as part of deploying a scaleset, and exposes methods for managing them.
 #'
 #' @docType class
+#' @section Fields:
+#' The following fields are exposed, in addition to those provided by the [AzureRMR::az_template] class.
+#' - `dns_name`: The DNS name for the scaleset (technically, the name for its load balancer). Will be NULL if the scaleset is not publicly visible, or doesn't have a load balancer attached.
+#' - `identity`: The managed identity details for the scaleset. Will be NULL if the scaleset doesn't have an identity assigned.
 #' @section Methods:
 #' The following methods are available, in addition to those provided by the [AzureRMR::az_template] class.
 #' - `sync_vmss_status`: Check the status of the scaleset.
@@ -147,6 +151,9 @@ public=list(
 
 # propagate resource methods up to template
 active=list(
+
+    identity=function()
+    private$vmss$identity,
 
     sync_vmss_status=function()
     private$vmss$sync_vmss_status,

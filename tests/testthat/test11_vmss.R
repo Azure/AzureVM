@@ -42,6 +42,8 @@ test_that("Scaleset interaction works",
 
     expect_is(vm$get_vm_private_ip_addresses(names(inst)[1:2]), "character")
     expect_is(vm$get_vm_public_ip_addresses(names(inst)[1:2]), "character")
+
+    expect_is(vm$identity, "list")
 })
 
 test_that("Scaleset deletion works",

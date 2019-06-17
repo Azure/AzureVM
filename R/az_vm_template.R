@@ -3,6 +3,10 @@
 #' Class representing a virtual machine deployment template. This class keeps track of all resources that are created as part of deploying a VM, and exposes methods for managing them.
 #'
 #' @docType class
+#' @section Fields:
+#' The following fields are exposed, in addition to those provided by the [AzureRMR::az_template] class.
+#' - `dns_name`: The DNS name for the VM. Will be NULL if the VM is not publicly visible, or doesn't have a domain name assigned to its public IP address.
+#' - `identity`: The managed identity details for the VM. Will be NULL if the VM doesn't have an identity assigned.
 #' @section Methods:
 #' The following methods are available, in addition to those provided by the [AzureRMR::az_template] class.
 #' - `start(wait=TRUE)`: Start the VM. By default, wait until the startup process is complete.
@@ -120,6 +124,9 @@ public=list(
 
 # propagate resource methods up to template
 active=list(
+
+    identity=function()
+    private$vm$identity,
 
     sync_vm_status=function()
     private$vm$sync_vm_status,

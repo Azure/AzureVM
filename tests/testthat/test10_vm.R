@@ -42,6 +42,8 @@ test_that("VM interaction works",
 
     expect_is(vm$get_public_ip_address(), "character")
     expect_is(vm$get_private_ip_address(), "character")
+
+    expect_is(vm$identity, "list")
 })
 
 test_that("VM deletion works",
