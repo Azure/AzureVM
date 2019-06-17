@@ -10,6 +10,9 @@
 \alias{windows_2019}
 \alias{rhel_7.6}
 \alias{rhel_8}
+\alias{centos_7.5}
+\alias{centos_7.6}
+\alias{debian_8_backports}
 \alias{debian_9_backports}
 \title{VM configuration functions}
 \usage{
@@ -45,6 +48,16 @@ rhel_7.6(keylogin = TRUE, managed = TRUE, datadisks = numeric(0),
 
 rhel_8(keylogin = TRUE, managed = TRUE, datadisks = numeric(0),
   nsg = nsg_config(list(nsg_rule_allow_ssh)), ...)
+
+centos_7.5(keylogin = TRUE, managed = TRUE, datadisks = numeric(0),
+  nsg = nsg_config(list(nsg_rule_allow_ssh)), ...)
+
+centos_7.6(keylogin = TRUE, managed = TRUE, datadisks = numeric(0),
+  nsg = nsg_config(list(nsg_rule_allow_ssh)), ...)
+
+debian_8_backports(keylogin = TRUE, managed = TRUE,
+  datadisks = numeric(0), nsg = nsg_config(list(nsg_rule_allow_ssh)),
+  ...)
 
 debian_9_backports(keylogin = TRUE, managed = TRUE,
   datadisks = numeric(0), nsg = nsg_config(list(nsg_rule_allow_ssh)),
@@ -87,7 +100,8 @@ These functions are for specifying the details of a new virtual machine deployme
 \item \code{ubuntu_16.04}, \code{ubuntu_18.04}: Ubuntu LTS
 \item \code{windows_2016}, \code{windows_2019}: Windows Server Datacenter edition
 \item \code{rhel_7.6}, \code{rhel_8}: Red Hat Enterprise Linux
-\item \code{debian_9_backports}: Debian
+\item \code{centos_7.5}, \code{centos_7.6}: CentOS
+\item \code{debian_8_backports}, \code{debian_9_backports}: Debian with backports
 }
 
 Each resource can be specified in a number of ways:

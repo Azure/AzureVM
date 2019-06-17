@@ -52,7 +52,7 @@ sub$create_vm("mywinvm", user_config("myname", password="Use-strong-passwords!")
               location="australiaeast")
 ```
 
-The available predefined configurations are `ubuntu_18.04` (the default), `ubuntu_16.04`, `ubuntu_dsvm`, `windows_2019`, `windows_2016`, `windows_dsvm`, `rhel_7.6`, `rhel_8` and `debian_9_backports`. You can combine these with several other arguments to customise the VM deployment to your needs:
+The available predefined configurations are `ubuntu_18.04` (the default), `ubuntu_16.04`, `ubuntu_dsvm`, `windows_2019`, `windows_2016`, `windows_dsvm`, `rhel_7.6`, `rhel_8`, `centos_7.5`, `centos_7.6`, `debian_8_backports` and `debian_9_backports`. You can combine these with several other arguments to customise the VM deployment to your needs:
 
 - `size`: VM size. Use the `list_vm_sizes` method for the subscription and resource group classes to see the available sizes.
 - `datadisks`: The data disk sizes/configurations to attach.

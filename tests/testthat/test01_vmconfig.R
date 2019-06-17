@@ -59,6 +59,30 @@ test_that("VM config works",
     expect_silent(build_template_definition(vm))
     expect_silent(build_template_parameters(vm, "vmname", key_user, "size"))
 
+    vm <- centos_7.5()
+    expect_is(vm, "vm_config")
+    expect_true(vm$image$publisher == "OpenLogic" &&
+                vm$image$offer == "CentOS" &&
+                vm$image$sku == "7.5")
+    expect_silent(build_template_definition(vm))
+    expect_silent(build_template_parameters(vm, "vmname", key_user, "size"))
+
+    vm <- centos_7.6()
+    expect_is(vm, "vm_config")
+    expect_true(vm$image$publisher == "OpenLogic" &&
+                vm$image$offer == "CentOS" &&
+                vm$image$sku == "7.6")
+    expect_silent(build_template_definition(vm))
+    expect_silent(build_template_parameters(vm, "vmname", key_user, "size"))
+
+    vm <- debian_8_backports()
+    expect_is(vm, "vm_config")
+    expect_true(vm$image$publisher == "Credativ" &&
+                vm$image$offer == "Debian" &&
+                vm$image$sku == "8-backports")
+    expect_silent(build_template_definition(vm))
+    expect_silent(build_template_parameters(vm, "vmname", key_user, "size"))
+
     vm <- debian_9_backports()
     expect_is(vm, "vm_config")
     expect_true(vm$image$publisher == "Credativ" &&
@@ -140,6 +164,30 @@ test_that("VM scaleset config works",
     expect_true(vm$image$publisher == "RedHat" &&
                 vm$image$offer == "RHEL" &&
                 vm$image$sku == "7-RAW")
+    expect_silent(build_template_definition(vm))
+    expect_silent(build_template_parameters(vm, "vmname", key_user, "size", 5))
+
+    vm <- centos_7.5_ss()
+    expect_is(vm, "vmss_config")
+    expect_true(vm$image$publisher == "OpenLogic" &&
+                vm$image$offer == "CentOS" &&
+                vm$image$sku == "7.5")
+    expect_silent(build_template_definition(vm))
+    expect_silent(build_template_parameters(vm, "vmname", key_user, "size", 5))
+
+    vm <- centos_7.6_ss()
+    expect_is(vm, "vmss_config")
+    expect_true(vm$image$publisher == "OpenLogic" &&
+                vm$image$offer == "CentOS" &&
+                vm$image$sku == "7.6")
+    expect_silent(build_template_definition(vm))
+    expect_silent(build_template_parameters(vm, "vmname", key_user, "size", 5))
+
+    vm <- debian_8_backports_ss()
+    expect_is(vm, "vmss_config")
+    expect_true(vm$image$publisher == "Credativ" &&
+                vm$image$offer == "Debian" &&
+                vm$image$sku == "8-backports")
     expect_silent(build_template_definition(vm))
     expect_silent(build_template_parameters(vm, "vmname", key_user, "size", 5))
 

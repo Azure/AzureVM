@@ -19,7 +19,8 @@
 #' - `ubuntu_16.04`, `ubuntu_18.04`: Ubuntu LTS
 #' - `windows_2016`, `windows_2019`: Windows Server Datacenter edition
 #' - `rhel_7.6`, `rhel_8`: Red Hat Enterprise Linux
-#' - `debian_9_backports`: Debian
+#' - `centos_7.5`, `centos_7.6`: CentOS
+#' - `debian_8_backports`, `debian_9_backports`: Debian with backports
 #'
 #' Each resource can be specified in a number of ways:
 #' - To _create_ a new resource as part of the deployment, call the corresponding `*_config` function.
@@ -253,7 +254,7 @@ windows_2019 <- function(keylogin=FALSE, managed=TRUE, datadisks=numeric(0),
 #' @rdname vm_config
 #' @export
 rhel_7.6 <- function(keylogin=TRUE, managed=TRUE, datadisks=numeric(0),
-                       nsg=nsg_config(list(nsg_rule_allow_ssh)), ...)
+                     nsg=nsg_config(list(nsg_rule_allow_ssh)), ...)
 {
     vm_config(image_config("RedHat", "RHEL", "7-RAW"),
               keylogin=keylogin, managed=managed, datadisks=datadisks, nsg=nsg, ...)
@@ -262,7 +263,7 @@ rhel_7.6 <- function(keylogin=TRUE, managed=TRUE, datadisks=numeric(0),
 #' @rdname vm_config
 #' @export
 rhel_8 <- function(keylogin=TRUE, managed=TRUE, datadisks=numeric(0),
-                     nsg=nsg_config(list(nsg_rule_allow_ssh)), ...)
+                   nsg=nsg_config(list(nsg_rule_allow_ssh)), ...)
 {
     vm_config(image_config("RedHat", "RHEL", "8"),
               keylogin=keylogin, managed=managed, datadisks=datadisks, nsg=nsg, ...)
@@ -270,8 +271,35 @@ rhel_8 <- function(keylogin=TRUE, managed=TRUE, datadisks=numeric(0),
 
 #' @rdname vm_config
 #' @export
+centos_7.5 <- function(keylogin=TRUE, managed=TRUE, datadisks=numeric(0),
+                       nsg=nsg_config(list(nsg_rule_allow_ssh)), ...)
+{
+    vm_config(image_config("OpenLogic", "CentOS", "7.5"),
+              keylogin=keylogin, managed=managed, datadisks=datadisks, nsg=nsg, ...)
+}
+
+#' @rdname vm_config
+#' @export
+centos_7.6 <- function(keylogin=TRUE, managed=TRUE, datadisks=numeric(0),
+                       nsg=nsg_config(list(nsg_rule_allow_ssh)), ...)
+{
+    vm_config(image_config("OpenLogic", "CentOS", "7.6"),
+              keylogin=keylogin, managed=managed, datadisks=datadisks, nsg=nsg, ...)
+}
+
+#' @rdname vm_config
+#' @export
+debian_8_backports <- function(keylogin=TRUE, managed=TRUE, datadisks=numeric(0),
+                               nsg=nsg_config(list(nsg_rule_allow_ssh)), ...)
+{
+    vm_config(image_config("Credativ", "Debian", "8-backports"),
+              keylogin=keylogin, managed=managed, datadisks=datadisks, nsg=nsg, ...)
+}
+
+#' @rdname vm_config
+#' @export
 debian_9_backports <- function(keylogin=TRUE, managed=TRUE, datadisks=numeric(0),
-                              nsg=nsg_config(list(nsg_rule_allow_ssh)), ...)
+                               nsg=nsg_config(list(nsg_rule_allow_ssh)), ...)
 {
     vm_config(image_config("Credativ", "Debian", "9-backports"),
               keylogin=keylogin, managed=managed, datadisks=datadisks, nsg=nsg, ...)

@@ -10,6 +10,9 @@
 \alias{windows_2019_ss}
 \alias{rhel_7.6_ss}
 \alias{rhel_8_ss}
+\alias{centos_7.5_ss}
+\alias{centos_7.6_ss}
+\alias{debian_8_backports_ss}
 \alias{debian_9_backports_ss}
 \title{Virtual machine scaleset configuration functions}
 \usage{
@@ -50,6 +53,18 @@ rhel_7.6_ss(nsg = nsg_config(list(nsg_rule_allow_ssh)),
   list(lb_probe_ssh)), ...)
 
 rhel_8_ss(nsg = nsg_config(list(nsg_rule_allow_ssh)),
+  load_balancer = lb_config(rules = list(lb_rule_ssh), probes =
+  list(lb_probe_ssh)), ...)
+
+centos_7.5_ss(nsg = nsg_config(list(nsg_rule_allow_ssh)),
+  load_balancer = lb_config(rules = list(lb_rule_ssh), probes =
+  list(lb_probe_ssh)), ...)
+
+centos_7.6_ss(nsg = nsg_config(list(nsg_rule_allow_ssh)),
+  load_balancer = lb_config(rules = list(lb_rule_ssh), probes =
+  list(lb_probe_ssh)), ...)
+
+debian_8_backports_ss(nsg = nsg_config(list(nsg_rule_allow_ssh)),
   load_balancer = lb_config(rules = list(lb_rule_ssh), probes =
   list(lb_probe_ssh)), ...)
 
@@ -99,10 +114,11 @@ The \code{vmss_config} function is the base configuration function, and the othe
 \itemize{
 \item \code{ubuntu_dsvm_ss}: Data Science Virtual Machine, based on Ubuntu 16.04
 \item \code{windows_dsvm_ss}: Data Science Virtual Machine, based on Windows Server 2016
-\item \code{ubuntu_16.04_ss}, \code{ubuntu_18.04}: Ubuntu
+\item \code{ubuntu_16.04_ss}, \code{ubuntu_18.04}: Ubuntu LTS
 \item \code{windows_2016_ss}, \code{windows_2019}: Windows Server Datacenter edition
 \item \code{rhel_7.6_ss}, \code{rhel_8_ss}: Red Hat Enterprise Linux
-\item \code{debian_9_backports_ss}: Debian
+\item \code{centos_7.5_ss}, \code{centos_7.6_ss}: CentOS
+\item \code{debian_8_backports_ss}, \code{debian_9_backports_ss}: Debian with backports
 }
 
 A VM scaleset configuration defines the following template variables by default, depending on its resources. If a particular resource is created, the corresponding \code{*Name}, \code{*Id} and \code{*Ref} variables will be available. If a resource is referred to but not created, the \code{*Name*} and \code{*Id} variables will be available. Other variables can be defined via the \code{variables} argument.

@@ -23,10 +23,11 @@
 #' The `vmss_config` function is the base configuration function, and the others call it to create VM scalesets with specific operating systems and other image details.
 #' - `ubuntu_dsvm_ss`: Data Science Virtual Machine, based on Ubuntu 16.04
 #' - `windows_dsvm_ss`: Data Science Virtual Machine, based on Windows Server 2016
-#' - `ubuntu_16.04_ss`, `ubuntu_18.04`: Ubuntu
+#' - `ubuntu_16.04_ss`, `ubuntu_18.04`: Ubuntu LTS
 #' - `windows_2016_ss`, `windows_2019`: Windows Server Datacenter edition
 #' - `rhel_7.6_ss`, `rhel_8_ss`: Red Hat Enterprise Linux
-#' - `debian_9_backports_ss`: Debian
+#' - `centos_7.5_ss`, `centos_7.6_ss`: CentOS
+#' - `debian_8_backports_ss`, `debian_9_backports_ss`: Debian with backports
 #'
 #' A VM scaleset configuration defines the following template variables by default, depending on its resources. If a particular resource is created, the corresponding `*Name`, `*Id` and `*Ref` variables will be available. If a resource is referred to but not created, the `*Name*` and `*Id` variables will be available. Other variables can be defined via the `variables` argument.
 #'
@@ -305,6 +306,39 @@ rhel_8_ss <- function(nsg=nsg_config(list(nsg_rule_allow_ssh)),
                       ...)
 {
     vmss_config(image_config("RedHat", "RHEL", "8"),
+                nsg=nsg, load_balancer=load_balancer, ...)
+}
+
+#' @rdname vmss_config
+#' @export
+centos_7.5_ss <- function(nsg=nsg_config(list(nsg_rule_allow_ssh)),
+                          load_balancer=lb_config(rules=list(lb_rule_ssh),
+                                                  probes=list(lb_probe_ssh)),
+                          ...)
+{
+    vmss_config(image_config("OpenLogic", "CentOS", "7.5"),
+                nsg=nsg, load_balancer=load_balancer, ...)
+}
+
+#' @rdname vmss_config
+#' @export
+centos_7.6_ss <- function(nsg=nsg_config(list(nsg_rule_allow_ssh)),
+                          load_balancer=lb_config(rules=list(lb_rule_ssh),
+                                                  probes=list(lb_probe_ssh)),
+                          ...)
+{
+    vmss_config(image_config("OpenLogic", "CentOS", "7.6"),
+                nsg=nsg, load_balancer=load_balancer, ...)
+}
+
+#' @rdname vmss_config
+#' @export
+debian_8_backports_ss <- function(nsg=nsg_config(list(nsg_rule_allow_ssh)),
+                                  load_balancer=lb_config(rules=list(lb_rule_ssh),
+                                                          probes=list(lb_probe_ssh)),
+                                  ...)
+{
+    vmss_config(image_config("Credativ", "Debian", "8-backports"),
                 nsg=nsg, load_balancer=load_balancer, ...)
 }
 
