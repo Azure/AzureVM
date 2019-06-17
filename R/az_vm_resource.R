@@ -27,7 +27,10 @@ az_vm_resource <- R6::R6Class("az_vm_resource", inherit=AzureRMR::az_resource,
 
 public=list(
     status=NULL,
-    nic_api_version="2019-04-01", # need to record this since AzureRMR can't currently get API versions for subresources
+
+    # need to record these since AzureRMR can't currently get API versions for subresources
+    nic_api_version="2019-04-01",
+    ip_api_version="2019-04-01",
 
     sync_vm_status=function()
     {
@@ -152,14 +155,11 @@ public=list(
 
     get_public_ip_address=function(nic=1, config=1)
     {
-        nic <- private$get_nic(nic)
-        ip_id <- nic$properties$ipConfigurations[[config]]$properties$publicIPAddress$id
-        if(is_empty(ip_id))
+        ip <- private$get_ip(nic, config)
+        if(is.null(ip) || is.null(ip$properties$ipAddress))
             return(NA_character_)
-        ip <- az_resource$new(self$token, self$subscription, id=ip_id)$properties$ipAddress
-        if(is.null(ip))
-            NA_character_
-        else ip
+
+        ip$properties$ipAddress
     },
 
     get_private_ip_address=function(nic=1, config=1)
@@ -204,7 +204,8 @@ public=list(
         cat("---\n")
 
         cat(AzureRMR::format_public_fields(self,
-            exclude=c("subscription", "resource_group", "type", "name", "status", "is_synced", "nic_api_version")))
+            exclude=c("subscription", "resource_group", "type", "name", "status", "is_synced",
+                      "nic_api_version", "ip_api_version")))
         cat(AzureRMR::format_public_methods(self))
         invisible(NULL)
     }
@@ -212,12 +213,21 @@ public=list(
 
 private=list(
 
-    get_nic=function(n=1)
+    get_nic=function(nic=1)
     {
-        nic_id <- self$properties$networkProfile$networkInterfaces[[n]]$id
+        nic_id <- self$properties$networkProfile$networkInterfaces[[nic]]$id
         if(is_empty(nic_id))
             stop("Network interface resource not found", call.=FALSE)
         az_resource$new(self$token, self$subscription, id=nic_id, api_version=self$nic_api_version)
+    },
+
+    get_ip=function(nic=1, config=1)
+    {
+        nic <- private$get_nic(nic)
+        ip_id <- nic$properties$ipConfigurations[[config]]$properties$publicIPAddress$id
+        if(is_empty(ip_id))
+            return(NULL)
+        az_resource$new(self$token, self$subscription, id=ip_id, api_version=self$ip_api_version)
     },
 
     init_and_deploy=function(...)

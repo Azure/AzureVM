@@ -81,7 +81,12 @@ test_that("Scaleset options work",
         overprovision=FALSE
     )
 
-    expect_is(rg$create_vm_scaleset(ssname, user, instances=3, size=size, options=opts), "az_vmss_template")
+    vmss <- rg$create_vm_scaleset(ssname, user, instances=3, size=size, options=opts)
+    expect_is(vmss, "az_vmss_template")
+
+    expect_is(vmss$get_public_ip_address(), "character")
+    expect_is(vmss$get_vm_public_ip_addresses(), "character")
+    expect_is(vmss$get_vm_private_ip_addresses(), "character")
 })
 
 rg$delete(confirm=FALSE)
