@@ -1,4 +1,4 @@
-context("Custom deployments")
+context("Manual deletion")
 
 tenant <- Sys.getenv("AZ_TEST_TENANT_ID")
 app <- Sys.getenv("AZ_TEST_APP_ID")
@@ -66,29 +66,4 @@ test_that("Custom resource works",
     Sys.sleep(10)
     expect_true(is_empty(rg$list_resources()))
 })
-
-test_that("Scaleset options work",
-{
-    ssname <- paste0(sample(letters, 10, TRUE), collapse="")
-    size <- "Standard_DS3_v2"
-    opts <- scaleset_options(
-        managed=FALSE,
-        public=TRUE,
-        low_priority=TRUE,
-        delete_on_evict=TRUE,
-        network_accel=TRUE,
-        large_scaleset=TRUE,
-        overprovision=FALSE
-    )
-
-    vmss <- rg$create_vm_scaleset(ssname, user, instances=3, size=size, options=opts)
-    expect_is(vmss, "az_vmss_template")
-
-    expect_is(vmss$get_public_ip_address(), "character")
-    expect_is(vmss$get_vm_public_ip_addresses(), "character")
-    expect_is(vmss$get_vm_private_ip_addresses(), "character")
-    expect_true(is.null(vmss$identity))
-})
-
-rg$delete(confirm=FALSE)
 

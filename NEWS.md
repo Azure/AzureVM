@@ -3,7 +3,7 @@
 * Complete rewrite of package, to be less DSVM-centric and more flexible:
   * Separate out deployment of VMs and VM clusters; the latter are implemented as scalesets, rather than simplistic arrays of individual VMs. The methods to work with scalesets are named `get_vm_scaleset`, `create_vm_scaleset` and `delete_vm_scaleset`; `get/create/delete_vm_cluster` are now defunct.
   * New UI for VM/scaleset creation, with many more ways to fine-tune the deployment options, including specifying the base VM image; networking details like security rules, load balancers and autoscaling; datadisks to attach; use of low-priority VMs for scalesets; etc.
-  * Several predefined configurations supplied to allow quick deployment of commonly used images (Ubuntu, Windows Server, RHEL, Debian, DSVM).
+  * Several predefined configurations supplied to allow quick deployment of commonly used images (Ubuntu, Windows Server, RHEL, Debian, Centos, DSVM).
   * Allow referring to existing resources in a deployment (eg placing VMs into an existing vnet), by supplying `AzureRMR::az_resource` objects as arguments.
   * Clear distinction between a VM deployment template and a resource. `get_vm` and `get_vm_scaleset` will always attempt to retrieve the template; to get the resource, use `get_vm_resource` and `get_vm_scaleset_resource`.
   * New VM resource methods: `get_public_ip_address`, `get_private_ip_address`.

@@ -27,6 +27,9 @@ nic_ip_config(name = "ipconfig", private_alloc = "dynamic",
 \description{
 Network interface configuration
 }
+\examples{
+nic_config()
+}
 \seealso{
 \link{create_vm}, \link{vm_config}
 }

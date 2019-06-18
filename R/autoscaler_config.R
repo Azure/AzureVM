@@ -4,12 +4,17 @@
 #' @param ... Other named arguments that will be treated as resource properties.
 #' @param name For `autoscaler_profile`, a name for the profile.
 #' @param minsize,maxsize,default For `autoscaler_profile`, the minimum, maximum and default number of instances.
-#' @param scale_out,scale_in For `autoscaler_profile`, the percentage CPU at which to scale out and in, respectively.
+#' @param scale_out,scale_in For `autoscaler_profile`, the CPU usage (a fraction between 0 and 1) at which to scale out and in, respectively.
 #' @param interval For `autoscaler_profile`, The interval between samples, in ISO 8601 format. The default is 1 minute.
 #' @param window For `autoscaler_profile`, the window width over which to compute the percentage CPU. The default is 5 minutes.
 #'
 #' @seealso
 #' [create_vm_scaleset], [vmss_config]
+#' @examples
+#' autoscaler_config()
+#' autoscaler_config(list(
+#'     autoscaler_profile(minsize=2, maxsize=50, scale_out=0.9, scale_in=0.1)
+#' ))
 #' @export
 autoscaler_config <- function(profiles=list(autoscaler_profile()), ...)
 {

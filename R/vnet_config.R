@@ -9,6 +9,12 @@
 #'
 #' @seealso
 #' [create_vm], [vm_config], [vmss_config]
+#' @examples
+#' vnet_config()
+#' vnet_config(address_space="10.1.0.0/16")
+#' vnet_config(subnets=list(
+#'     subnet_config("subnet", "10.0.0.0/24")
+#' ))
 #' @export
 vnet_config <- function(address_space="10.0.0.0/16", subnets=list(subnet_config()), ...)
 {
@@ -17,7 +23,7 @@ vnet_config <- function(address_space="10.0.0.0/16", subnets=list(subnet_config(
     ab_block <- sub(ab_regex, "\\1", address_space)
     fixaddr <- function(addr)
     {
-        if(sub(ab_regex, "\\1", addr) == ab_block)
+        if(sub(ab_regex, "\\1", addr) != ab_block)
             sub("^[0-9]+\\.[0-9]+", ab_block, addr)
         else addr
     }

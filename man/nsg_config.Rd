@@ -34,6 +34,22 @@ nsg_rule(name, dest_port = "*", dest_addr = "*", dest_asgs = NULL,
 \description{
 Network security group configuration
 }
+\examples{
+nsg_config()
+nsg_config(list(nsg_rule_allow_ssh))  # for Linux
+nsg_config(list(nsg_rule_allow_rdp))  # for Windows
+nsg_config(list(nsg_rule_allow_http, nsg_rule_allow_https))
+
+# a custom rule
+nsg_config(list(
+    nsg_rule(
+        name="whitelist",
+        source_addr="114.198.100.0/24",
+        access="allow",
+        protocol="*"
+    )
+))
+}
 \seealso{
 \link{create_vm}, \link{vm_config}, \link{vmss_config}, \link{nsg_rules} for some predefined security rules
 }

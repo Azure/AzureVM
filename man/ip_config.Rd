@@ -21,6 +21,13 @@ ip_config(type = NULL, dynamic = NULL, ipv6 = FALSE,
 \description{
 Public IP address configuration
 }
+\examples{
+ip_config()
+ip_config(type="basic", dynamic=TRUE)
+
+# if you don't want a domain name associated with the IP address
+ip_config(domain_name=NULL)
+}
 \seealso{
 \link{create_vm}, \link{vm_config}, \link{vmss_config}
 }

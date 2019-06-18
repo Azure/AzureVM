@@ -57,16 +57,20 @@
 #'
 #' vmss <- sub$get_vm_scaleset("myscaleset")
 #'
-#' # start the VM
+#' vmss$identity
+#'
+#' vmss$get_public_ip_address()  # NA if the scaleset doesn't have a load balancer
+#'
 #' vmss$start()
-#'
-#' # run a shell command
-#' vmss$run_script("ifconfig > /tmp/ifc.out")
-#'
-#' # get private IP addresses
 #' vmss$get_vm_private_ip_addresses()
+#' vmss$get_vm_public_ip_addresses()  # NA if scaleset nodes are not publicly visible
 #'
-#' # get the VM status
+#' instances <- vmss$list_instances()
+#' first <- instances[1]
+#' vmss$run_script("echo hello world! > /tmp/hello.txt", id=first)
+#' vmss$stop(id=first)
+#' vmss$reimage(id=first)
+#'
 #' vmss$sync_vmss_status()
 #'
 #' }

@@ -4,7 +4,10 @@
 ![Downloads](https://cranlogs.r-pkg.org/badges/AzureVM)
 [![Travis Build Status](https://travis-ci.org/Azure/AzureVM.png?branch=master)](https://travis-ci.org/Azure/AzureVM)
 
-AzureVM is a package for interacting with virtual machines and virtual machine scalesets in Azure. You can deploy, start up, shut down, run scripts, deallocate and delete VMs and scalesets from the R command line. It uses the tools provided by the [AzureRMR package](https://github.com/Azure/AzureRMR) to manage VM resources and templates.
+AzureVM is a package for interacting with [virtual machines](https://azure.microsoft.com/services/virtual-machines/) and [virtual machine scalesets](https://azure.microsoft.com/services/virtual-machine-scale-sets/) in Azure. You can deploy, start up, shut down, run scripts, deallocate and delete VMs and scalesets from the R command line. It uses the tools provided by the [AzureRMR package](https://github.com/Azure/AzureRMR) to manage VM resources and templates.
+
+Version 2.0 of AzureVM is a complete rewrite of the package, aiming to make it a truly generic and flexible interface to VMs.
+
 
 ## Virtual machines
 
@@ -35,7 +38,7 @@ vm$resize("Standard_DS4_v2")
 vm$delete()
 ```
 
-AzureVM comes with a number of predefined configurations, for deploying commonly used VM images. For example, to create an Ubuntu DSVM accessible via SSH, JupyterHub and RStudio Server:
+AzureVM comes with a number of predefined configurations, for deploying commonly used VM images. For example, to create an Ubuntu [Data Science Virtual Machine](https://azure.microsoft.com/services/virtual-machines/data-science-virtual-machines/) accessible via SSH, JupyterHub and RStudio Server:
 
 ```r
 sub$create_vm("mydsvm", user_config("myname", "~/.ssh/id_rsa.pub"), config="ubuntu_dsvm",

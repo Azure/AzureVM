@@ -24,8 +24,12 @@ test_that("Scaleset connection pool works",
         autoscaler=NULL, load_balancer=NULL)
     expect_is(vm, "az_vmss_template")
 
+    # sometimes deployment will return prematurely
+    Sys.sleep(5)
+
     inst <- vm$list_instances()
     expect_is(inst, "list")
+    expect_length(inst, 5)
 
     expect_message(vm$run_script("ls /tmp", id=names(inst)[1:2]), "Creating background pool")
     expect_true(exists("pool", AzureVM:::.AzureVM) && length(AzureVM:::.AzureVM$pool) == 2)

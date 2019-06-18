@@ -43,6 +43,14 @@ lb_rule(name, frontend_port, backend_port = frontend_port,
 \description{
 Load balancer configuration
 }
+\examples{
+lb_config()
+lb_config(type="basic")
+lb_config(
+    rules=list(lb_rule_ssh, lb_rule_rdp),
+    probes=list(lb_probe_ssh, lb_probe_rdp)
+)
+}
 \seealso{
 \link{create_vm_scaleset}, \link{vmss_config}, \link{lb_rules} for some predefined load balancing rules and probes
 }

@@ -44,21 +44,21 @@
 #' sub <- AzureRMR::get_azure_login()$
 #'     get_subscription("subscription_id")
 #'
-#' vm <- sub$get_vm("myLinuxDSVM")
+#' vm <- sub$get_vm("myvm")
 #'
-#' # start the VM
+#' vm$identity
+#'
 #' vm$start()
+#' vm$get_private_ip_address()
+#' vm$get_public_ip_address()
 #'
-#' # run a shell command
-#' vm$run_script("ifconfig > /tmp/ifc.out")
+#' vm$run_script("echo hello world! > /tmp/hello.txt")
 #'
-#' # stop (and deallocate) the VM
 #' vm$stop()
+#' vm$get_private_ip_address()
+#' vm$get_public_ip_address()  # NA, assuming VM has a dynamic IP address
 #'
-#' # resize the VM
 #' vm$resize("Standard_DS13_v2")
-#'
-#' # get the VM status
 #' vm$sync_vm_status()
 #'
 #' }

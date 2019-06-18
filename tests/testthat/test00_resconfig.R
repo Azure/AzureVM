@@ -103,6 +103,16 @@ test_that("Virtual network config works",
             )
         )
     )
+
+    vnet <- vnet_config("10.1.0.0/16")
+    expect_identical(vnet$properties$subnets[[1]]$properties$addressPrefix, "10.1.0.0/16")
+
+    vnet <- vnet_config(
+        address_space="10.1.0.0/16",
+        subnets=list(subnet_config("mysubnet", addresses="10.0.0.0/24"))
+    )
+    expect_identical(vnet$properties$subnets[[1]]$properties$addressPrefix, "10.1.0.0/24")
+
 })
 
 test_that("Network interface config works",

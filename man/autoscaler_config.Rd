@@ -20,7 +20,7 @@ autoscaler_profile(name = "Profile", minsize = 1, maxsize = NA,
 
 \item{minsize, maxsize, default}{For \code{autoscaler_profile}, the minimum, maximum and default number of instances.}
 
-\item{scale_out, scale_in}{For \code{autoscaler_profile}, the percentage CPU at which to scale out and in, respectively.}
+\item{scale_out, scale_in}{For \code{autoscaler_profile}, the CPU usage (a fraction between 0 and 1) at which to scale out and in, respectively.}
 
 \item{interval}{For \code{autoscaler_profile}, The interval between samples, in ISO 8601 format. The default is 1 minute.}
 
@@ -28,6 +28,12 @@ autoscaler_profile(name = "Profile", minsize = 1, maxsize = NA,
 }
 \description{
 Autoscaler configuration
+}
+\examples{
+autoscaler_config()
+autoscaler_config(list(
+    autoscaler_profile(minsize=2, maxsize=50, scale_out=0.9, scale_in=0.1)
+))
 }
 \seealso{
 \link{create_vm_scaleset}, \link{vmss_config}

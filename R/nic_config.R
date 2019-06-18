@@ -9,6 +9,8 @@
 #'
 #' @seealso
 #' [create_vm], [vm_config]
+#' @examples
+#' nic_config()
 #' @export
 nic_config <- function(nic_ip=list(nic_ip_config()), ...)
 {

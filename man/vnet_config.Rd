@@ -27,6 +27,13 @@ subnet_config(name = "subnet", addresses = "10.0.0.0/16",
 \description{
 Virtual network configuration
 }
+\examples{
+vnet_config()
+vnet_config(address_space="10.1.0.0/16")
+vnet_config(subnets=list(
+    subnet_config("subnet", "10.0.0.0/24")
+))
+}
 \seealso{
 \link{create_vm}, \link{vm_config}, \link{vmss_config}
 }

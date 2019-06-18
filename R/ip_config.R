@@ -8,6 +8,12 @@
 #'
 #' @seealso
 #' [create_vm], [vm_config], [vmss_config]
+#' @examples
+#' ip_config()
+#' ip_config(type="basic", dynamic=TRUE)
+#'
+#' # if you don't want a domain name associated with the IP address
+#' ip_config(domain_name=NULL)
 #' @export
 ip_config <- function(type=NULL, dynamic=NULL, ipv6=FALSE, domain_name="[parameters('vmName')]", ...)
 {

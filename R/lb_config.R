@@ -16,6 +16,13 @@
 #'
 #' @seealso
 #' [create_vm_scaleset], [vmss_config], [lb_rules] for some predefined load balancing rules and probes
+#' @examples
+#' lb_config()
+#' lb_config(type="basic")
+#' lb_config(
+#'     rules=list(lb_rule_ssh, lb_rule_rdp),
+#'     probes=list(lb_probe_ssh, lb_probe_rdp)
+#' )
 #' @export
 lb_config <- function(type=NULL, rules=list(), probes=list(), ...)
 {
