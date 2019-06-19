@@ -11,7 +11,7 @@ BugReports: https://github.com/Azure/AzureVM/issues
 License: MIT + file LICENSE
 VignetteBuilder: knitr
 Depends: 
-    R (>= 3.3),
+    R (>= 3.3)
 Imports: 
     R6,
     AzureRMR (>= 2.1.2),
