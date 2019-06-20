@@ -16,6 +16,8 @@
 #' - `run_script(script, parameters)`: Run a script on the VM. For a Linux VM, this will be a shell script; for a Windows VM, a PowerShell script. Pass the script as a character vector.
 #' - `sync_vm_status()`: Check the status of the VM.
 #' - `resize(size, deallocate=FALSE, wait=FALSE)`: Resize the VM. Optionally stop and deallocate it first (may sometimes be necessary).
+#' - `redeploy()`: Redeploy the VM.
+#' - `reimage()`: Reimage the VM.
 #' - `get_public_ip_address(nic=1, config=1)`: Get the public IP address of the VM. Returns NULL if the VM is stopped, or is not publicly accessible.
 #' - `get_private_ip_address(nic=1, config=1)`: Get the private IP address of the VM.
 #' - `add_extension(publisher, type, version, settings=list(), protected_settings=list(), key_vault_settings=list())`: Add an extension to the VM.
@@ -157,6 +159,12 @@ active=list(
 
     get_private_ip_address=function()
     private$vm$get_private_ip_address,
+
+    redeploy=function()
+    private$vm$redeploy,
+
+    reimage=function()
+    private$vm$reimage,
 
     do_vm_operation=function()
     private$vm$do_operation

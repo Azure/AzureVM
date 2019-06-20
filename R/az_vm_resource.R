@@ -12,6 +12,8 @@
 #' - `run_script(script, parameters)`: Run a script on the VM. For a Linux VM, this will be a shell script; for a Windows VM, a PowerShell script. Pass the script as a character vector.
 #' - `sync_vm_status()`: Check the status of the VM.
 #' - `resize(size, deallocate=FALSE, wait=FALSE)`: Resize the VM. Optionally stop and deallocate it first (may sometimes be necessary).
+#' - `redeploy()`: Redeploy the VM.
+#' - `reimage()`: Reimage the VM.
 #' - `get_public_ip_address(nic=1, config=1)`: Get the public IP address of the VM. Returns NA if the VM is shut down, or is not publicly accessible.
 #' - `get_private_ip_address(nic=1, config=1)`: Get the private IP address of the VM.
 #' - `add_extension(publisher, type, version, settings=list(), protected_settings=list(), key_vault_settings=list())`: Add an extension to the VM.
@@ -52,45 +54,14 @@ public=list(
     start=function(wait=TRUE)
     {
         self$do_operation("start", http_verb="POST")
-        # Sys.sleep(2)
-        if(wait)
-        {
-            for(i in 1:100)
-            {
-                Sys.sleep(5)
-                self$sync_vm_status()
-                if(length(self$status) == 2 &&
-                    self$status[1] == "succeeded" &&
-                    self$status[2] == "running")
-                    break
-            }
-            if(length(self$status) < 2 ||
-                self$status[1] != "succeeded" ||
-                self$status[2] != "running")
-                stop("Unable to start VM", call.=FALSE)
-        }
+        if(wait) private$wait_for_success("start")
     },
 
     restart=function(wait=TRUE)
     {
+        status <- self$sync_vm_status()
         self$do_operation("restart", http_verb="POST")
-        # Sys.sleep(2)
-        if(wait)
-        {
-            for(i in 1:100)
-            {
-                Sys.sleep(5)
-                self$sync_vm_status()
-                if(length(self$status) == 2 &&
-                    self$status[1] == "succeeded" &&
-                    self$status[2] == "running")
-                    break
-            }
-            if(length(self$status) < 2 ||
-                self$status[1] != "succeeded" ||
-                self$status[2] != "running")
-                stop("Unable to restart VM", call.=FALSE)
-        }
+        if(wait) private$wait_for_success("restart")
     },
 
     stop=function(deallocate=TRUE, wait=FALSE)
@@ -123,14 +94,16 @@ public=list(
 
         if(wait)
         {
+            size <- tolower(size)
             for(i in 1:100)
             {
                 self$sync_vm_status()
-                if(properties$hardwareProfile$vmSize == size)
+                newsize <- tolower(properties$hardwareProfile$vmSize)
+                if(newsize == size)
                     break
                 Sys.sleep(5)
             }
-            if(properties$hardwareProfile$vmSize != size)
+            if(newsize != size)
                 stop("Unable to resize VM", call.=FALSE)
         }
     },
@@ -189,6 +162,18 @@ public=list(
         self$do_operation(op, body=list(properties=props), http_verb="PUT")
     },
 
+    redeploy=function()
+    {
+        self$do_operation("redeploy", http_verb="POST")
+        message("Redeployment started. Call the sync_vm_status() method to check progress.")
+    },
+
+    reimage=function()
+    {
+        self$do_operation("reimage", http_verb="POST")
+        message("Reimage started. Call the sync_vm_status() method to check progress.")
+    },
+
     print=function(...)
     {
         cat("<Azure virtual machine resource ", self$name, ">\n", sep="")
@@ -233,6 +218,23 @@ private=list(
     init_and_deploy=function(...)
     {
         stop("Do not use 'az_vm_resource' to create a new VM", call.=FALSE)
+    },
+
+    wait_for_success=function(op)
+    {
+        for(i in 1:1000)
+        {
+            Sys.sleep(5)
+            self$sync_vm_status()
+            if(length(self$status) == 2 &&
+                self$status[1] == "succeeded" &&
+                self$status[2] == "running")
+                break
+        }
+        if(length(self$status) < 2 ||
+            self$status[1] != "succeeded" ||
+            self$status[2] != "running")
+            stop("Unable to ", op, " VM", call.=FALSE)
     }
 ))
 
