@@ -1,3 +1,7 @@
+# AzureVM 2.0.0.9000
+
+* Add `redeploy` and `reimage` methods for VMs, to match those for VM scalesets.
+
 # AzureVM 2.0.0
 
 * Complete rewrite of package, to be less DSVM-centric and more flexible:
