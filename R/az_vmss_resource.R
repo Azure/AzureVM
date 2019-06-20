@@ -232,6 +232,11 @@ public=list(
 
 private=list(
 
+    init_and_deploy=function(...)
+    {
+        stop("Do not use 'az_vmss_resource' to create a new VM scaleset", call.=FALSE)
+    },
+
     make_vm_resource=function(params)
     {
         params$instanceId <- NULL
