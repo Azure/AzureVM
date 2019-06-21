@@ -166,6 +166,7 @@ public=list(
         if(is.null(id))
             self$do_operation(op, http_verb="POST")
         else private$vm_map(id, function(vm) vm$do_operation(op, http_verb="POST"))
+        message("Reimage started. Call the sync_vmss_status() method to check progress.")
     },
 
     redeploy=function(id=NULL)
@@ -173,6 +174,7 @@ public=list(
         if(is.null(id))
             self$do_operation("redeploy", http_verb="POST")
         else private$vm_map(id, function(vm) vm$do_operation("redeploy", http_verb="POST"))
+        message("Redeployment started. Call the sync_vmss_status() method to check progress.")
     },
 
     mapped_vm_operation=function(..., id=NULL)
