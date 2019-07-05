@@ -68,8 +68,8 @@ sub$create_vm("mywinvm2", user_config("myname", password="Use-strong-passwords!"
               location="australiaeast")
 
 # Ubuntu DSVM, GPU-enabled
-sub$create_vm("mydsvm", user_config("myname", "~/.ssh/id_rsa.pub"), size="Standard_NC12",
-              config="ubuntu_dsvm_ss",
+sub$create_vm("mydsvm", user_config("myname", "~/.ssh/id_rsa.pub"), size="Standard_NC12s_v2",
+              config="ubuntu_dsvm",
               location="australiaeast")
 
 # Red Hat VM, serving HTTP/HTTPS
@@ -128,9 +128,9 @@ sub$create_vm_scaleset("mywinss", user_config("myname", password="Use-strong-pas
 
 # RHEL scaleset, serving HTTP/HTTPS
 sub$create_vm_scaleset("myrhelss", user_config("myname", "~/.ssh/id_rsa.pub"), instances=5,
-                        config="rhel_8_ss",
-                        nsg=nsg_config(list(nsg_rule_allow_http, nsg_rule_allow_https)),
-                        location="australiaeast")
+                       config="rhel_8_ss",
+                       nsg=nsg_config(list(nsg_rule_allow_http, nsg_rule_allow_https)),
+                       location="australiaeast")
 
 # Ubuntu DSVM, GPU-enabled, public instances, no load balancer or autoscaler
 sub$create_vm_scaleset("mydsvmss", user_config("myname", "~/.ssh/id_rsa.pub"), instances=5,
