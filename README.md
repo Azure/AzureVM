@@ -1,12 +1,12 @@
-# AzureVM
+# AzureVM <img src="man/figures/logo.png" align="right" width=150 />
 
 [![CRAN](https://www.r-pkg.org/badges/version/AzureVM)](https://cran.r-project.org/package=AzureVM)
 ![Downloads](https://cranlogs.r-pkg.org/badges/AzureVM)
-[![Travis Build Status](https://travis-ci.org/Azure/AzureVM.png?branch=master)](https://travis-ci.org/Azure/AzureVM)
+[![Travis Build Status](https://travis-ci.org/Azure/AzureVM.svg?branch=master)](https://travis-ci.org/Azure/AzureVM)
 
-AzureVM is a package for interacting with [virtual machines](https://azure.microsoft.com/services/virtual-machines/) and [virtual machine scalesets](https://azure.microsoft.com/services/virtual-machine-scale-sets/) in Azure. You can deploy, start up, shut down, run scripts, deallocate and delete VMs and scalesets from the R command line. It uses the tools provided by the [AzureRMR package](https://github.com/Azure/AzureRMR) to manage VM resources and templates.
+AzureVM is a package for interacting with [virtual machines](https://azure.microsoft.com/services/virtual-machines/) and [virtual machine scalesets](https://azure.microsoft.com/services/virtual-machine-scale-sets/) in Azure. You can deploy, start up, shut down, run scripts, deallocate and delete VMs and scalesets from the R command line. It uses the tools provided by the [AzureRMR package](https://github.com/Azure/AzureRMR) to manage VM resources and templates. Version 2.0 of AzureVM is a complete rewrite of the package, aiming to make it a truly generic and flexible interface to VMs.
 
-Version 2.0 of AzureVM is a complete rewrite of the package, aiming to make it a truly generic and flexible interface to VMs.
+The primary repo for this package is at https://github.com/Azure/AzureVM; please submit issues and PRs there. It is also mirrored at the Cloudyr org at https://github.com/cloudyr/AzureVM. You can install the development version of the package with `devtools::install_github("Azure/AzureVM")`.
 
 
 ## Virtual machines
@@ -178,4 +178,4 @@ rg$create_vm_scaleset("slavess", user_config("myname", "~/.ssh/id_rsa.pub"),
 ```
 
 ---
-[![cloudyr project logo](https://i.imgur.com/JHS98Y7.png)](https://github.com/cloudyr)
+<p align="center"><a href="https://github.com/Azure/AzureR"><img src="https://github.com/Azure/AzureR/raw/master/images/logo2.png" width=800 /></a></p>
