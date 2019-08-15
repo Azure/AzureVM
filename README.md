@@ -123,7 +123,7 @@ Each predefined VM configuration has a corresponding scaleset configuration. To 
 ```r
 # Windows Server 2019
 sub$create_vm_scaleset("mywinss", user_config("myname", password="Use-strong-passwords!"), instances=5,
-                       config="windows_2019",
+                       config="windows_2019_ss",
                        location="australiaeast")
 
 # RHEL scaleset, serving HTTP/HTTPS
