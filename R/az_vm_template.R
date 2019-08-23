@@ -160,6 +160,21 @@ active=list(
     get_private_ip_address=function()
     private$vm$get_private_ip_address,
 
+    get_public_ip_resource=function()
+    private$vm$get_public_ip_resource,
+
+    get_nic=function()
+    private$vm$get_nic,
+
+    get_vnet=function()
+    private$vm$get_vnet,
+
+    get_nsg=function()
+    private$vm$get_nsg,
+
+    get_disk=function()
+    private$vm$get_disk,
+
     redeploy=function()
     private$vm$redeploy,
 

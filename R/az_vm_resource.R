@@ -128,7 +128,7 @@ public=list(
 
     get_public_ip_address=function(nic=1, config=1)
     {
-        ip <- private$get_ip(nic, config)
+        ip <- self$get_public_ip_resource(nic, config)
         if(is.null(ip) || is.null(ip$properties$ipAddress))
             return(NA_character_)
 
@@ -137,8 +137,81 @@ public=list(
 
     get_private_ip_address=function(nic=1, config=1)
     {
-        nic <- private$get_nic(nic)
+        nic <- self$get_nic(nic)
         nic$properties$ipConfigurations[[config]]$properties$privateIPAddress
+    },
+
+    get_public_ip_resource=function(nic=1, config=1)
+    {
+        nic <- self$get_nic(nic)
+        ip_id <- nic$properties$ipConfigurations[[config]]$properties$publicIPAddress$id
+        if(is_empty(ip_id))
+            return(NULL)
+        az_resource$new(self$token, self$subscription, id=ip_id, api_version=self$ip_api_version)
+    },
+
+    get_nic=function(nic=1)
+    {
+        nic_id <- self$properties$networkProfile$networkInterfaces[[nic]]$id
+        if(is_empty(nic_id))
+            stop("Network interface resource not found", call.=FALSE)
+        az_resource$new(self$token, self$subscription, id=nic_id, api_version=self$nic_api_version)
+    },
+
+    get_vnet=function(nic=1, config=1)
+    {
+        nic <- self$get_nic(nic)
+        subnet_id <- nic$properties$ipConfigurations[[config]]$properties$subnet$id
+        vnet_id <- sub("/subnets/[^/]+$", "", subnet_id)
+        az_resource$new(self$token, self$subscription, id=vnet_id)
+    },
+
+    get_nsg=function(nic=1, config=1)
+    {
+        vnet <- self$get_vnet(nic, config)
+        nic <- self$get_nic(nic)
+
+        nic_nsg_id <- nic$properties$networkSecurityGroup$id
+        nic_nsg <- if(!is.null(nic_nsg_id))
+            az_resource$new(self$token, self$subscription, id=nic_nsg_id)
+        else NULL
+
+        # go through list of subnets, find the one where this VM is located
+        found <- FALSE
+        for(sn in vnet$properties$subnets)
+        {
+            nics <- unlist(sn$properties$ipConfigurations)
+            if(any(grepl(nic$id, nics, fixed=TRUE)))
+            {
+                found <- TRUE
+                break
+            }
+        }
+        if(!found)
+            stop("Error locating subnet for this network configuration", call.=FALSE)
+
+        subnet_nsg_id <- sn$properties$networkSecurityGroup$id
+        subnet_nsg <- if(!is.null(subnet_nsg_id))
+            az_resource$new(self$token, self$subscription, id=subnet_nsg_id)
+        else NULL
+
+        if(is.null(nic_nsg) && is.null(subnet_nsg))
+            NULL
+        else if(is.null(nic_nsg) && !is.null(subnet_nsg))
+            subnet_nsg
+        else if(!is.null(nic_nsg) && is.null(subnet_nsg))
+            nic_nsg
+        else(list(nic_nsg, subnet_nsg))
+    },
+
+    get_disk=function(disk="os")
+    {
+        id <- if(disk == "os")
+            self$properties$storageProfile$osDisk$managedDisk$id
+        else if(is.numeric(disk))
+            self$properties$storageProfile$dataDisks[[disk]]$managedDisk$id
+        else stop("Invalid disk argument: should be 'os', or the data disk number", call.=FALSE)
+        az_resource$new(self$token, self$subscription, id=id)
     },
 
     add_extension=function(publisher, type, version, settings=list(),
@@ -197,23 +270,6 @@ public=list(
 ),
 
 private=list(
-
-    get_nic=function(nic=1)
-    {
-        nic_id <- self$properties$networkProfile$networkInterfaces[[nic]]$id
-        if(is_empty(nic_id))
-            stop("Network interface resource not found", call.=FALSE)
-        az_resource$new(self$token, self$subscription, id=nic_id, api_version=self$nic_api_version)
-    },
-
-    get_ip=function(nic=1, config=1)
-    {
-        nic <- private$get_nic(nic)
-        ip_id <- nic$properties$ipConfigurations[[config]]$properties$publicIPAddress$id
-        if(is_empty(ip_id))
-            return(NULL)
-        az_resource$new(self$token, self$subscription, id=ip_id, api_version=self$ip_api_version)
-    },
 
     init_and_deploy=function(...)
     {
