@@ -47,7 +47,7 @@ The following methods are available, in addition to those provided by the \link[
 \item \code{resize(size, deallocate=FALSE, wait=FALSE)}: Resize the VM. Optionally stop and deallocate it first (may sometimes be necessary).
 \item \code{redeploy()}: Redeploy the VM.
 \item \code{reimage()}: Reimage the VM.
-\item \code{get_public_ip_address(nic=1, config=1)}: Get the public IP address of the VM. Returns NULL if the VM is stopped, or is not publicly accessible.
+\item \code{get_public_ip_address(nic=1, config=1)}: Get the public IP address of the VM. Returns NA if the VM is stopped, or is not publicly accessible.
 \item \code{get_private_ip_address(nic=1, config=1)}: Get the private IP address of the VM.
 \item \code{add_extension(publisher, type, version, settings=list(), protected_settings=list(), key_vault_settings=list())}: Add an extension to the VM.
 \item \code{do_vm_operation(...)}: Carries out an arbitrary operation on the VM resource. See the \code{do_operation} method of the \link[AzureRMR:az_resource]{AzureRMR::az_resource} class for more details.

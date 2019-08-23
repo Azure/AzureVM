@@ -43,8 +43,8 @@ The following methods are available, in addition to those provided by the \link[
 \item \code{start(id=NULL, wait=FALSE)}: Start the scaleset. In this and the other methods listed here, \code{id} can be an optional character vector of instance IDs; if supplied, only carry out the operation for those instances.
 \item \code{restart(id=NULL, wait=FALSE)}: Restart the scaleset.
 \item \code{stop(deallocate=TRUE, id=NULL, wait=FALSE)}: Stop the scaleset.
-\item \code{get_public_ip_address()}: Get the public IP address of the scaleset (technically, of the load balancer). If the scaleset doesn't have a load balancer attached, returns NULL.
-\item \code{get_vm_public_ip_addresses(id=NULL, nic=1, config=1)}: Get the public IP addresses for the instances in the scaleset. Returns NULL if the instances are not publicly accessible.
+\item \code{get_public_ip_address()}: Get the public IP address of the scaleset (technically, of the load balancer). If the scaleset doesn't have a load balancer attached, returns NA.
+\item \code{get_vm_public_ip_addresses(id=NULL, nic=1, config=1)}: Get the public IP addresses for the instances in the scaleset. Returns NA for the instances that are stopped or not publicly accessible.
 \item \code{get_vm_private_ip_addresses(id=NULL, nic=1, config=1)}: Get the private IP addresses for the instances in the scaleset.
 \item \code{run_deployed_command(command, parameters=NULL, script=NULL, id=NULL)}: Run a PowerShell command on the instances in the scaleset.
 \item \code{run_script(script, parameters=NULL, id=NULL)}: Run a script on the VM. For a Linux VM, this will be a shell script; for a Windows VM, a PowerShell script. Pass the script as a character vector.

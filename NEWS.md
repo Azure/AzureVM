@@ -1,6 +1,7 @@
 # AzureVM 2.0.0.9000
 
 * Add `redeploy` and `reimage` methods for VMs, to match those for VM scalesets.
+* Fix error in documentation for VMSS public IP address methods: these return `NA`, not `NULL` if the public address is unavailable.
 
 # AzureVM 2.0.0
 
