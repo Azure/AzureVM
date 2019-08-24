@@ -178,10 +178,11 @@ public=list(
 
         # go through list of subnets, find the one where this VM is located
         found <- FALSE
+        nic_id <- tolower(nic$id)
         for(sn in vnet$properties$subnets)
         {
-            nics <- unlist(sn$properties$ipConfigurations)
-            if(any(grepl(nic$id, nics, fixed=TRUE)))
+            nics <- tolower(unlist(sn$properties$ipConfigurations))
+            if(any(grepl(nic_id, nics, fixed=TRUE)))
             {
                 found <- TRUE
                 break

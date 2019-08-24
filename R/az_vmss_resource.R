@@ -150,6 +150,42 @@ public=list(
         unlist(private$vm_map(id, function(vm) vm$get_private_ip_address(nic, config)))
     },
 
+    get_vnet=function(nic=1, config=1)
+    {
+        subnet_id <- self$properties$
+            virtualMachineProfile$networkProfile$networkInterfaceConfigurations[[nic]]$properties$
+                ipConfigurations[[config]]$properties$
+                    subnet$id
+
+        vnet_id <- sub("/subnets/[^/]+$", "", subnet_id)
+        az_resource$new(self$token, self$subscription, id=vnet_id)
+    },
+
+    get_nsg=function(nic=1, config=1)
+    {
+        vnet <- self$get_vnet(nic, config)
+
+        # go through list of subnets, find the one where this scaleset's instances are located
+        found <- FALSE
+        vmss_id <- tolower(self$id)
+        for(sn in vnet$properties$subnets)
+        {
+            nics <- tolower(unlist(sn$properties$ipConfigurations))
+            if(any(grepl(vmss_id, nics, fixed=TRUE)))
+            {
+                found <- TRUE
+                break
+            }
+        }
+        if(!found)
+            stop("Unable to find subnet for this network configuration", call.=FALSE)
+
+        subnet_nsg_id <- sn$properties$networkSecurityGroup$id
+        if(!is.null(subnet_nsg_id))
+            az_resource$new(self$token, self$subscription, id=subnet_nsg_id)
+        else NULL
+    },
+
     run_deployed_command=function(command, parameters=NULL, script=NULL, id=NULL)
     {
         private$vm_map(id, function(vm) vm$run_deployed_command(command, parameters, script))

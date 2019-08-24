@@ -142,14 +142,37 @@ public=list(
 
     get_public_ip_address=function()
     {
+        ip <- self$get_public_ip_resource()
+        if(!is.null(ip))
+            ip$properties$ipAddress
+        else NA_character_
+    },
+
+    get_public_ip_resource=function()
+    {
         outputs <- unlist(self$properties$outputResources)
         ip_id <- grep("publicIPAddresses/.+$", outputs, ignore.case=TRUE, value=TRUE)
         if(is_empty(ip_id))
-            return(NA_character_)
-        ip <- az_resource$new(self$token, self$subscription, id=ip_id)$properties$ipAddress
-        if(!is.null(ip))
-            ip
-        else NA_character_
+            NULL
+        else az_resource$new(self$token, self$subscription, id=ip_id)
+    },
+
+    get_load_balancer=function()
+    {
+        outputs <- unlist(self$properties$outputResources)
+        lb_id <- grep("loadBalancers/.+$", outputs, ignore.case=TRUE, value=TRUE)
+        if(is_empty(lb_id))
+            NULL
+        else az_resource$new(self$token, self$subscription, id=lb_id)
+    },
+
+    get_autoscaler=function()
+    {
+        outputs <- unlist(self$properties$outputResources)
+        as_id <- grep("autoscaleSettings/.+$", outputs, ignore.case=TRUE, value=TRUE)
+        if(is_empty(as_id))
+            NULL
+        else az_resource$new(self$token, self$subscription, id=as_id)
     }
 ),
 
@@ -182,6 +205,12 @@ active=list(
 
     get_vm_private_ip_addresses=function()
     private$vmss$get_vm_private_ip_addresses,
+
+    get_vnet=function()
+    private$vmss$get_vnet,
+
+    get_nsg=function()
+    private$vmss$get_nsg,
 
     run_deployed_command=function()
     private$vmss$run_deployed_command,
