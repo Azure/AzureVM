@@ -28,9 +28,9 @@
 #' - `add_extension(publisher, type, version, settings=list(), protected_settings=list(), key_vault_settings=list())`: Add an extension to the VM.
 #' - `do_vm_operation(...)`: Carries out an arbitrary operation on the VM resource. See the `do_operation` method of the [AzureRMR::az_resource] class for more details.
 #'
-#' @details
-#' The VM operations listed above are actually provided by the [az_vm_resource] class, and propagated to the template as active bindings.
+#' Many of these methods are actually provided by the [az_vm_resource] class, and propagated to the template as active bindings.
 #'
+#' @details
 #' A single virtual machine in Azure is actually a collection of resources, including any and all of the following.
 #' - Network interface (Azure resource type `Microsoft.Network/networkInterfaces`)
 #' - Network security group (Azure resource type `Microsoft.Network/networkSecurityGroups`)

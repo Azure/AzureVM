@@ -31,6 +31,8 @@
 #' - `add_extension(publisher, type, version, settings=list(), protected_settings=list(), key_vault_settings=list())`: Add an extension to the scaleset.
 #' - `do_vmss_operation(...)` Carry out an arbitrary operation on the scaleset resource (as opposed to the instances in the scaleset).
 #'
+#' Many of these methods are actually provided by the [az_vmss_resource] class, and propagated to the template as active bindings.
+#'
 #' @details
 #' A virtual machine scaleset in Azure is actually a collection of resources, including any and all of the following.
 #' - Network security group (Azure resource type `Microsoft.Network/networkSecurityGroups`)
@@ -43,7 +45,6 @@
 #' By wrapping the deployment template used to create these resources, the `az_vmss_template` class allows managing them all as a single entity.
 #'
 #' @section Instance operations:
-#' With the exception of `get_public_ip_address`, the scaleset methods listed above are actually provided by the [az_vmss_resource] class, and propagated to the template as active bindings.
 #'
 #' AzureVM has the ability to parallelise scaleset instance operations using a pool of background processes. This can lead to significant speedups when working with scalesets with high instance counts. The pool is created automatically the first time that it is required, and remains persistent for the session. For more information, see [init_pool].
 #'

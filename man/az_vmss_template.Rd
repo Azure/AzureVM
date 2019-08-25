@@ -59,11 +59,12 @@ The following methods are available, in addition to those provided by the \link[
 \item \code{add_extension(publisher, type, version, settings=list(), protected_settings=list(), key_vault_settings=list())}: Add an extension to the scaleset.
 \item \code{do_vmss_operation(...)} Carry out an arbitrary operation on the scaleset resource (as opposed to the instances in the scaleset).
 }
+
+Many of these methods are actually provided by the \link{az_vmss_resource} class, and propagated to the template as active bindings.
 }
 
 \section{Instance operations}{
 
-With the exception of \code{get_public_ip_address}, the scaleset methods listed above are actually provided by the \link{az_vmss_resource} class, and propagated to the template as active bindings.
 
 AzureVM has the ability to parallelise scaleset instance operations using a pool of background processes. This can lead to significant speedups when working with scalesets with high instance counts. The pool is created automatically the first time that it is required, and remains persistent for the session. For more information, see \link{init_pool}.
 

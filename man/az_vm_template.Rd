@@ -12,8 +12,6 @@ az_vm_template
 Class representing a virtual machine deployment template. This class keeps track of all resources that are created as part of deploying a VM, and exposes methods for managing them.
 }
 \details{
-The VM operations listed above are actually provided by the \link{az_vm_resource} class, and propagated to the template as active bindings.
-
 A single virtual machine in Azure is actually a collection of resources, including any and all of the following.
 \itemize{
 \item Network interface (Azure resource type \code{Microsoft.Network/networkInterfaces})
@@ -57,6 +55,8 @@ The following methods are available, in addition to those provided by the \link[
 \item \code{add_extension(publisher, type, version, settings=list(), protected_settings=list(), key_vault_settings=list())}: Add an extension to the VM.
 \item \code{do_vm_operation(...)}: Carries out an arbitrary operation on the VM resource. See the \code{do_operation} method of the \link[AzureRMR:az_resource]{AzureRMR::az_resource} class for more details.
 }
+
+Many of these methods are actually provided by the \link{az_vm_resource} class, and propagated to the template as active bindings.
 }
 
 \examples{
