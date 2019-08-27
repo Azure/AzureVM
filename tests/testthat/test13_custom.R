@@ -26,6 +26,8 @@ test_that("Custom vnet works",
     vnet <- vnet_config(address_space="10.1.0.0/16")
     vm <- rg$create_vm(vmname, user, size, vnet=vnet)
     expect_is(vm, "az_vm_template")
+
+    expect_is(vm$get_vnet(), "az_resource")
 })
 
 test_that("Scaleset options work",
