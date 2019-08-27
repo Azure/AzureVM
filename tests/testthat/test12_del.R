@@ -67,3 +67,4 @@ test_that("Custom resource works",
     expect_true(is_empty(rg$list_resources()))
 })
 
+rg$delete(confirm=FALSE)

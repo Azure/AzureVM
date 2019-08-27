@@ -1,7 +1,8 @@
 # AzureVM 2.0.0.9000
 
+* Add methods to retrieve Azure resources used by a VM: `get_disk`, `get_vnet`, `get_nic`, `get_nsg`, `get_public_ip_resource`. These return objects of class `AzureRMR::az_resource`, or `NULL` if not present.
+* Add similar methods to retrieve Azure resources used by a scaleset: `get_vnet`, `get_nsg`, `get_public_ip_resource`, `get_load_balancer`, `get_autoscaler`.
 * Add `redeploy` and `reimage` methods for VMs, to match those for VM scalesets.
-* Add methods to retrieve resources used by VM/scaleset: `get_disk`, `get_vnet`, `get_nic`, `get_nsg`, `get_public_ip_resource`, `get_load_balancer`, `get_autoscaler`. These return objects of class `AzureRMR::az_resource`, or `NULL` if not present.
 * Fix error in documentation for VMSS public IP address methods: these return `NA`, not `NULL` if the public address is unavailable.
 
 # AzureVM 2.0.0
