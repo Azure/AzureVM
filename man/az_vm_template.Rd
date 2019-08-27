@@ -12,8 +12,6 @@ az_vm_template
 Class representing a virtual machine deployment template. This class keeps track of all resources that are created as part of deploying a VM, and exposes methods for managing them.
 }
 \details{
-The VM operations listed above are actually provided by the \link{az_vm_resource} class, and propagated to the template as active bindings.
-
 A single virtual machine in Azure is actually a collection of resources, including any and all of the following.
 \itemize{
 \item Network interface (Azure resource type \code{Microsoft.Network/networkInterfaces})
@@ -49,9 +47,16 @@ The following methods are available, in addition to those provided by the \link[
 \item \code{reimage()}: Reimage the VM.
 \item \code{get_public_ip_address(nic=1, config=1)}: Get the public IP address of the VM. Returns NA if the VM is stopped, or is not publicly accessible.
 \item \code{get_private_ip_address(nic=1, config=1)}: Get the private IP address of the VM.
+\item \code{get_public_ip_resource(nic=1, config=1)}: Get the Azure resource for the VM's public IP address.
+\item \code{get_nic(nic=1)}: Get the VM's network interface resource.
+\item \code{get_vnet(nic=1, config=1)}: Get the VM's virtual network resource.
+\item \code{get_nsg(nic=1, config=1)}: Get the VM's network security group resource. Note that an NSG can be attached to either the VM's network interface or to its virtual network subnet; if there is an NSG attached to both, this method returns a list containing the two NSG resource objects.
+\item \code{get_disk(disk="os")}: Get a managed disk resource attached to the VM. The \code{disk} argument can be "os" for the OS disk, or a number indicating the LUN of a data disk. AzureVM only supports managed disks.
 \item \code{add_extension(publisher, type, version, settings=list(), protected_settings=list(), key_vault_settings=list())}: Add an extension to the VM.
 \item \code{do_vm_operation(...)}: Carries out an arbitrary operation on the VM resource. See the \code{do_operation} method of the \link[AzureRMR:az_resource]{AzureRMR::az_resource} class for more details.
 }
+
+Many of these methods are actually provided by the \link{az_vm_resource} class, and propagated to the template as active bindings.
 }
 
 \examples{

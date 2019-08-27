@@ -25,6 +25,11 @@ sub <- AzureRMR::get_azure_login()$
 vm <- sub$create_vm("myubuntuvm", user_config("myname", "~/.ssh/id_rsa.pub"),
                     location="australiaeast")
 
+# some resources used by the VM
+vm$get_vnet()
+vm$get_public_ip_resource()
+vm$get_disk("os")
+
 # run a shell script or command remotely (will be PowerShell on a Windows VM)
 vm$run_script("echo hello world! > /tmp/hello.txt")
 

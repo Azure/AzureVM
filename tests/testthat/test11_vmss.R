@@ -43,6 +43,12 @@ test_that("Scaleset interaction works",
     expect_is(vm$get_vm_private_ip_addresses(names(inst)[1:2]), "character")
     expect_is(vm$get_vm_public_ip_addresses(names(inst)[1:2]), "character")
 
+    expect_is(vm$get_public_ip_resource(), "az_resource")
+    expect_is(vm$get_vnet(), "az_resource")
+    expect_is(vm$get_nsg(), "az_resource")
+    expect_is(vm$get_load_balancer(), "az_resource")
+    expect_is(vm$get_autoscaler(), "az_resource")
+
     expect_is(vm$identity, "list")
 })
 

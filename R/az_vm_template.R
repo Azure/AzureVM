@@ -20,12 +20,17 @@
 #' - `reimage()`: Reimage the VM.
 #' - `get_public_ip_address(nic=1, config=1)`: Get the public IP address of the VM. Returns NA if the VM is stopped, or is not publicly accessible.
 #' - `get_private_ip_address(nic=1, config=1)`: Get the private IP address of the VM.
+#' - `get_public_ip_resource(nic=1, config=1)`: Get the Azure resource for the VM's public IP address.
+#' - `get_nic(nic=1)`: Get the VM's network interface resource.
+#' - `get_vnet(nic=1, config=1)`: Get the VM's virtual network resource.
+#' - `get_nsg(nic=1, config=1)`: Get the VM's network security group resource. Note that an NSG can be attached to either the VM's network interface or to its virtual network subnet; if there is an NSG attached to both, this method returns a list containing the two NSG resource objects.
+#' - `get_disk(disk="os")`: Get a managed disk resource attached to the VM. The `disk` argument can be "os" for the OS disk, or a number indicating the LUN of a data disk. AzureVM only supports managed disks.
 #' - `add_extension(publisher, type, version, settings=list(), protected_settings=list(), key_vault_settings=list())`: Add an extension to the VM.
 #' - `do_vm_operation(...)`: Carries out an arbitrary operation on the VM resource. See the `do_operation` method of the [AzureRMR::az_resource] class for more details.
 #'
-#' @details
-#' The VM operations listed above are actually provided by the [az_vm_resource] class, and propagated to the template as active bindings.
+#' Many of these methods are actually provided by the [az_vm_resource] class, and propagated to the template as active bindings.
 #'
+#' @details
 #' A single virtual machine in Azure is actually a collection of resources, including any and all of the following.
 #' - Network interface (Azure resource type `Microsoft.Network/networkInterfaces`)
 #' - Network security group (Azure resource type `Microsoft.Network/networkSecurityGroups`)
@@ -159,6 +164,21 @@ active=list(
 
     get_private_ip_address=function()
     private$vm$get_private_ip_address,
+
+    get_public_ip_resource=function()
+    private$vm$get_public_ip_resource,
+
+    get_nic=function()
+    private$vm$get_nic,
+
+    get_vnet=function()
+    private$vm$get_vnet,
+
+    get_nsg=function()
+    private$vm$get_nsg,
+
+    get_disk=function()
+    private$vm$get_disk,
 
     redeploy=function()
     private$vm$redeploy,

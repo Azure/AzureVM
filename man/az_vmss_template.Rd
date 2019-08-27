@@ -46,6 +46,11 @@ The following methods are available, in addition to those provided by the \link[
 \item \code{get_public_ip_address()}: Get the public IP address of the scaleset (technically, of the load balancer). If the scaleset doesn't have a load balancer attached, returns NA.
 \item \code{get_vm_public_ip_addresses(id=NULL, nic=1, config=1)}: Get the public IP addresses for the instances in the scaleset. Returns NA for the instances that are stopped or not publicly accessible.
 \item \code{get_vm_private_ip_addresses(id=NULL, nic=1, config=1)}: Get the private IP addresses for the instances in the scaleset.
+\item \code{get_public_ip_resource()}: Get the Azure resource for the load balancer's public IP address.
+\item \code{get_vnet(nic=1, config=1)}: Get the scaleset's virtual network resource.
+\item \code{get_nsg(nic=1, config=1)}: Get the scaleset's network security group resource.
+\item \code{get_load_balancer()}: Get the scaleset's load balancer resource.
+\item \code{get_autoscaler()}: Get the scaleset's autoscaler resource.
 \item \code{run_deployed_command(command, parameters=NULL, script=NULL, id=NULL)}: Run a PowerShell command on the instances in the scaleset.
 \item \code{run_script(script, parameters=NULL, id=NULL)}: Run a script on the VM. For a Linux VM, this will be a shell script; for a Windows VM, a PowerShell script. Pass the script as a character vector.
 \item \code{reimage(id=NULL, datadisks=FALSE)}: Reimage the instances in the scaleset. If \code{datadisks} is TRUE, reimage any attached data disks as well.
@@ -54,11 +59,12 @@ The following methods are available, in addition to those provided by the \link[
 \item \code{add_extension(publisher, type, version, settings=list(), protected_settings=list(), key_vault_settings=list())}: Add an extension to the scaleset.
 \item \code{do_vmss_operation(...)} Carry out an arbitrary operation on the scaleset resource (as opposed to the instances in the scaleset).
 }
+
+Many of these methods are actually provided by the \link{az_vmss_resource} class, and propagated to the template as active bindings.
 }
 
 \section{Instance operations}{
 
-With the exception of \code{get_public_ip_address}, the scaleset methods listed above are actually provided by the \link{az_vmss_resource} class, and propagated to the template as active bindings.
 
 AzureVM has the ability to parallelise scaleset instance operations using a pool of background processes. This can lead to significant speedups when working with scalesets with high instance counts. The pool is created automatically the first time that it is required, and remains persistent for the session. For more information, see \link{init_pool}.
 

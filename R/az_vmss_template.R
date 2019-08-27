@@ -18,6 +18,11 @@
 #' - `get_public_ip_address()`: Get the public IP address of the scaleset (technically, of the load balancer). If the scaleset doesn't have a load balancer attached, returns NA.
 #' - `get_vm_public_ip_addresses(id=NULL, nic=1, config=1)`: Get the public IP addresses for the instances in the scaleset. Returns NA for the instances that are stopped or not publicly accessible.
 #' - `get_vm_private_ip_addresses(id=NULL, nic=1, config=1)`: Get the private IP addresses for the instances in the scaleset.
+#' - `get_public_ip_resource()`: Get the Azure resource for the load balancer's public IP address.
+#' - `get_vnet(nic=1, config=1)`: Get the scaleset's virtual network resource.
+#' - `get_nsg(nic=1, config=1)`: Get the scaleset's network security group resource.
+#' - `get_load_balancer()`: Get the scaleset's load balancer resource.
+#' - `get_autoscaler()`: Get the scaleset's autoscaler resource.
 #' - `run_deployed_command(command, parameters=NULL, script=NULL, id=NULL)`: Run a PowerShell command on the instances in the scaleset.
 #' - `run_script(script, parameters=NULL, id=NULL)`: Run a script on the VM. For a Linux VM, this will be a shell script; for a Windows VM, a PowerShell script. Pass the script as a character vector.
 #' - `reimage(id=NULL, datadisks=FALSE)`: Reimage the instances in the scaleset. If `datadisks` is TRUE, reimage any attached data disks as well.
@@ -25,6 +30,8 @@
 #' - `mapped_vm_operation(..., id=NULL)`: Carry out an arbitrary operation on the instances in the scaleset. See the `do_operation` method of the [AzureRMR::az_resource] class for more details.
 #' - `add_extension(publisher, type, version, settings=list(), protected_settings=list(), key_vault_settings=list())`: Add an extension to the scaleset.
 #' - `do_vmss_operation(...)` Carry out an arbitrary operation on the scaleset resource (as opposed to the instances in the scaleset).
+#'
+#' Many of these methods are actually provided by the [az_vmss_resource] class, and propagated to the template as active bindings.
 #'
 #' @details
 #' A virtual machine scaleset in Azure is actually a collection of resources, including any and all of the following.
@@ -38,7 +45,6 @@
 #' By wrapping the deployment template used to create these resources, the `az_vmss_template` class allows managing them all as a single entity.
 #'
 #' @section Instance operations:
-#' With the exception of `get_public_ip_address`, the scaleset methods listed above are actually provided by the [az_vmss_resource] class, and propagated to the template as active bindings.
 #'
 #' AzureVM has the ability to parallelise scaleset instance operations using a pool of background processes. This can lead to significant speedups when working with scalesets with high instance counts. The pool is created automatically the first time that it is required, and remains persistent for the session. For more information, see [init_pool].
 #'
@@ -142,14 +148,37 @@ public=list(
 
     get_public_ip_address=function()
     {
+        ip <- self$get_public_ip_resource()
+        if(!is.null(ip))
+            ip$properties$ipAddress
+        else NA_character_
+    },
+
+    get_public_ip_resource=function()
+    {
         outputs <- unlist(self$properties$outputResources)
         ip_id <- grep("publicIPAddresses/.+$", outputs, ignore.case=TRUE, value=TRUE)
         if(is_empty(ip_id))
-            return(NA_character_)
-        ip <- az_resource$new(self$token, self$subscription, id=ip_id)$properties$ipAddress
-        if(!is.null(ip))
-            ip
-        else NA_character_
+            NULL
+        else az_resource$new(self$token, self$subscription, id=ip_id)
+    },
+
+    get_load_balancer=function()
+    {
+        outputs <- unlist(self$properties$outputResources)
+        lb_id <- grep("loadBalancers/.+$", outputs, ignore.case=TRUE, value=TRUE)
+        if(is_empty(lb_id))
+            NULL
+        else az_resource$new(self$token, self$subscription, id=lb_id)
+    },
+
+    get_autoscaler=function()
+    {
+        outputs <- unlist(self$properties$outputResources)
+        as_id <- grep("autoscaleSettings/.+$", outputs, ignore.case=TRUE, value=TRUE)
+        if(is_empty(as_id))
+            NULL
+        else az_resource$new(self$token, self$subscription, id=as_id)
     }
 ),
 
@@ -182,6 +211,12 @@ active=list(
 
     get_vm_private_ip_addresses=function()
     private$vmss$get_vm_private_ip_addresses,
+
+    get_vnet=function()
+    private$vmss$get_vnet,
+
+    get_nsg=function()
+    private$vmss$get_nsg,
 
     run_deployed_command=function()
     private$vmss$run_deployed_command,
