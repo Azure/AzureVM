@@ -303,7 +303,10 @@ private=list(
         if(length(vms) < 2 || getOption("azure_vm_maxpoolsize") == 0)
             return(lapply(vms, f))
 
-        init_pool(length(vms))
-        parallel::parLapply(.AzureVM$pool, vms, f)
+        minsize <- getOption("azure_vm_minpoolsize")
+        maxsize <- getOption("azure_vm_maxpoolsize")
+        size <- min(max(length(vms), minsize), maxsize)
+        init_pool(size)
+        pool_lapply(vms, f)
     }
 ))

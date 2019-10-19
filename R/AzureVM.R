@@ -22,8 +22,3 @@ globalVariables(c("self", "pool"), "AzureVM")
     options(azure_vm_maxpoolsize=10)
 }
 
-.onUnload <- function(libpath)
-{
-    if(exists("pool", envir=.AzureVM))
-        try(parallel::stopCluster(.AzureVM$pool), silent=TRUE)
-}

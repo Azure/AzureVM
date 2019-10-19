@@ -22,6 +22,7 @@ vm_config(image, keylogin, managed = TRUE, datadisks = numeric(0),
   ...)
 
 ubuntu_dsvm(keylogin = TRUE, managed = TRUE, datadisks = numeric(0),
+  dsvm_disk_type = "Premium_LRS",
   nsg = nsg_config(list(nsg_rule_allow_ssh, nsg_rule_allow_jupyter,
   nsg_rule_allow_rstudio)), ...)
 
@@ -85,6 +86,8 @@ debian_9_backports(keylogin = TRUE, managed = TRUE,
 \item{variables}{An optional named list of variables to add to the template.}
 
 \item{...}{For the specific VM configurations, other customisation arguments to be passed to \code{vm_config}. For \code{vm_config}, named arguments that will be folded into the VM resource definition in the template.}
+
+\item{dsvm_disk_type}{The Ubuntu DSVM image comes with one additional datadisk that holds some installed tools. This argument sets what type of disk is used. Change this to "Standard_LRS" if the VM size doesn't support Premium_LRS.}
 }
 \value{
 An object of S3 class \code{vm_config}, that can be used by the \code{create_vm} method.

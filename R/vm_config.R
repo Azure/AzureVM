@@ -4,6 +4,7 @@
 #' @param keylogin Whether to use an SSH public key to login (TRUE) or a password (FALSE). Note that Windows does not support SSH key logins.
 #' @param managed Whether to provide a managed system identity for the VM.
 #' @param datadisks The data disks to attach to the VM. Specify this as either a vector of numeric disk sizes in GB, or a list of `datadisk_config` objects for more control over the specification.
+#' @param dsvm_disk_type The Ubuntu DSVM image comes with one additional datadisk that holds some installed tools. This argument sets what type of disk is used. Change this to "Standard_LRS" if the VM size doesn't support Premium_LRS.
 #' @param nsg The network security group for the VM. Can be a call to `nsg_config` to create a new NSG; an AzureRMR resource object or resource ID to reuse an existing NSG; or NULL to not use an NSG (not recommended).
 #' @param ip The public IP address for the VM. Can be a call to `ip_config` to create a new IP address; an AzureRMR resource object or resource ID to reuse an existing address resource; or NULL if the VM should not be accessible from outside its subnet.
 #' @param vnet The virtual network for the VM. Can be a call to `vnet_config` to create a new virtual network, or an AzureRMR resource object or resource ID to reuse an existing virtual network. Note that by default, AzureVM will associate the NSG with the virtual network/subnet, not with the VM's network interface.
@@ -195,13 +196,13 @@ vm_fixup_ip <- function(ip)
 
 #' @rdname vm_config
 #' @export
-ubuntu_dsvm <- function(keylogin=TRUE, managed=TRUE, datadisks=numeric(0),
+ubuntu_dsvm <- function(keylogin=TRUE, managed=TRUE, datadisks=numeric(0), dsvm_disk_type="Premium_LRS",
                         nsg=nsg_config(list(nsg_rule_allow_ssh, nsg_rule_allow_jupyter, nsg_rule_allow_rstudio)),
                         ...)
 {
     if(is.numeric(datadisks))
         datadisks <- lapply(datadisks, datadisk_config)
-    disk0 <- datadisk_config(NULL, NULL, "fromImage", "Premium_LRS")
+    disk0 <- datadisk_config(NULL, NULL, "fromImage", dsvm_disk_type)
     vm_config(image_config("microsoft-dsvm", "linux-data-science-vm-ubuntu", "linuxdsvmubuntu"),
               keylogin=keylogin, managed=managed, datadisks=c(list(disk0), datadisks), nsg=nsg, ...)
 }
