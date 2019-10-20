@@ -46,12 +46,12 @@
 #'
 #' @section Instance operations:
 #'
-#' AzureVM has the ability to parallelise scaleset instance operations using a pool of background processes. This can lead to significant speedups when working with scalesets with high instance counts. The pool is created automatically the first time that it is required, and remains persistent for the session. For more information, see [init_pool].
+#' AzureVM has the ability to parallelise scaleset instance operations using a pool of background processes. This can lead to significant speedups when working with scalesets with high instance counts. The pool is created automatically the first time that it is required, and remains persistent for the session. For more information, see [AzureRMR::init_pool].
 #'
 #' The `id` argument lets you specify a subset of instances on which to carry out an operation. This can be a character vector of instance IDs; a list of instance objects such as returned by `list_instances`; or a single instance object. The default (NULL) is to carry out the operation on all instances.
 #'
 #' @seealso
-#' [AzureRMR::az_template], [create_vm_scaleset], [get_vm_scaleset], [delete_vm_scaleset], [init_pool]
+#' [AzureRMR::az_template], [create_vm_scaleset], [get_vm_scaleset], [delete_vm_scaleset]
 #'
 #' [VM scaleset API reference](https://docs.microsoft.com/en-us/rest/api/compute/virtualmachinescalesets)
 #'
