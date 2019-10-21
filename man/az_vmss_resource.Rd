@@ -51,7 +51,7 @@ The following methods are available, in addition to those provided by the \link[
 
 \section{Instance operations}{
 
-AzureVM has the ability to parallelise scaleset instance operations using a background process pool provided by AzureRMR. This can lead to significant speedups when working with scalesets with high instance counts. The pool is created automatically the first time that it is required, and remains persistent for the session. For more information, see \link[AzureRMR:init_pool]{AzureRMR::init_pool}.
+AzureVM has the ability to parallelise scaleset instance operations using a background process pool provided by AzureRMR. This can lead to significant speedups when working with scalesets with high instance counts. The pool is created automatically the first time that it is required, and remains persistent for the session. You can control the size of the process pool with the \code{azure_vm_minpoolsize} and \code{azure_vm_maxpoolsize} options, which have default values 2 and 10 respectively.
 
 The \code{id} argument lets you specify a subset of instances on which to carry out an operation. This can be a character vector of instance IDs; a list of instance objects such as returned by \code{list_instances}; or a single instance object. The default (NULL) is to carry out the operation on all instances.
 }
