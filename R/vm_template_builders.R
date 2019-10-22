@@ -59,6 +59,8 @@ add_template_resources.vm_config <- function(config, ...)
     if(config$managed)
         vm$identity <- list(type="systemAssigned")
 
+    vm$properties$storageProfile$osDisk$managedDisk$storageAccountType <- config$os_disk_type
+
     vm$properties$osProfile <- c(vm$properties$osProfile,
         if(config$keylogin) vm_key_login else vm_pwd_login)
 

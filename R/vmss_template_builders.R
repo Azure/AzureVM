@@ -88,6 +88,8 @@ add_template_resources.vmss_config <- function(config, ...)
                                 )
     }
 
+    vm$storageProfile$osDisk$managedDisk$storageAccountType <- config$options$os_disk_type
+
     vmss$properties$virtualMachineProfile <- vm
     if(!is_empty(config$vmss_fields))
         vmss <- utils::modifyList(vmss, config$vmss_fields)

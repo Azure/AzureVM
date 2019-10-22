@@ -222,6 +222,8 @@ ubuntu_dsvm_ss <- function(nsg=nsg_config(list(nsg_rule_allow_ssh, nsg_rule_allo
                                                    probes=list(lb_probe_ssh, lb_probe_jupyter, lb_probe_rstudio)),
                            ...)
 {
+    # dsvm_disk_type <- match.arg(dsvm_disk_type)
+    # disk0 <- datadisk_config(NULL, NULL, "fromImage", dsvm_disk_type)
     vmss_config(image_config("microsoft-dsvm", "linux-data-science-vm-ubuntu", "linuxdsvmubuntu"),
                 nsg=nsg, load_balancer=load_balancer, ...)
 }
@@ -365,12 +367,14 @@ debian_9_backports_ss <- function(nsg=nsg_config(list(nsg_rule_allow_ssh)),
 #' @param large_scaleset Whether to enable scaleset sizes > 100 instances.
 #' @param overprovision Whether to overprovision the scaleset on creation.
 #' @param upgrade_policy A list, giving the VM upgrade policy for the scaleset.
+#' @param os_disk_type The type of primary disk for the VM. Change this to "StandardSSD_LRS" or "Standard_LRS" if the VM size doesn't support premium storage.
 #'
 #' @export
 scaleset_options <- function(keylogin=TRUE, managed=TRUE, public=FALSE,
                              low_priority=FALSE, delete_on_evict=FALSE,
                              network_accel=FALSE, large_scaleset=FALSE,
-                             overprovision=TRUE, upgrade_policy=list(mode="manual"))
+                             overprovision=TRUE, upgrade_policy=list(mode="manual"),
+                             os_disk_type=c("Premium_LRS", "StandardSSD_LRS", "Standard_LRS"))
 {
     params <- list(
         priority=if(low_priority) "low" else "regular",
@@ -381,7 +385,8 @@ scaleset_options <- function(keylogin=TRUE, managed=TRUE, public=FALSE,
         upgradePolicy=upgrade_policy
     )
 
-    out <- list(keylogin=keylogin, managed=managed, public=public, params=params)
+    os_disk_type <- match.arg(os_disk_type)
+    out <- list(keylogin=keylogin, managed=managed, public=public, os_disk_type=os_disk_type, params=params)
     structure(out, class="scaleset_options")
 }
 

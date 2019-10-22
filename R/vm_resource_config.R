@@ -31,8 +31,11 @@ user_config <- function(username, sshkey=NULL, password=NULL)
 
 #' @rdname vm_resource_config
 #' @export
-datadisk_config <- function(size, name="datadisk", create="empty", type="StandardSSD_LRS", write_accelerator=FALSE)
+datadisk_config <- function(size, name="datadisk", create="empty",
+                            type=c("StandardSSD_LRS", "Premium_LRS", "Standard_LRS", "UltraSSD_LRS"),
+                            write_accelerator=FALSE)
 {
+    type <- match.arg(type)
     vm_caching <- if(type == "Premium_LRS") "ReadOnly" else "None"
     vm_create <- if(create == "empty") "attach" else "fromImage"
     vm_storage <- if(create == "empty") NULL else type
