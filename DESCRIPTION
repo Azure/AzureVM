@@ -14,7 +14,7 @@ Depends:
     R (>= 3.3)
 Imports: 
     R6,
-    AzureRMR (>= 2.1.2),
+    AzureRMR (>= 2.2.1),
     jsonlite
 Suggests:
     knitr,
@@ -24,4 +24,4 @@ Suggests:
 Roxygen: list(markdown=TRUE)
 RoxygenNote: 6.1.1
 Remotes:
-    Azure/AzureRMR@background-pool
+    Azure/AzureRMR
