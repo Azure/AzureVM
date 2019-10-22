@@ -72,7 +72,7 @@ debian_9_backports(keylogin = TRUE, managed = TRUE,
 
 \item{managed}{Whether to provide a managed system identity for the VM.}
 
-\item{os_disk_type}{The type of primary disk for the VM. Change this to "StandardSSD_LRS" or "Standard_LRS" if the VM size doesn't support premium storage.}
+\item{os_disk_type}{The type of primary disk for the VM. Can be "Premium_LRS" (the default), "StandardSSD_LRS", or "Standard_LRS". Of these, "Standard_LRS" uses hard disks and the others use SSDs as the underlying hardware. Change this to "StandardSSD_LRS" or "Standard_LRS" if the VM size doesn't support premium storage.}
 
 \item{datadisks}{The data disks to attach to the VM. Specify this as either a vector of numeric disk sizes in GB, or a list of \code{datadisk_config} objects for more control over the specification.}
 

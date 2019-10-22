@@ -16,6 +16,9 @@ add_template_parameters.vmss_config <- function(config, ...)
         add_param(imagePublisher="string", imageOffer="string", imageSku="string", imageVersion="string")
     else add_param(imageId="string")
 
+    if(length(config$datadisks) > 0)
+        add_param(dataDisks="array", dataDiskResources="array")
+
     params
 }
 
@@ -47,6 +50,18 @@ add_template_resources.vmss_config <- function(config, ...)
 
     # fixup VM properties
     vm <- vmss$properties$virtualMachineProfile
+
+    n_disks <- length(config$datadisks)
+    n_disk_resources <- if(n_disks > 0)
+        sum(sapply(config$datadisks, function(x) !is.null(x$res_spec)))
+    else 0
+
+    if(n_disks > 0)
+    {
+        vm$properties$storageProfile$copy <- vm_datadisk
+        if(n_disk_resources > 0)
+            vmss$dependsOn <- c(vmss$dependsOn, "managedDiskResources")
+    }
 
     vm$osProfile <- c(vm$osProfile,
         if(config$options$keylogin) vm_key_login else vm_pwd_login)
@@ -121,7 +136,15 @@ add_template_resources.vmss_config <- function(config, ...)
         vmss_depends <- c(vmss_depends, "[variables('lbRef')]")
     if(create["vnet"])
         vmss_depends <- c(vmss_depends, "[variables('vnetRef')]")
+
     vmss$dependsOn <- I(vmss_depends)
+
+    if(n_disk_resources > 0)
+    {
+        resources <- c(resources, list(disk_default))
+        if(n_disks > 0)
+            vmss$dependsOn <- c(vmss$dependsOn, "managedDiskResources")
+    }
 
     resources <- c(resources, list(vmss))
 
