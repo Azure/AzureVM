@@ -9,8 +9,6 @@ AzureRMR::build_template_parameters
 
 globalVariables(c("self", "pool"), "AzureVM")
 
-.AzureVM <- new.env()
-
 
 # adding methods to classes in external package must go in .onLoad
 .onLoad <- function(libname, pkgname)
