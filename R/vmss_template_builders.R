@@ -58,7 +58,8 @@ add_template_resources.vmss_config <- function(config, ...)
 
     if(n_disks > 0)
     {
-        vm$properties$storageProfile$copy <- vm_datadisk
+        vm_datadisk[[1]]$input$managedDisk$id <- NULL
+        vm$storageProfile$copy <- vm_datadisk
         if(n_disk_resources > 0)
             vmss$dependsOn <- c(vmss$dependsOn, "managedDiskResources")
     }

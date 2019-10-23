@@ -148,10 +148,16 @@ build_template_parameters.vmss_config <- function(config, name, login_user, size
     # add datadisks to params
     if(!is_empty(config$datadisks))
     {
-        # fixup datadisk LUNs and names
+        # fixup datadisk for scaleset
         for(i in seq_along(config$datadisks))
         {
             config$datadisks[[i]]$vm_spec$lun <- i - 1
+            if(config$datadisks[[i]]$vm_spec$createOption == "attach")
+            {
+                config$datadisks[[i]]$vm_spec$createOption <- "empty"
+                config$datadisks[[i]]$vm_spec$diskSizeGB <- config$datadisks[[i]]$res_spec$diskSizeGB
+                config$datadisks[[i]]$vm_spec$storageAccountType <- config$datadisks[[i]]$res_spec$sku
+            }
             diskname <- config$datadisks[[i]]$vm_spec$name
             if(!is.null(diskname))
             {
