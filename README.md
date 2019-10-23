@@ -152,7 +152,7 @@ sub$create_vm_scaleset("mylargess", user_config("myname", "~/.ssh/id_rsa.pub"), 
                        location="australiaeast")
 ```
 
-Working with scaleset instances can be tedious if you have a large scaleset, since R can only connect to one instance at a time. To solve this problem, AzureVM creates a pool of background processes that connect in parallel with the scaleset, leading to significant speedups. The pool is created automatically the first time it is needed, and is deleted at the end of the session.
+Working with scaleset instances can be tedious if you have a large scaleset, since R can only connect to one instance at a time. To solve this problem, AzureVM can leverage the process pool functionality provided by AzureRMR to connect in parallel with the scaleset, leading to significant speedups. The pool is created automatically the first time it is needed, and is deleted at the end of the session.
 
 ```r
 # this will create a pool of up to 10 processes that talk to the scaleset

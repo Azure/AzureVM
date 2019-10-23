@@ -3,7 +3,6 @@
 * VM scalesets can now be created with data disks.
 * Make OS disk type and Linux DSVM data disk type selectable, with a default of "Premium_LRS" for both.
 * Background process pool functionality moved into AzureRMR; this removes code duplication and makes it available for other packages that can benefit.
-* Update default VM and VM scaleset sizes to "Standard_DS3_v3" and "Standard_DS1_v3" respectively.
 
 # AzureVM 2.0.1
 
