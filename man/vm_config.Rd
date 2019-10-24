@@ -16,12 +16,14 @@
 \alias{debian_9_backports}
 \title{VM configuration functions}
 \usage{
-vm_config(image, keylogin, managed = TRUE, datadisks = numeric(0),
-  nsg = nsg_config(), ip = ip_config(), vnet = vnet_config(),
-  nic = nic_config(), other_resources = list(), variables = list(),
-  ...)
+vm_config(image, keylogin, managed = TRUE,
+  os_disk_type = c("Premium_LRS", "StandardSSD_LRS", "Standard_LRS"),
+  datadisks = numeric(0), nsg = nsg_config(), ip = ip_config(),
+  vnet = vnet_config(), nic = nic_config(), other_resources = list(),
+  variables = list(), ...)
 
 ubuntu_dsvm(keylogin = TRUE, managed = TRUE, datadisks = numeric(0),
+  dsvm_disk_type = c("Premium_LRS", "StandardSSD_LRS", "Standard_LRS"),
   nsg = nsg_config(list(nsg_rule_allow_ssh, nsg_rule_allow_jupyter,
   nsg_rule_allow_rstudio)), ...)
 
@@ -70,6 +72,8 @@ debian_9_backports(keylogin = TRUE, managed = TRUE,
 
 \item{managed}{Whether to provide a managed system identity for the VM.}
 
+\item{os_disk_type}{The type of primary disk for the VM. Can be "Premium_LRS" (the default), "StandardSSD_LRS", or "Standard_LRS". Of these, "Standard_LRS" uses hard disks and the others use SSDs as the underlying hardware. Change this to "StandardSSD_LRS" or "Standard_LRS" if the VM size doesn't support premium storage.}
+
 \item{datadisks}{The data disks to attach to the VM. Specify this as either a vector of numeric disk sizes in GB, or a list of \code{datadisk_config} objects for more control over the specification.}
 
 \item{nsg}{The network security group for the VM. Can be a call to \code{nsg_config} to create a new NSG; an AzureRMR resource object or resource ID to reuse an existing NSG; or NULL to not use an NSG (not recommended).}
@@ -85,6 +89,8 @@ debian_9_backports(keylogin = TRUE, managed = TRUE,
 \item{variables}{An optional named list of variables to add to the template.}
 
 \item{...}{For the specific VM configurations, other customisation arguments to be passed to \code{vm_config}. For \code{vm_config}, named arguments that will be folded into the VM resource definition in the template.}
+
+\item{dsvm_disk_type}{The Ubuntu DSVM image comes with one additional datadisk that holds some installed tools. This argument sets what type of disk is used. Change this to "StandardSSD_LRS" or "Standard_LRS" if the VM size doesn't support premium storage.}
 }
 \value{
 An object of S3 class \code{vm_config}, that can be used by the \code{create_vm} method.

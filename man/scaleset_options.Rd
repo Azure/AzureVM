@@ -7,7 +7,8 @@
 scaleset_options(keylogin = TRUE, managed = TRUE, public = FALSE,
   low_priority = FALSE, delete_on_evict = FALSE,
   network_accel = FALSE, large_scaleset = FALSE,
-  overprovision = TRUE, upgrade_policy = list(mode = "manual"))
+  overprovision = TRUE, upgrade_policy = list(mode = "manual"),
+  os_disk_type = c("Premium_LRS", "StandardSSD_LRS", "Standard_LRS"))
 }
 \arguments{
 \item{keylogin}{Whether to use an SSH public key to login (TRUE) or a password (FALSE). Note that Windows does not support SSH key logins.}
@@ -27,6 +28,8 @@ scaleset_options(keylogin = TRUE, managed = TRUE, public = FALSE,
 \item{overprovision}{Whether to overprovision the scaleset on creation.}
 
 \item{upgrade_policy}{A list, giving the VM upgrade policy for the scaleset.}
+
+\item{os_disk_type}{The type of primary disk for the VM. Change this to "StandardSSD_LRS" or "Standard_LRS" if the VM size doesn't support premium storage.}
 }
 \description{
 Virtual machine scaleset options

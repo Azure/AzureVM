@@ -50,14 +50,12 @@ add_template_resources.vm_config <- function(config, ...)
     else 0
 
     if(n_disks > 0)
-    {
         vm$properties$storageProfile$copy <- vm_datadisk
-        if(n_disk_resources > 0)
-            vm$dependsOn <- c(vm$dependsOn, "managedDiskResources")
-    }
 
     if(config$managed)
         vm$identity <- list(type="systemAssigned")
+
+    vm$properties$storageProfile$osDisk$managedDisk$storageAccountType <- config$os_disk_type
 
     vm$properties$osProfile <- c(vm$properties$osProfile,
         if(config$keylogin) vm_key_login else vm_pwd_login)
@@ -101,7 +99,11 @@ add_template_resources.vm_config <- function(config, ...)
     else vm$dependsOn <- NULL
 
     if(n_disk_resources > 0)
+    {
         resources <- c(resources, list(disk_default))
+        if(n_disks > 0)
+            vm$dependsOn <- c(vm$dependsOn, "managedDiskResources")
+    }
 
     resources <- c(resources, list(vm))
 

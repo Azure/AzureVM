@@ -16,59 +16,71 @@
 \alias{debian_9_backports_ss}
 \title{Virtual machine scaleset configuration functions}
 \usage{
-vmss_config(image, options = scaleset_options(), nsg = nsg_config(),
-  vnet = vnet_config(), load_balancer = lb_config(),
-  load_balancer_address = ip_config(),
+vmss_config(image, options = scaleset_options(),
+  datadisks = numeric(0), nsg = nsg_config(), vnet = vnet_config(),
+  load_balancer = lb_config(), load_balancer_address = ip_config(),
   autoscaler = autoscaler_config(), other_resources = list(),
   variables = list(), ...)
 
-ubuntu_dsvm_ss(nsg = nsg_config(list(nsg_rule_allow_ssh,
-  nsg_rule_allow_jupyter, nsg_rule_allow_rstudio)),
-  load_balancer = lb_config(rules = list(lb_rule_ssh, lb_rule_jupyter,
-  lb_rule_rstudio), probes = list(lb_probe_ssh, lb_probe_jupyter,
-  lb_probe_rstudio)), ...)
+ubuntu_dsvm_ss(datadisks = numeric(0),
+  dsvm_disk_type = c("Premium_LRS", "StandardSSD_LRS", "Standard_LRS"),
+  nsg = nsg_config(list(nsg_rule_allow_ssh, nsg_rule_allow_jupyter,
+  nsg_rule_allow_rstudio)), load_balancer = lb_config(rules =
+  list(lb_rule_ssh, lb_rule_jupyter, lb_rule_rstudio), probes =
+  list(lb_probe_ssh, lb_probe_jupyter, lb_probe_rstudio)), ...)
 
-windows_dsvm_ss(nsg = nsg_config(list(nsg_rule_allow_rdp)),
+windows_dsvm_ss(datadisks = numeric(0),
+  nsg = nsg_config(list(nsg_rule_allow_rdp)),
   load_balancer = lb_config(rules = list(lb_rule_rdp), probes =
   list(lb_probe_rdp)), options = scaleset_options(keylogin = FALSE), ...)
 
-ubuntu_16.04_ss(nsg = nsg_config(list(nsg_rule_allow_ssh)),
+ubuntu_16.04_ss(datadisks = numeric(0),
+  nsg = nsg_config(list(nsg_rule_allow_ssh)),
   load_balancer = lb_config(rules = list(lb_rule_ssh), probes =
   list(lb_probe_ssh)), ...)
 
-ubuntu_18.04_ss(nsg = nsg_config(list(nsg_rule_allow_ssh)),
+ubuntu_18.04_ss(datadisks = numeric(0),
+  nsg = nsg_config(list(nsg_rule_allow_ssh)),
   load_balancer = lb_config(rules = list(lb_rule_ssh), probes =
   list(lb_probe_ssh)), ...)
 
-windows_2016_ss(nsg = nsg_config(list(nsg_rule_allow_rdp)),
+windows_2016_ss(datadisks = numeric(0),
+  nsg = nsg_config(list(nsg_rule_allow_rdp)),
   load_balancer = lb_config(rules = list(lb_rule_rdp), probes =
   list(lb_probe_rdp)), options = scaleset_options(keylogin = FALSE), ...)
 
-windows_2019_ss(nsg = nsg_config(list(nsg_rule_allow_rdp)),
+windows_2019_ss(datadisks = numeric(0),
+  nsg = nsg_config(list(nsg_rule_allow_rdp)),
   load_balancer = lb_config(rules = list(lb_rule_rdp), probes =
   list(lb_probe_rdp)), options = scaleset_options(keylogin = FALSE), ...)
 
-rhel_7.6_ss(nsg = nsg_config(list(nsg_rule_allow_ssh)),
+rhel_7.6_ss(datadisks = numeric(0),
+  nsg = nsg_config(list(nsg_rule_allow_ssh)),
   load_balancer = lb_config(rules = list(lb_rule_ssh), probes =
   list(lb_probe_ssh)), ...)
 
-rhel_8_ss(nsg = nsg_config(list(nsg_rule_allow_ssh)),
+rhel_8_ss(datadisks = numeric(0),
+  nsg = nsg_config(list(nsg_rule_allow_ssh)),
   load_balancer = lb_config(rules = list(lb_rule_ssh), probes =
   list(lb_probe_ssh)), ...)
 
-centos_7.5_ss(nsg = nsg_config(list(nsg_rule_allow_ssh)),
+centos_7.5_ss(datadisks = numeric(0),
+  nsg = nsg_config(list(nsg_rule_allow_ssh)),
   load_balancer = lb_config(rules = list(lb_rule_ssh), probes =
   list(lb_probe_ssh)), ...)
 
-centos_7.6_ss(nsg = nsg_config(list(nsg_rule_allow_ssh)),
+centos_7.6_ss(datadisks = numeric(0),
+  nsg = nsg_config(list(nsg_rule_allow_ssh)),
   load_balancer = lb_config(rules = list(lb_rule_ssh), probes =
   list(lb_probe_ssh)), ...)
 
-debian_8_backports_ss(nsg = nsg_config(list(nsg_rule_allow_ssh)),
+debian_8_backports_ss(datadisks = numeric(0),
+  nsg = nsg_config(list(nsg_rule_allow_ssh)),
   load_balancer = lb_config(rules = list(lb_rule_ssh), probes =
   list(lb_probe_ssh)), ...)
 
-debian_9_backports_ss(nsg = nsg_config(list(nsg_rule_allow_ssh)),
+debian_9_backports_ss(datadisks = numeric(0),
+  nsg = nsg_config(list(nsg_rule_allow_ssh)),
   load_balancer = lb_config(rules = list(lb_rule_ssh), probes =
   list(lb_probe_ssh)), ...)
 }
@@ -76,6 +88,8 @@ debian_9_backports_ss(nsg = nsg_config(list(nsg_rule_allow_ssh)),
 \item{image}{For \code{vmss_config}, the VM image to deploy. This should be an object of class \code{image_config}, created by the function of the same name.}
 
 \item{options}{Scaleset options, as obtained via a call to \code{scaleset_options}.}
+
+\item{datadisks}{The data disks to attach to the VM. Specify this as either a vector of numeric disk sizes in GB, or a list of \code{datadisk_config} objects for more control over the specification.}
 
 \item{nsg}{The network security group for the scaleset. Can be a call to \code{nsg_config} to create a new NSG; an AzureRMR resource object or resource ID to reuse an existing NSG; or NULL to not use an NSG (not recommended).}
 
@@ -92,6 +106,8 @@ debian_9_backports_ss(nsg = nsg_config(list(nsg_rule_allow_ssh)),
 \item{variables}{An optional named list of variables to add to the template.}
 
 \item{...}{For the specific VM configurations, other customisation arguments to be passed to \code{vm_config}. For \code{vmss_config}, named arguments that will be folded into the scaleset resource definition in the template.}
+
+\item{dsvm_disk_type}{The Ubuntu DSVM image comes with one additional datadisk that holds some installed tools. This argument sets what type of disk is used. Change this to "StandardSSD_LRS" or "Standard_LRS" if the VM size doesn't support premium storage.}
 }
 \value{
 An object of S3 class \code{vmss_config}, that can be used by the \code{create_vm_scaleset} method.

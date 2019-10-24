@@ -4,7 +4,7 @@
 ![Downloads](https://cranlogs.r-pkg.org/badges/AzureVM)
 <a href="https://asiadatascience.visualstudio.com/AzureR/_build/latest?definitionId=7&branchName=master"><img src="https://asiadatascience.visualstudio.com/AzureR/_apis/build/status/Azure.AzureVM?branchName=master" alt="Build Status"></a>
 
-AzureVM is a package for interacting with [virtual machines](https://azure.microsoft.com/services/virtual-machines/) and [virtual machine scalesets](https://azure.microsoft.com/services/virtual-machine-scale-sets/) in Azure. You can deploy, start up, shut down, run scripts, deallocate and delete VMs and scalesets from the R command line. It uses the tools provided by the [AzureRMR package](https://github.com/Azure/AzureRMR) to manage VM resources and templates. Version 2.0 of AzureVM is a complete rewrite of the package, aiming to make it a truly generic and flexible interface to VMs.
+AzureVM is a package for interacting with [virtual machines](https://azure.microsoft.com/services/virtual-machines/) and [virtual machine scalesets](https://azure.microsoft.com/services/virtual-machine-scale-sets/) in Azure. You can deploy, start up, shut down, run scripts, deallocate and delete VMs and scalesets from the R command line. It uses the tools provided by the [AzureRMR package](https://github.com/Azure/AzureRMR) to manage VM resources and templates.
 
 The primary repo for this package is at https://github.com/Azure/AzureVM; please submit issues and PRs there. It is also mirrored at the Cloudyr org at https://github.com/cloudyr/AzureVM. You can install the development version of the package with `devtools::install_github("Azure/AzureVM")`.
 
@@ -152,7 +152,7 @@ sub$create_vm_scaleset("mylargess", user_config("myname", "~/.ssh/id_rsa.pub"), 
                        location="australiaeast")
 ```
 
-Working with scaleset instances can be tedious if you have a large scaleset, since R can only connect to one instance at a time. To solve this problem, AzureVM creates a pool of background processes that connect in parallel with the scaleset, leading to significant speedups. The pool is created automatically the first time it is needed, and is deleted at the end of the session.
+Working with scaleset instances can be tedious if you have a large scaleset, since R can only connect to one instance at a time. To solve this problem, AzureVM can leverage the process pool functionality provided by AzureRMR to connect in parallel with the scaleset, leading to significant speedups. The pool is created automatically the first time it is needed, and is deleted at the end of the session.
 
 ```r
 # this will create a pool of up to 10 processes that talk to the scaleset

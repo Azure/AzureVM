@@ -1,3 +1,9 @@
+# AzureVM 2.0.1.9000
+
+* VM scalesets can now be created with data disks.
+* Make OS disk type and Linux DSVM data disk type selectable, with a default of "Premium_LRS" for both.
+* Background process pool functionality moved into AzureRMR; this removes code duplication and makes it available for other packages that can benefit.
+
 # AzureVM 2.0.1
 
 * Add methods to retrieve Azure resources used by a VM: `get_disk`, `get_vnet`, `get_nic`, `get_nsg`, `get_public_ip_resource`. These return objects of class `AzureRMR::az_resource`, or `NULL` if not present.
