@@ -10,7 +10,7 @@ Method for the \link[AzureRMR:az_subscription]{AzureRMR::az_subscription} and \l
 \section{Usage}{
 \preformatted{## R6 method for class 'az_resource_group'
 create_vm(name, login_user, size = "Standard_DS3_v2", config = "ubuntu_dsvm",
-          managed = TRUE, datadisks = numeric(0), ...,
+          managed_identity = TRUE, datadisks = numeric(0), ...,
           template, parameters, mode = "Incremental", wait = TRUE)
 
 ## R6 method for class 'az_subscription'
@@ -35,7 +35,7 @@ create_vm_scaleset(name, ..., resource_group = name, location)
 \item \code{login_user}: The details for the admin login account. An object of class \code{user_config}, obtained by a call to the \code{user_config} function.
 \item \code{size}: The VM (instance) size. Use the \link{list_vm_sizes} method to see what sizes are available.
 \item \code{config}: The VM or scaleset configuration. See 'Details' below for how to specify this. The default is to use an Ubuntu Data Science Virtual Machine.
-\item \code{managed}: For \code{create_vm}, whether the VM should have a managed identity attached.
+\item \code{managed_identity}: For \code{create_vm}, whether the VM should have a managed identity attached.
 \item \code{datadisks}: For \code{create_vm}, any data disks to attach to the VM. See 'Details' below.
 \item \code{instances}: For \code{create_vm_scaleset}, the initial number of instances in the scaleset.
 \item \code{...} For the subscription methods, any of the other arguments listed here, which will be passed to the resource group method. For the resource group method, additional arguments to pass to the VM/scaleset configuration functions \link{vm_config} and \link{vmss_config}. See the examples below.

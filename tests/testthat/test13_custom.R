@@ -35,7 +35,7 @@ test_that("Scaleset options work",
     ssname <- paste0(sample(letters, 10, TRUE), collapse="")
     size <- "Standard_DS3_v2"
     opts <- scaleset_options(
-        managed=FALSE,
+        managed_identity=FALSE,
         public=TRUE,
         low_priority=TRUE,
         delete_on_evict=TRUE,

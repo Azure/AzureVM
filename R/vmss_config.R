@@ -96,7 +96,7 @@
 #' rhel_8_ss(nsg=nsg_config(list()))
 #'
 #' # low-priority VMs, large scaleset (>100 instances allowed), no managed identity
-#' rhel_8_ss(options=scaleset_options(low_priority=TRUE, large_scaleset=TRUE, managed=FALSE))
+#' rhel_8_ss(options=scaleset_options(low_priority=TRUE, large_scaleset=TRUE, managed_identity=FALSE))
 #'
 #'
 #' \dontrun{
@@ -382,7 +382,7 @@ debian_9_backports_ss <- function(datadisks=numeric(0),
 #' Virtual machine scaleset options
 #'
 #' @param keylogin Whether to use an SSH public key to login (TRUE) or a password (FALSE). Note that Windows does not support SSH key logins.
-#' @param managed Whether to provide a managed system identity for the VM.
+#' @param managed_identity Whether to provide a managed system identity for the VM.
 #' @param public Whether the instances (nodes) of the scaleset should be visible from the public internet.
 #' @param low_priority Whether to use low-priority VMs. Note that this option is only available for certain VM sizes.
 #' @param delete_on_evict If low-priority VMs are being used, whether evicting (shutting down) a VM should delete it, as opposed to just deallocating it.
@@ -393,7 +393,7 @@ debian_9_backports_ss <- function(datadisks=numeric(0),
 #' @param os_disk_type The type of primary disk for the VM. Change this to "StandardSSD_LRS" or "Standard_LRS" if the VM size doesn't support premium storage.
 #'
 #' @export
-scaleset_options <- function(keylogin=TRUE, managed=TRUE, public=FALSE,
+scaleset_options <- function(keylogin=TRUE, managed_identity=TRUE, public=FALSE,
                              low_priority=FALSE, delete_on_evict=FALSE,
                              network_accel=FALSE, large_scaleset=FALSE,
                              overprovision=TRUE, upgrade_policy=list(mode="manual"),
@@ -409,7 +409,7 @@ scaleset_options <- function(keylogin=TRUE, managed=TRUE, public=FALSE,
     )
 
     os_disk_type <- match.arg(os_disk_type)
-    out <- list(keylogin=keylogin, managed=managed, public=public, os_disk_type=os_disk_type, params=params)
+    out <- list(keylogin=keylogin, managed_identity=managed_identity, public=public, os_disk_type=os_disk_type, params=params)
     structure(out, class="scaleset_options")
 }
 

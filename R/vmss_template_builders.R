@@ -45,7 +45,7 @@ add_template_resources.vmss_config <- function(config, ...)
     vmss <- vmss_default
 
     # fixup VMSS properties
-    if(config$options$managed)
+    if(config$options$managed_identity)
         vmss$identity <- list(type="systemAssigned")
 
     # fixup VM properties

@@ -2,7 +2,7 @@
 #'
 #' @param image For `vm_config`, the VM image to deploy. This should be an object of class `image_config`, created by the function of the same name.
 #' @param keylogin Whether to use an SSH public key to login (TRUE) or a password (FALSE). Note that Windows does not support SSH key logins.
-#' @param managed Whether to provide a managed system identity for the VM.
+#' @param managed_identity Whether to provide a managed system identity for the VM.
 #' @param datadisks The data disks to attach to the VM. Specify this as either a vector of numeric disk sizes in GB, or a list of `datadisk_config` objects for more control over the specification.
 #' @param os_disk_type The type of primary disk for the VM. Can be "Premium_LRS" (the default), "StandardSSD_LRS", or "Standard_LRS". Of these, "Standard_LRS" uses hard disks and the others use SSDs as the underlying hardware. Change this to "StandardSSD_LRS" or "Standard_LRS" if the VM size doesn't support premium storage.
 #' @param dsvm_disk_type The Ubuntu DSVM image comes with one additional datadisk that holds some installed tools. This argument sets what type of disk is used. Change this to "StandardSSD_LRS" or "Standard_LRS" if the VM size doesn't support premium storage.
@@ -140,7 +140,7 @@
 #'
 #' }
 #' @export
-vm_config <- function(image, keylogin, managed=TRUE,
+vm_config <- function(image, keylogin, managed_identity=TRUE,
                       os_disk_type=c("Premium_LRS", "StandardSSD_LRS", "Standard_LRS"),
                       datadisks=numeric(0),
                       nsg=nsg_config(),
@@ -162,7 +162,7 @@ vm_config <- function(image, keylogin, managed=TRUE,
     obj <- list(
         image=image,
         keylogin=keylogin,
-        managed=managed,
+        managed_identity=managed_identity,
         os_disk_type=match.arg(os_disk_type),
         datadisks=datadisks,
         nsg=nsg,
@@ -199,7 +199,7 @@ vm_fixup_ip <- function(ip)
 
 #' @rdname vm_config
 #' @export
-ubuntu_dsvm <- function(keylogin=TRUE, managed=TRUE, datadisks=numeric(0),
+ubuntu_dsvm <- function(keylogin=TRUE, managed_identity=TRUE, datadisks=numeric(0),
                         dsvm_disk_type=c("Premium_LRS", "StandardSSD_LRS", "Standard_LRS"),
                         nsg=nsg_config(list(nsg_rule_allow_ssh, nsg_rule_allow_jupyter, nsg_rule_allow_rstudio)),
                         ...)
@@ -209,104 +209,104 @@ ubuntu_dsvm <- function(keylogin=TRUE, managed=TRUE, datadisks=numeric(0),
     dsvm_disk_type <- match.arg(dsvm_disk_type)
     disk0 <- datadisk_config(NULL, NULL, "fromImage", dsvm_disk_type)
     vm_config(image_config("microsoft-dsvm", "linux-data-science-vm-ubuntu", "linuxdsvmubuntu"),
-              keylogin=keylogin, managed=managed, datadisks=c(list(disk0), datadisks), nsg=nsg, ...)
+              keylogin=keylogin, managed_identity=managed_identity, datadisks=c(list(disk0), datadisks), nsg=nsg, ...)
 }
 
 #' @rdname vm_config
 #' @export
-windows_dsvm <- function(keylogin=FALSE, managed=TRUE, datadisks=numeric(0),
+windows_dsvm <- function(keylogin=FALSE, managed_identity=TRUE, datadisks=numeric(0),
                          nsg=nsg_config(list(nsg_rule_allow_rdp)), ...)
 {
     vm_config(image_config("microsoft-dsvm", "dsvm-windows", "server-2016"),
-              keylogin=FALSE, managed=managed, datadisks=datadisks, nsg=nsg, ...)
+              keylogin=FALSE, managed_identity=managed_identity, datadisks=datadisks, nsg=nsg, ...)
 }
 
 #' @rdname vm_config
 #' @export
-ubuntu_16.04 <- function(keylogin=TRUE, managed=TRUE, datadisks=numeric(0),
+ubuntu_16.04 <- function(keylogin=TRUE, managed_identity=TRUE, datadisks=numeric(0),
                         nsg=nsg_config(list(nsg_rule_allow_ssh)), ...)
 {
     vm_config(image_config("Canonical", "UbuntuServer", "16.04-LTS"),
-              keylogin=keylogin, managed=managed, datadisks=datadisks, nsg=nsg, ...)
+              keylogin=keylogin, managed_identity=managed_identity, datadisks=datadisks, nsg=nsg, ...)
 }
 
 #' @rdname vm_config
 #' @export
-ubuntu_18.04 <- function(keylogin=TRUE, managed=TRUE, datadisks=numeric(0),
+ubuntu_18.04 <- function(keylogin=TRUE, managed_identity=TRUE, datadisks=numeric(0),
                         nsg=nsg_config(list(nsg_rule_allow_ssh)), ...)
 {
     vm_config(image_config("Canonical", "UbuntuServer", "18.04-LTS"),
-              keylogin=keylogin, managed=managed, datadisks=datadisks, nsg=nsg, ...)
+              keylogin=keylogin, managed_identity=managed_identity, datadisks=datadisks, nsg=nsg, ...)
 }
 
 #' @rdname vm_config
 #' @export
-windows_2016 <- function(keylogin=FALSE, managed=TRUE, datadisks=numeric(0),
+windows_2016 <- function(keylogin=FALSE, managed_identity=TRUE, datadisks=numeric(0),
                          nsg=nsg_config(list(nsg_rule_allow_rdp)), ...)
 {
     vm_config(image_config("MicrosoftWindowsServer", "WindowsServer", "2016-Datacenter"),
-              keylogin=FALSE, managed=managed, datadisks=datadisks, nsg=nsg, ...)
+              keylogin=FALSE, managed_identity=managed_identity, datadisks=datadisks, nsg=nsg, ...)
 }
 
 #' @rdname vm_config
 #' @export
-windows_2019 <- function(keylogin=FALSE, managed=TRUE, datadisks=numeric(0),
+windows_2019 <- function(keylogin=FALSE, managed_identity=TRUE, datadisks=numeric(0),
                          nsg=nsg_config(list(nsg_rule_allow_rdp)), ...)
 {
     vm_config(image_config("MicrosoftWindowsServer", "WindowsServer", "2019-Datacenter"),
-              keylogin=FALSE, managed=managed, datadisks=datadisks, nsg=nsg, ...)
+              keylogin=FALSE, managed_identity=managed_identity, datadisks=datadisks, nsg=nsg, ...)
 }
 
 #' @rdname vm_config
 #' @export
-rhel_7.6 <- function(keylogin=TRUE, managed=TRUE, datadisks=numeric(0),
+rhel_7.6 <- function(keylogin=TRUE, managed_identity=TRUE, datadisks=numeric(0),
                      nsg=nsg_config(list(nsg_rule_allow_ssh)), ...)
 {
     vm_config(image_config("RedHat", "RHEL", "7-RAW"),
-              keylogin=keylogin, managed=managed, datadisks=datadisks, nsg=nsg, ...)
+              keylogin=keylogin, managed_identity=managed_identity, datadisks=datadisks, nsg=nsg, ...)
 }
 
 #' @rdname vm_config
 #' @export
-rhel_8 <- function(keylogin=TRUE, managed=TRUE, datadisks=numeric(0),
+rhel_8 <- function(keylogin=TRUE, managed_identity=TRUE, datadisks=numeric(0),
                    nsg=nsg_config(list(nsg_rule_allow_ssh)), ...)
 {
     vm_config(image_config("RedHat", "RHEL", "8"),
-              keylogin=keylogin, managed=managed, datadisks=datadisks, nsg=nsg, ...)
+              keylogin=keylogin, managed_identity=managed_identity, datadisks=datadisks, nsg=nsg, ...)
 }
 
 #' @rdname vm_config
 #' @export
-centos_7.5 <- function(keylogin=TRUE, managed=TRUE, datadisks=numeric(0),
+centos_7.5 <- function(keylogin=TRUE, managed_identity=TRUE, datadisks=numeric(0),
                        nsg=nsg_config(list(nsg_rule_allow_ssh)), ...)
 {
     vm_config(image_config("OpenLogic", "CentOS", "7.5"),
-              keylogin=keylogin, managed=managed, datadisks=datadisks, nsg=nsg, ...)
+              keylogin=keylogin, managed_identity=managed_identity, datadisks=datadisks, nsg=nsg, ...)
 }
 
 #' @rdname vm_config
 #' @export
-centos_7.6 <- function(keylogin=TRUE, managed=TRUE, datadisks=numeric(0),
+centos_7.6 <- function(keylogin=TRUE, managed_identity=TRUE, datadisks=numeric(0),
                        nsg=nsg_config(list(nsg_rule_allow_ssh)), ...)
 {
     vm_config(image_config("OpenLogic", "CentOS", "7.6"),
-              keylogin=keylogin, managed=managed, datadisks=datadisks, nsg=nsg, ...)
+              keylogin=keylogin, managed_identity=managed_identity, datadisks=datadisks, nsg=nsg, ...)
 }
 
 #' @rdname vm_config
 #' @export
-debian_8_backports <- function(keylogin=TRUE, managed=TRUE, datadisks=numeric(0),
+debian_8_backports <- function(keylogin=TRUE, managed_identity=TRUE, datadisks=numeric(0),
                                nsg=nsg_config(list(nsg_rule_allow_ssh)), ...)
 {
     vm_config(image_config("Credativ", "Debian", "8-backports"),
-              keylogin=keylogin, managed=managed, datadisks=datadisks, nsg=nsg, ...)
+              keylogin=keylogin, managed_identity=managed_identity, datadisks=datadisks, nsg=nsg, ...)
 }
 
 #' @rdname vm_config
 #' @export
-debian_9_backports <- function(keylogin=TRUE, managed=TRUE, datadisks=numeric(0),
+debian_9_backports <- function(keylogin=TRUE, managed_identity=TRUE, datadisks=numeric(0),
                                nsg=nsg_config(list(nsg_rule_allow_ssh)), ...)
 {
     vm_config(image_config("Credativ", "Debian", "9-backports"),
-              keylogin=keylogin, managed=managed, datadisks=datadisks, nsg=nsg, ...)
+              keylogin=keylogin, managed_identity=managed_identity, datadisks=datadisks, nsg=nsg, ...)
 }

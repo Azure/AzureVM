@@ -4,8 +4,8 @@
 \alias{scaleset_options}
 \title{Virtual machine scaleset options}
 \usage{
-scaleset_options(keylogin = TRUE, managed = TRUE, public = FALSE,
-  low_priority = FALSE, delete_on_evict = FALSE,
+scaleset_options(keylogin = TRUE, managed_identity = TRUE,
+  public = FALSE, low_priority = FALSE, delete_on_evict = FALSE,
   network_accel = FALSE, large_scaleset = FALSE,
   overprovision = TRUE, upgrade_policy = list(mode = "manual"),
   os_disk_type = c("Premium_LRS", "StandardSSD_LRS", "Standard_LRS"))
@@ -13,7 +13,7 @@ scaleset_options(keylogin = TRUE, managed = TRUE, public = FALSE,
 \arguments{
 \item{keylogin}{Whether to use an SSH public key to login (TRUE) or a password (FALSE). Note that Windows does not support SSH key logins.}
 
-\item{managed}{Whether to provide a managed system identity for the VM.}
+\item{managed_identity}{Whether to provide a managed system identity for the VM.}
 
 \item{public}{Whether the instances (nodes) of the scaleset should be visible from the public internet.}
 

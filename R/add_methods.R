@@ -107,7 +107,7 @@ NULL
 #' ```
 #' ## R6 method for class 'az_resource_group'
 #' create_vm(name, login_user, size = "Standard_DS3_v2", config = "ubuntu_dsvm",
-#'           managed = TRUE, datadisks = numeric(0), ...,
+#'           managed_identity = TRUE, datadisks = numeric(0), ...,
 #'           template, parameters, mode = "Incremental", wait = TRUE)
 #'
 #' ## R6 method for class 'az_subscription'
@@ -128,7 +128,7 @@ NULL
 #' - `login_user`: The details for the admin login account. An object of class `user_config`, obtained by a call to the `user_config` function.
 #' - `size`: The VM (instance) size. Use the [list_vm_sizes] method to see what sizes are available.
 #' - `config`: The VM or scaleset configuration. See 'Details' below for how to specify this. The default is to use an Ubuntu Data Science Virtual Machine.
-#' - `managed`: For `create_vm`, whether the VM should have a managed identity attached.
+#' - `managed_identity`: For `create_vm`, whether the VM should have a managed identity attached.
 #' - `datadisks`: For `create_vm`, any data disks to attach to the VM. See 'Details' below.
 #' - `instances`: For `create_vm_scaleset`, the initial number of instances in the scaleset.
 #' - `...` For the subscription methods, any of the other arguments listed here, which will be passed to the resource group method. For the resource group method, additional arguments to pass to the VM/scaleset configuration functions [vm_config] and [vmss_config]. See the examples below.
@@ -426,7 +426,7 @@ add_sub_methods <- function()
 add_rg_methods <- function()
 {
     az_resource_group$set("public", "create_vm", overwrite=TRUE,
-    function(name, login_user, size="Standard_DS3_v2", config="ubuntu_18.04", managed=TRUE, datadisks=numeric(0),
+    function(name, login_user, size="Standard_DS3_v2", config="ubuntu_18.04", managed_identity=TRUE, datadisks=numeric(0),
              ..., template, parameters, mode="Incremental", wait=TRUE)
     {
         stopifnot(inherits(login_user, "user_config"))
@@ -434,7 +434,7 @@ add_rg_methods <- function()
         if(is.character(config))
             config <- get(config, getNamespace("AzureVM"))
         if(is.function(config))
-            config <- config(!is_empty(login_user$key), managed, datadisks, ...)
+            config <- config(!is_empty(login_user$key), managed_identity, datadisks, ...)
 
         stopifnot(inherits(config, "vm_config"))
 

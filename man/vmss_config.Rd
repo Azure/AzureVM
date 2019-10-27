@@ -187,7 +187,7 @@ rhel_8_ss(nsg=nsg_config(nsg_rule_allow_http, nsg_rule_allow_https))
 rhel_8_ss(nsg=nsg_config(list()))
 
 # low-priority VMs, large scaleset (>100 instances allowed), no managed identity
-rhel_8_ss(options=scaleset_options(low_priority=TRUE, large_scaleset=TRUE, managed=FALSE))
+rhel_8_ss(options=scaleset_options(low_priority=TRUE, large_scaleset=TRUE, managed_identity=FALSE))
 
 
 \dontrun{

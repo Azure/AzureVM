@@ -52,7 +52,7 @@ add_template_resources.vm_config <- function(config, ...)
     if(n_disks > 0)
         vm$properties$storageProfile$copy <- vm_datadisk
 
-    if(config$managed)
+    if(config$managed_identity)
         vm$identity <- list(type="systemAssigned")
 
     vm$properties$storageProfile$osDisk$managedDisk$storageAccountType <- config$os_disk_type

@@ -3,6 +3,7 @@
 * VM scalesets can now be created with data disks.
 * Make OS disk type and Linux DSVM data disk type selectable, with a default of "Premium_LRS" for both.
 * Background process pool functionality moved into AzureRMR; this removes code duplication and makes it available for other packages that can benefit.
+* `managed` argument to `create_vm/vmss`, `vm/vmss_config` and related methods changed to `managed_identity`, to make its meaning clearer. Due to partial matching of function arguments, this should not affect any user code.
 
 # AzureVM 2.0.1
 
