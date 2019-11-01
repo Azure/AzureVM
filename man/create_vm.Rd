@@ -36,7 +36,7 @@ create_vm_scaleset(name, ..., resource_group = name, location)
 \item \code{size}: The VM (instance) size. Use the \link{list_vm_sizes} method to see what sizes are available.
 \item \code{config}: The VM or scaleset configuration. See 'Details' below for how to specify this. The default is to use an Ubuntu Data Science Virtual Machine.
 \item \code{managed_identity}: For \code{create_vm}, whether the VM should have a managed identity attached.
-\item \code{datadisks}: For \code{create_vm}, any data disks to attach to the VM. See 'Details' below.
+\item \code{datadisks}: Any data disks to attach to the VM or scaleset. See 'Details' below.
 \item \code{instances}: For \code{create_vm_scaleset}, the initial number of instances in the scaleset.
 \item \code{...} For the subscription methods, any of the other arguments listed here, which will be passed to the resource group method. For the resource group method, additional arguments to pass to the VM/scaleset configuration functions \link{vm_config} and \link{vmss_config}. See the examples below.
 \item \code{template,parameters}: The template definition and parameters to deploy. By default, these are constructed from the values of the other arguments, but you can supply your own template and/or parameters as well.

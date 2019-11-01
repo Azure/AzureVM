@@ -1,4 +1,4 @@
-# AzureVM 2.0.1.9000
+# AzureVM 2.1.0
 
 * VM scalesets can now be created with data disks.
 * Make OS disk type and Linux DSVM data disk type selectable, with a default of "Premium_LRS" for both.

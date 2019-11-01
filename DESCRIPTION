@@ -1,6 +1,6 @@
 Package: AzureVM
 Title: Virtual Machines in 'Azure'
-Version: 2.0.1.9000
+Version: 2.1.0
 Authors@R: c(
     person("Hong", "Ooi", , "hongooi@microsoft.com", role = c("aut", "cre")),
     person("Microsoft", role="cph")
@@ -14,7 +14,7 @@ Depends:
     R (>= 3.3)
 Imports: 
     R6,
-    AzureRMR (>= 2.2.1),
+    AzureRMR (>= 2.3.0),
     jsonlite
 Suggests:
     knitr,
@@ -23,5 +23,3 @@ Suggests:
     AzureVMmetadata
 Roxygen: list(markdown=TRUE)
 RoxygenNote: 6.1.1
-Remotes:
-    Azure/AzureRMR
