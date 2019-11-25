@@ -1,3 +1,7 @@
+# AzureVM 2.1.0.9000
+
+- Require R6 2.4.1, which is needed to make active bindings work in R 4.0.
+
 # AzureVM 2.1.0
 
 * VM scalesets can now be created with data disks.
