@@ -1,6 +1,7 @@
 # AzureVM 2.1.0.9000
 
-- Require R6 2.4.1, which is needed to make active bindings work in R 4.0.
+- Require R6 2.4.1, which is needed to allow cloning of active bindings in R 4.0.
+- The `low_priority` argument to `scaleset_options` is now simply `priority`, with a default of "regular" and an alternative of "spot". Spot VMs are the replacement for low-priority VMs; seee [this page](https://azure.microsoft.com/en-us/pricing/spot/) for more details. Note that you can use the same argument to create a single (non-scaleset) spot VM, with `create_vm(*, priority="spot")`.
 
 # AzureVM 2.1.0
 

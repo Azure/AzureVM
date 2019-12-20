@@ -5,9 +5,10 @@
 \title{Virtual machine scaleset options}
 \usage{
 scaleset_options(keylogin = TRUE, managed_identity = TRUE,
-  public = FALSE, low_priority = FALSE, delete_on_evict = FALSE,
-  network_accel = FALSE, large_scaleset = FALSE,
-  overprovision = TRUE, upgrade_policy = list(mode = "manual"),
+  public = FALSE, priority = c("regular", "spot"),
+  delete_on_evict = FALSE, network_accel = FALSE,
+  large_scaleset = FALSE, overprovision = TRUE,
+  upgrade_policy = list(mode = "manual"),
   os_disk_type = c("Premium_LRS", "StandardSSD_LRS", "Standard_LRS"))
 }
 \arguments{
@@ -17,9 +18,9 @@ scaleset_options(keylogin = TRUE, managed_identity = TRUE,
 
 \item{public}{Whether the instances (nodes) of the scaleset should be visible from the public internet.}
 
-\item{low_priority}{Whether to use low-priority VMs. Note that this option is only available for certain VM sizes.}
+\item{priority}{The priority of the VM scaleset, either \code{regular} or \code{spot}. Spot VMs are considerably cheaper but subject to eviction if other, higher-priority workloads require compute resources.}
 
-\item{delete_on_evict}{If low-priority VMs are being used, whether evicting (shutting down) a VM should delete it, as opposed to just deallocating it.}
+\item{delete_on_evict}{If spot-priority VMs are being used, whether evicting (shutting down) a VM should delete it, as opposed to just deallocating it.}
 
 \item{network_accel}{Whether to enable accelerated networking. This option is only available for certain VM sizes.}
 

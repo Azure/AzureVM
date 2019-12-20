@@ -384,8 +384,8 @@ debian_9_backports_ss <- function(datadisks=numeric(0),
 #' @param keylogin Whether to use an SSH public key to login (TRUE) or a password (FALSE). Note that Windows does not support SSH key logins.
 #' @param managed_identity Whether to provide a managed system identity for the VM.
 #' @param public Whether the instances (nodes) of the scaleset should be visible from the public internet.
-#' @param low_priority Whether to use low-priority VMs. Note that this option is only available for certain VM sizes.
-#' @param delete_on_evict If low-priority VMs are being used, whether evicting (shutting down) a VM should delete it, as opposed to just deallocating it.
+#' @param priority The priority of the VM scaleset, either `regular` or `spot`. Spot VMs are considerably cheaper but subject to eviction if other, higher-priority workloads require compute resources.
+#' @param delete_on_evict If spot-priority VMs are being used, whether evicting (shutting down) a VM should delete it, as opposed to just deallocating it.
 #' @param network_accel Whether to enable accelerated networking. This option is only available for certain VM sizes.
 #' @param large_scaleset Whether to enable scaleset sizes > 100 instances.
 #' @param overprovision Whether to overprovision the scaleset on creation.
@@ -394,13 +394,13 @@ debian_9_backports_ss <- function(datadisks=numeric(0),
 #'
 #' @export
 scaleset_options <- function(keylogin=TRUE, managed_identity=TRUE, public=FALSE,
-                             low_priority=FALSE, delete_on_evict=FALSE,
+                             priority=c("regular", "spot"), delete_on_evict=FALSE,
                              network_accel=FALSE, large_scaleset=FALSE,
                              overprovision=TRUE, upgrade_policy=list(mode="manual"),
                              os_disk_type=c("Premium_LRS", "StandardSSD_LRS", "Standard_LRS"))
 {
     params <- list(
-        priority=if(low_priority) "low" else "regular",
+        priority=match.arg(priority),
         evictionPolicy=if(delete_on_evict) "delete" else "deallocate",
         enableAcceleratedNetworking=network_accel,
         singlePlacementGroup=!large_scaleset,
