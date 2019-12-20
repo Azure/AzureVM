@@ -95,8 +95,8 @@
 #' # exposing no ports externally
 #' rhel_8_ss(nsg=nsg_config(list()))
 #'
-#' # low-priority VMs, large scaleset (>100 instances allowed), no managed identity
-#' rhel_8_ss(options=scaleset_options(low_priority=TRUE, large_scaleset=TRUE, managed_identity=FALSE))
+#' # low-priority (spot) VMs, large scaleset (>100 instances allowed), no managed identity
+#' rhel_8_ss(options=scaleset_options(priority="spot", large_scaleset=TRUE, managed_identity=FALSE))
 #'
 #'
 #' \dontrun{

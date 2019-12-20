@@ -37,7 +37,7 @@ test_that("Scaleset options work",
     opts <- scaleset_options(
         managed_identity=FALSE,
         public=TRUE,
-        low_priority=TRUE,
+        priority="spot",
         delete_on_evict=TRUE,
         network_accel=TRUE,
         large_scaleset=TRUE,

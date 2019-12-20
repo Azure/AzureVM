@@ -134,11 +134,11 @@ sub$create_vm_scaleset("myrhelss", user_config("myname", "~/.ssh/id_rsa.pub"),
                         nsg=nsg_config(list(nsg_rule_allow_http, nsg_rule_allow_https)),
                         location="australiaeast")
 
-# Large Debian scaleset, using low-priority VMs
+# Large Debian scaleset, using low-priority (spot) VMs
 # need to set the instance size to something that supports low-pri
 sub$create_vm_scaleset("mydebss", user_config("myname", "~/.ssh/id_rsa.pub"),
                        instances=50, size="Standard_DS3_v2", config="debian_9_backports_ss",
-                       options=scaleset_options(low_priority=TRUE, large_scaleset=TRUE),
+                       options=scaleset_options(priority="spot", large_scaleset=TRUE),
                        location="australiaeast")
 
 
