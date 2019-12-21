@@ -144,11 +144,11 @@ sub$create_vm_scaleset("mydsvmss", user_config("myname", "~/.ssh/id_rsa.pub"), i
                        load_balancer=NULL, autoscaler=NULL,
                        location="australiaeast")
 
-# Large Debian scaleset (multiple placement groups), using low-priority VMs
+# Large Debian scaleset (multiple placement groups), using spot VMs (low-priority)
 # need to set the instance size to something that supports low-pri
 sub$create_vm_scaleset("mylargess", user_config("myname", "~/.ssh/id_rsa.pub"), instances=10,
                        size="Standard_DS3_v2", config="debian_9_backports_ss",
-                       options=scaleset_options(low_priority=TRUE, large_scaleset=TRUE),
+                       options=scaleset_options(priority="spot", large_scaleset=TRUE),
                        location="australiaeast")
 ```
 
