@@ -39,7 +39,7 @@ create_vm_scaleset(name, ..., resource_group = name, location)
 \item \code{datadisks}: Any data disks to attach to the VM or scaleset. See 'Details' below.
 \item \code{instances}: For \code{create_vm_scaleset}, the initial number of instances in the scaleset.
 \item \code{...} For the subscription methods, any of the other arguments listed here, which will be passed to the resource group method. For the resource group method, additional arguments to pass to the VM/scaleset configuration functions \link{vm_config} and \link{vmss_config}. See the examples below.
-\item \code{template,parameters}: The template definition and parameters to deploy. By default, these are constructed from the values of the other arguments, but you can supply your own template and/or parameters as well.
+\item \verb{template,parameters}: The template definition and parameters to deploy. By default, these are constructed from the values of the other arguments, but you can supply your own template and/or parameters as well.
 \item \code{wait}: Whether to wait until the deployment is complete.
 \item \code{mode}: The template deployment mode. If "Complete", any existing resources in the resource group will be deleted.
 }

@@ -9,8 +9,8 @@
 user_config(username, sshkey = NULL, password = NULL)
 
 datadisk_config(size, name = "datadisk", create = "empty",
-  type = c("StandardSSD_LRS", "Premium_LRS", "Standard_LRS",
-  "UltraSSD_LRS"), write_accelerator = FALSE)
+  type = c("StandardSSD_LRS", "Premium_LRS", "Standard_LRS", "UltraSSD_LRS"),
+  write_accelerator = FALSE)
 
 image_config(publisher = NULL, offer = NULL, sku = NULL,
   version = "latest", id = NULL)

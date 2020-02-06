@@ -18,6 +18,13 @@ rg <- AzureRMR::az_rm$
     get_subscription(subscription)$
     create_resource_group(rgname, location)
 
+test_that("Spot VM works",
+{
+    vmname <- paste0(sample(letters, 10, TRUE), collapse="")
+    vm <- rg$create_vm(vmname, user, size, properties=list(priority="spot"))
+    expect_is(vm, "az_vm_template")
+})
+
 test_that("Custom vnet works",
 {
     vmname <- paste0(sample(letters, 10, TRUE), collapse="")

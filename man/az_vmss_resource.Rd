@@ -5,9 +5,6 @@
 \alias{az_vmss_resource}
 \title{Virtual machine scaleset resource class}
 \format{An R6 object of class \code{az_vmss_resource}, inheriting from \code{AzureRMR::az_resource}.}
-\usage{
-az_vmss_resource
-}
 \description{
 Class representing a virtual machine scaleset resource. In general, the methods in this class should not be called directly, nor should objects be directly instantiated from it. Use the \code{az_vmss_template} class for interacting with scalesets instead.
 }
@@ -61,4 +58,3 @@ The \code{id} argument lets you specify a subset of instances on which to carry 
 
 \href{https://docs.microsoft.com/en-us/rest/api/compute/virtualmachinescalesets}{VM scaleset API reference}
 }
-\keyword{datasets}

@@ -29,48 +29,37 @@ ubuntu_dsvm(keylogin = TRUE, managed_identity = TRUE,
   nsg_rule_allow_rstudio)), ...)
 
 windows_dsvm(keylogin = FALSE, managed_identity = TRUE,
-  datadisks = numeric(0), nsg = nsg_config(list(nsg_rule_allow_rdp)),
-  ...)
+  datadisks = numeric(0), nsg = nsg_config(list(nsg_rule_allow_rdp)), ...)
 
 ubuntu_16.04(keylogin = TRUE, managed_identity = TRUE,
-  datadisks = numeric(0), nsg = nsg_config(list(nsg_rule_allow_ssh)),
-  ...)
+  datadisks = numeric(0), nsg = nsg_config(list(nsg_rule_allow_ssh)), ...)
 
 ubuntu_18.04(keylogin = TRUE, managed_identity = TRUE,
-  datadisks = numeric(0), nsg = nsg_config(list(nsg_rule_allow_ssh)),
-  ...)
+  datadisks = numeric(0), nsg = nsg_config(list(nsg_rule_allow_ssh)), ...)
 
 windows_2016(keylogin = FALSE, managed_identity = TRUE,
-  datadisks = numeric(0), nsg = nsg_config(list(nsg_rule_allow_rdp)),
-  ...)
+  datadisks = numeric(0), nsg = nsg_config(list(nsg_rule_allow_rdp)), ...)
 
 windows_2019(keylogin = FALSE, managed_identity = TRUE,
-  datadisks = numeric(0), nsg = nsg_config(list(nsg_rule_allow_rdp)),
-  ...)
+  datadisks = numeric(0), nsg = nsg_config(list(nsg_rule_allow_rdp)), ...)
 
-rhel_7.6(keylogin = TRUE, managed_identity = TRUE,
-  datadisks = numeric(0), nsg = nsg_config(list(nsg_rule_allow_ssh)),
-  ...)
+rhel_7.6(keylogin = TRUE, managed_identity = TRUE, datadisks = numeric(0),
+  nsg = nsg_config(list(nsg_rule_allow_ssh)), ...)
 
-rhel_8(keylogin = TRUE, managed_identity = TRUE,
-  datadisks = numeric(0), nsg = nsg_config(list(nsg_rule_allow_ssh)),
-  ...)
+rhel_8(keylogin = TRUE, managed_identity = TRUE, datadisks = numeric(0),
+  nsg = nsg_config(list(nsg_rule_allow_ssh)), ...)
 
 centos_7.5(keylogin = TRUE, managed_identity = TRUE,
-  datadisks = numeric(0), nsg = nsg_config(list(nsg_rule_allow_ssh)),
-  ...)
+  datadisks = numeric(0), nsg = nsg_config(list(nsg_rule_allow_ssh)), ...)
 
 centos_7.6(keylogin = TRUE, managed_identity = TRUE,
-  datadisks = numeric(0), nsg = nsg_config(list(nsg_rule_allow_ssh)),
-  ...)
+  datadisks = numeric(0), nsg = nsg_config(list(nsg_rule_allow_ssh)), ...)
 
 debian_8_backports(keylogin = TRUE, managed_identity = TRUE,
-  datadisks = numeric(0), nsg = nsg_config(list(nsg_rule_allow_ssh)),
-  ...)
+  datadisks = numeric(0), nsg = nsg_config(list(nsg_rule_allow_ssh)), ...)
 
 debian_9_backports(keylogin = TRUE, managed_identity = TRUE,
-  datadisks = numeric(0), nsg = nsg_config(list(nsg_rule_allow_ssh)),
-  ...)
+  datadisks = numeric(0), nsg = nsg_config(list(nsg_rule_allow_ssh)), ...)
 }
 \arguments{
 \item{image}{For \code{vm_config}, the VM image to deploy. This should be an object of class \code{image_config}, created by the function of the same name.}
@@ -95,7 +84,7 @@ debian_9_backports(keylogin = TRUE, managed_identity = TRUE,
 
 \item{variables}{An optional named list of variables to add to the template.}
 
-\item{...}{For the specific VM configurations, other customisation arguments to be passed to \code{vm_config}. For \code{vm_config}, named arguments that will be folded into the VM resource definition in the template.}
+\item{...}{For the specific VM configurations, other customisation arguments to be passed to \code{vm_config}. For \code{vm_config}, named arguments that will be folded into the VM resource definition in the template. In particular use \verb{properties=list(*)} to set additional properties for the VM, beyond those set by the various configuration functions.}
 
 \item{dsvm_disk_type}{The Ubuntu DSVM image comes with one additional datadisk that holds some installed tools. This argument sets what type of disk is used. Change this to "StandardSSD_LRS" or "Standard_LRS" if the VM size doesn't support premium storage.}
 }
@@ -108,7 +97,7 @@ VM configuration functions
 \details{
 These functions are for specifying the details of a new virtual machine deployment: the VM image and related options, along with the Azure resources that the VM may need. These include the datadisks, network security group, public IP address (if the VM is to be accessible from outside its subnet), virtual network, and network interface. \code{vm_config} is the base configuration function, and the others call it to create VMs with specific operating systems and other image details.
 \itemize{
-\item \code{ubuntu_dsvm}: Data Science Virtual Machine, based on Ubuntu 16.04
+\item \code{ubuntu_dsvm}: Data Science Virtual Machine, based on Ubuntu 18.04
 \item \code{windows_dsvm}: Data Science Virtual Machine, based on Windows Server 2016
 \item \code{ubuntu_16.04}, \code{ubuntu_18.04}: Ubuntu LTS
 \item \code{windows_2016}, \code{windows_2019}: Windows Server Datacenter edition
@@ -119,33 +108,33 @@ These functions are for specifying the details of a new virtual machine deployme
 
 Each resource can be specified in a number of ways:
 \itemize{
-\item To \emph{create} a new resource as part of the deployment, call the corresponding \code{*_config} function.
+\item To \emph{create} a new resource as part of the deployment, call the corresponding \verb{*_config} function.
 \item To use an \emph{existing} resource, supply either an \code{AzureRMR::az_resource} object (recommended) or a string containing the resource ID.
 \item If the resource is not needed, specify it as NULL.
 \item For the \code{other_resources} argument, supply a list of resources, each of which should be a list of resource fields (name, type, properties, sku, etc).
 }
 
-A VM configuration defines the following template variables by default, depending on its resources. If a particular resource is created, the corresponding \code{*Name}, \code{*Id} and \code{*Ref} variables will be available. If a resource is referred to but not created, the \code{*Name*} and \code{*Id} variables will be available. Other variables can be defined via the \code{variables} argument.
+A VM configuration defines the following template variables by default, depending on its resources. If a particular resource is created, the corresponding \verb{*Name}, \verb{*Id} and \verb{*Ref} variables will be available. If a resource is referred to but not created, the \verb{*Name*} and \verb{*Id} variables will be available. Other variables can be defined via the \code{variables} argument.
 
 \tabular{lll}{
 \strong{Variable name} \tab \strong{Contents} \tab \strong{Description} \cr
-\code{location} \tab \code{[resourceGroup().location]} \tab Region to deploy resources \cr
-\code{vmId} \tab \code{[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]} \tab VM resource ID \cr
-\code{vmRef} \tab \code{[concat('Microsoft.Compute/virtualMachines/', parameters('vmName'))]} \tab VM template reference \cr
-\code{nsgName} \tab \code{[concat(parameters('vmName'), '-nsg')]} \tab Network security group resource name \cr
-\code{nsgId} \tab \code{[resourceId('Microsoft.Network/networkSecurityGroups', variables('nsgName'))]} \tab NSG resource ID \cr
-\code{nsgRef} \tab \code{[concat('Microsoft.Network/networkSecurityGroups/', variables('nsgName'))]} \tab NSG template reference \cr
-\code{ipName} \tab \code{[concat(parameters('vmName'), '-ip')]} \tab Public IP address resource name \cr
-\code{ipId} \tab \code{[resourceId('Microsoft.Network/publicIPAddresses', variables('ipName'))]} \tab IP resource ID \cr
-\code{ipRef} \tab \code{[concat('Microsoft.Network/publicIPAddresses/', variables('ipName'))]} \tab IP template reference \cr
-\code{vnetName} \tab \code{[concat(parameters('vmName'), '-vnet')]} \tab Virtual network resource name \cr
-\code{vnetId} \tab \code{[resourceId('Microsoft.Network/virtualNetworks', variables('vnetName'))]} \tab Vnet resource ID \cr
-\code{vnetRef} \tab \code{[concat('Microsoft.Network/virtualNetworks/', variables('vnetName'))]} \tab Vnet template reference \cr
+\code{location} \tab \verb{[resourceGroup().location]} \tab Region to deploy resources \cr
+\code{vmId} \tab \verb{[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]} \tab VM resource ID \cr
+\code{vmRef} \tab \verb{[concat('Microsoft.Compute/virtualMachines/', parameters('vmName'))]} \tab VM template reference \cr
+\code{nsgName} \tab \verb{[concat(parameters('vmName'), '-nsg')]} \tab Network security group resource name \cr
+\code{nsgId} \tab \verb{[resourceId('Microsoft.Network/networkSecurityGroups', variables('nsgName'))]} \tab NSG resource ID \cr
+\code{nsgRef} \tab \verb{[concat('Microsoft.Network/networkSecurityGroups/', variables('nsgName'))]} \tab NSG template reference \cr
+\code{ipName} \tab \verb{[concat(parameters('vmName'), '-ip')]} \tab Public IP address resource name \cr
+\code{ipId} \tab \verb{[resourceId('Microsoft.Network/publicIPAddresses', variables('ipName'))]} \tab IP resource ID \cr
+\code{ipRef} \tab \verb{[concat('Microsoft.Network/publicIPAddresses/', variables('ipName'))]} \tab IP template reference \cr
+\code{vnetName} \tab \verb{[concat(parameters('vmName'), '-vnet')]} \tab Virtual network resource name \cr
+\code{vnetId} \tab \verb{[resourceId('Microsoft.Network/virtualNetworks', variables('vnetName'))]} \tab Vnet resource ID \cr
+\code{vnetRef} \tab \verb{[concat('Microsoft.Network/virtualNetworks/', variables('vnetName'))]} \tab Vnet template reference \cr
 \code{subnet} \tab \code{subnet} \tab Subnet name. Only defined if a Vnet was created or supplied as an \code{az_resource} object. \cr
-\code{subnetId} \tab \code{[concat(variables('vnetId'), '/subnets/', variables('subnet'))]} \tab Subnet resource ID. Only defined if a Vnet was created or supplied as an \code{az_resource} object. \cr
-\code{nicName} \tab \code{[concat(parameters('vmName'), '-nic')]} \tab Network interface resource name \cr
-\code{nicId} \tab \code{[resourceId('Microsoft.Network/networkInterfaces', variables('nicName'))]} \tab NIC resource ID \cr
-\code{nicRef} \tab \code{[concat('Microsoft.Network/networkInterfaces/', variables('nicName'))]} \tab NIC template reference
+\code{subnetId} \tab \verb{[concat(variables('vnetId'), '/subnets/', variables('subnet'))]} \tab Subnet resource ID. Only defined if a Vnet was created or supplied as an \code{az_resource} object. \cr
+\code{nicName} \tab \verb{[concat(parameters('vmName'), '-nic')]} \tab Network interface resource name \cr
+\code{nicId} \tab \verb{[resourceId('Microsoft.Network/networkInterfaces', variables('nicName'))]} \tab NIC resource ID \cr
+\code{nicRef} \tab \verb{[concat('Microsoft.Network/networkInterfaces/', variables('nicName'))]} \tab NIC template reference
 }
 
 Thus, for example, if you are creating a VM named "myvm" along with all its associated resources, the NSG is named "myvm-nsg", the public IP address is "myvm-ip", the virtual network is "myvm-vnet", and the network interface is "myvm-nic".
@@ -162,8 +151,8 @@ windows_dsvm(datadisks=500, ip=NULL)
 # RHEL VM exposing ports 80 (HTTP) and 443 (HTTPS)
 rhel_8(nsg=nsg_config(nsg_rule_allow_http, nsg_rule_allow_https))
 
-# exposing no ports externally
-rhel_8(nsg=nsg_config(list()))
+# exposing no ports externally, spot (low) priority
+rhel_8(nsg=nsg_config(list()), properties=list(priority="spot"))
 
 # deploying an extra resource: storage account
 ubuntu_18.04(

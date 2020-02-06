@@ -8,8 +8,8 @@
 autoscaler_config(profiles = list(autoscaler_profile()), ...)
 
 autoscaler_profile(name = "Profile", minsize = 1, maxsize = NA,
-  default = NA, scale_out = 0.75, scale_in = 0.25,
-  interval = "PT1M", window = "PT5M")
+  default = NA, scale_out = 0.75, scale_in = 0.25, interval = "PT1M",
+  window = "PT5M")
 }
 \arguments{
 \item{profiles}{A list of autoscaling profiles, each obtained via a call to \code{autoscaler_profile}.}

@@ -12,11 +12,9 @@
 
 \method{build_template_definition}{vmss_config}(config, ...)
 
-\method{build_template_parameters}{vm_config}(config, name, login_user,
-  size, ...)
+\method{build_template_parameters}{vm_config}(config, name, login_user, size, ...)
 
-\method{build_template_parameters}{vmss_config}(config, name, login_user,
-  size, instances, ...)
+\method{build_template_parameters}{vmss_config}(config, name, login_user, size, instances, ...)
 }
 \arguments{
 \item{config}{An object of class \code{vm_config} or \code{vmss_config} representing a virtual machine or scaleset deployment.}

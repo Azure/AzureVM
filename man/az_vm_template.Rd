@@ -5,9 +5,6 @@
 \alias{az_vm_template}
 \title{Virtual machine template class}
 \format{An R6 object of class \code{az_vm_template}, inheriting from \code{AzureRMR::az_template}.}
-\usage{
-az_vm_template
-}
 \description{
 Class representing a virtual machine deployment template. This class keeps track of all resources that are created as part of deploying a VM, and exposes methods for managing them.
 }
@@ -89,4 +86,3 @@ vm$sync_vm_status()
 
 \href{https://docs.microsoft.com/en-us/rest/api/compute/virtualmachines}{VM API reference}
 }
-\keyword{datasets}

@@ -12,11 +12,11 @@
 #' @param nic The network interface for the VM. Can be a call to `nic_config` to create a new interface, or an AzureRMR resource object or resource ID to reuse an existing interface.
 #' @param other_resources An optional list of other resources to include in the deployment.
 #' @param variables An optional named list of variables to add to the template.
-#' @param ... For the specific VM configurations, other customisation arguments to be passed to `vm_config`. For `vm_config`, named arguments that will be folded into the VM resource definition in the template.
+#' @param ... For the specific VM configurations, other customisation arguments to be passed to `vm_config`. For `vm_config`, named arguments that will be folded into the VM resource definition in the template. In particular use `properties=list(*)` to set additional properties for the VM, beyond those set by the various configuration functions.
 #'
 #' @details
 #' These functions are for specifying the details of a new virtual machine deployment: the VM image and related options, along with the Azure resources that the VM may need. These include the datadisks, network security group, public IP address (if the VM is to be accessible from outside its subnet), virtual network, and network interface. `vm_config` is the base configuration function, and the others call it to create VMs with specific operating systems and other image details.
-#' - `ubuntu_dsvm`: Data Science Virtual Machine, based on Ubuntu 16.04
+#' - `ubuntu_dsvm`: Data Science Virtual Machine, based on Ubuntu 18.04
 #' - `windows_dsvm`: Data Science Virtual Machine, based on Windows Server 2016
 #' - `ubuntu_16.04`, `ubuntu_18.04`: Ubuntu LTS
 #' - `windows_2016`, `windows_2019`: Windows Server Datacenter edition
@@ -81,8 +81,8 @@
 #' # RHEL VM exposing ports 80 (HTTP) and 443 (HTTPS)
 #' rhel_8(nsg=nsg_config(nsg_rule_allow_http, nsg_rule_allow_https))
 #'
-#' # exposing no ports externally
-#' rhel_8(nsg=nsg_config(list()))
+#' # exposing no ports externally, spot (low) priority
+#' rhel_8(nsg=nsg_config(list()), properties=list(priority="spot"))
 #'
 #' # deploying an extra resource: storage account
 #' ubuntu_18.04(

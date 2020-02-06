@@ -10,8 +10,8 @@ lb_config(type = NULL, rules = list(), probes = list(), ...)
 
 lb_probe(name, port, interval = 5, fail_on = 2, protocol = "Tcp")
 
-lb_rule(name, frontend_port, backend_port = frontend_port,
-  protocol = "Tcp", timeout = 5, floating_ip = FALSE, probe_name)
+lb_rule(name, frontend_port, backend_port = frontend_port, protocol = "Tcp",
+  timeout = 5, floating_ip = FALSE, probe_name)
 }
 \arguments{
 \item{type}{The SKU of the load balancer resource: "basic" or "standard". If NULL (the default), this will be determined based on the VM scaleset's configuration. Note that the load balancer SKU must be the same as that of its public IP address.}

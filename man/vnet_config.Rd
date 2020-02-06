@@ -5,8 +5,8 @@
 \alias{subnet_config}
 \title{Virtual network configuration}
 \usage{
-vnet_config(address_space = "10.0.0.0/16",
-  subnets = list(subnet_config()), ...)
+vnet_config(address_space = "10.0.0.0/16", subnets = list(subnet_config()),
+  ...)
 
 subnet_config(name = "subnet", addresses = "10.0.0.0/16",
   nsg = "[variables('nsgId')]", ...)
