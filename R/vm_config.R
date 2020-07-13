@@ -310,3 +310,12 @@ debian_9_backports <- function(keylogin=TRUE, managed_identity=TRUE, datadisks=n
     vm_config(image_config("Credativ", "Debian", "9-backports"),
               keylogin=keylogin, managed_identity=managed_identity, datadisks=datadisks, nsg=nsg, ...)
 }
+
+#' @rdname vm_config
+#' @export
+ubuntu_20.04 <- function(keylogin=TRUE, managed_identity=TRUE, datadisks=numeric(0),
+                         nsg=nsg_config(list(nsg_rule_allow_ssh)), ...)
+{
+    vm_config(image_config("Canonical", "0001-com-ubuntu-server-focal", "20_04-LTS"),
+              keylogin=keylogin, managed_identity=managed_identity, datadisks=datadisks, nsg=nsg, ...)
+}

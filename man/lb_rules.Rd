@@ -20,7 +20,39 @@
 \alias{lb_probe_mssql}
 \alias{lb_probe_mssql_browser}
 \title{Load balancing rules}
-\format{Objects of class \code{lb_rule} and \code{lb_probe}.}
+\format{
+Objects of class \code{lb_rule} and \code{lb_probe}.
+
+An object of class \code{lb_rule} of length 2.
+
+An object of class \code{lb_rule} of length 2.
+
+An object of class \code{lb_rule} of length 2.
+
+An object of class \code{lb_rule} of length 2.
+
+An object of class \code{lb_rule} of length 2.
+
+An object of class \code{lb_rule} of length 2.
+
+An object of class \code{lb_rule} of length 2.
+
+An object of class \code{lb_probe} of length 2.
+
+An object of class \code{lb_probe} of length 2.
+
+An object of class \code{lb_probe} of length 2.
+
+An object of class \code{lb_probe} of length 2.
+
+An object of class \code{lb_probe} of length 2.
+
+An object of class \code{lb_probe} of length 2.
+
+An object of class \code{lb_probe} of length 2.
+
+An object of class \code{lb_probe} of length 2.
+}
 \usage{
 lb_rule_ssh
 

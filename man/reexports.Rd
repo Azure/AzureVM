@@ -12,6 +12,6 @@ These objects are imported from other packages. Follow the links
 below to see their documentation.
 
 \describe{
-  \item{AzureRMR}{\code{\link[AzureRMR]{build_template_definition}}, \code{\link[AzureRMR]{build_template_parameters}}}
+  \item{AzureRMR}{\code{\link[AzureRMR:build_template]{build_template_definition}}, \code{\link[AzureRMR:build_template]{build_template_parameters}}}
 }}
 

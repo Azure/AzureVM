@@ -4,7 +4,9 @@
 \name{az_vmss_template}
 \alias{az_vmss_template}
 \title{Virtual machine scaleset (cluster) template class}
-\format{An R6 object of class \code{az_vmss_template}, inheriting from \code{AzureRMR::az_template}.}
+\format{
+An R6 object of class \code{az_vmss_template}, inheriting from \code{AzureRMR::az_template}.
+}
 \description{
 Class representing a virtual machine scaleset deployment template. This class keeps track of all resources that are created as part of deploying a scaleset, and exposes methods for managing them.
 }
@@ -94,7 +96,7 @@ vmss$sync_vmss_status()
 }
 }
 \seealso{
-\link[AzureRMR:az_template]{AzureRMR::az_template}, \link{create_vm_scaleset}, \link{get_vm_scaleset}, \link{delete_vm_scaleset}, \link[AzureRMR:init_pool]{AzureRMR::init_pool}
+\link[AzureRMR:az_template]{AzureRMR::az_template}, \link{create_vm_scaleset}, \link{get_vm_scaleset}, \link{delete_vm_scaleset}, \link[AzureRMR:pool]{AzureRMR::init_pool}
 
 \href{https://docs.microsoft.com/en-us/rest/api/compute/virtualmachinescalesets}{VM scaleset API reference}
 }
