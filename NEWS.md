@@ -1,3 +1,7 @@
+# AzureVM 2.1.1.9000
+
+- Add Ubuntu 20.04 as a predefined configuration.
+
 # AzureVM 2.1.1
 
 - Require R6 2.4.1, which is needed to allow cloning of active bindings in R 4.0.
