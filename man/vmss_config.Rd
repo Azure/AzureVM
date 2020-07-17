@@ -14,6 +14,7 @@
 \alias{centos_7.6_ss}
 \alias{debian_8_backports_ss}
 \alias{debian_9_backports_ss}
+\alias{ubuntu_20.04_ss}
 \title{Virtual machine scaleset configuration functions}
 \usage{
 vmss_config(image, options = scaleset_options(), datadisks = numeric(0),
@@ -79,6 +80,11 @@ debian_8_backports_ss(datadisks = numeric(0),
   list(lb_probe_ssh)), ...)
 
 debian_9_backports_ss(datadisks = numeric(0),
+  nsg = nsg_config(list(nsg_rule_allow_ssh)),
+  load_balancer = lb_config(rules = list(lb_rule_ssh), probes =
+  list(lb_probe_ssh)), ...)
+
+ubuntu_20.04_ss(datadisks = numeric(0),
   nsg = nsg_config(list(nsg_rule_allow_ssh)),
   load_balancer = lb_config(rules = list(lb_rule_ssh), probes =
   list(lb_probe_ssh)), ...)

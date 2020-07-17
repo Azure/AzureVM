@@ -4,7 +4,9 @@
 \name{az_vm_resource}
 \alias{az_vm_resource}
 \title{Virtual machine resource class}
-\format{An R6 object of class \code{az_vm_resource}, inheriting from \code{AzureRMR::az_resource}.}
+\format{
+An R6 object of class \code{az_vm_resource}, inheriting from \code{AzureRMR::az_resource}.
+}
 \description{
 Class representing a virtual machine resource. In general, the methods in this class should not be called directly, nor should objects be directly instantiated from it. Use the \code{az_vm_template} class for interacting with VMs instead.
 }

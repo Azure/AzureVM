@@ -378,6 +378,18 @@ debian_9_backports_ss <- function(datadisks=numeric(0),
                 datadisks=datadisks, nsg=nsg, load_balancer=load_balancer, ...)
 }
 
+#' @rdname vmss_config
+#' @export
+ubuntu_20.04_ss <- function(datadisks=numeric(0),
+                            nsg=nsg_config(list(nsg_rule_allow_ssh)),
+                            load_balancer=lb_config(rules=list(lb_rule_ssh),
+                                                    probes=list(lb_probe_ssh)),
+                            ...)
+{
+    vmss_config(image_config("Canonical", "0001-com-ubuntu-server-focal", "20_04-LTS"),
+                datadisks=datadisks, nsg=nsg, load_balancer=load_balancer, ...)
+}
+
 
 #' Virtual machine scaleset options
 #'

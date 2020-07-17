@@ -1,6 +1,6 @@
 Package: AzureVM
 Title: Virtual Machines in 'Azure'
-Version: 2.1.1
+Version: 2.1.1.9000
 Authors@R: c(
     person("Hong", "Ooi", , "hongooi@microsoft.com", role = c("aut", "cre")),
     person("Microsoft", role="cph")
@@ -22,4 +22,4 @@ Suggests:
     AzureKeyVault,
     AzureVMmetadata
 Roxygen: list(markdown=TRUE, r6=FALSE, old_usage=TRUE)
-RoxygenNote: 7.0.2
+RoxygenNote: 7.1.1

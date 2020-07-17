@@ -14,6 +14,7 @@
 \alias{centos_7.6}
 \alias{debian_8_backports}
 \alias{debian_9_backports}
+\alias{ubuntu_20.04}
 \title{VM configuration functions}
 \usage{
 vm_config(image, keylogin, managed_identity = TRUE,
@@ -43,8 +44,8 @@ windows_2016(keylogin = FALSE, managed_identity = TRUE,
 windows_2019(keylogin = FALSE, managed_identity = TRUE,
   datadisks = numeric(0), nsg = nsg_config(list(nsg_rule_allow_rdp)), ...)
 
-rhel_7.6(keylogin = TRUE, managed_identity = TRUE, datadisks = numeric(0),
-  nsg = nsg_config(list(nsg_rule_allow_ssh)), ...)
+rhel_7.6(keylogin = TRUE, managed_identity = TRUE,
+  datadisks = numeric(0), nsg = nsg_config(list(nsg_rule_allow_ssh)), ...)
 
 rhel_8(keylogin = TRUE, managed_identity = TRUE, datadisks = numeric(0),
   nsg = nsg_config(list(nsg_rule_allow_ssh)), ...)
@@ -59,6 +60,9 @@ debian_8_backports(keylogin = TRUE, managed_identity = TRUE,
   datadisks = numeric(0), nsg = nsg_config(list(nsg_rule_allow_ssh)), ...)
 
 debian_9_backports(keylogin = TRUE, managed_identity = TRUE,
+  datadisks = numeric(0), nsg = nsg_config(list(nsg_rule_allow_ssh)), ...)
+
+ubuntu_20.04(keylogin = TRUE, managed_identity = TRUE,
   datadisks = numeric(0), nsg = nsg_config(list(nsg_rule_allow_ssh)), ...)
 }
 \arguments{

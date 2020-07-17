@@ -12,7 +12,23 @@
 \alias{nsg_rule_allow_mssql}
 \alias{nsg_rule_allow_mssql_browser}
 \title{Network security rules}
-\format{Objects of class \code{nsg_rule}.}
+\format{
+Objects of class \code{nsg_rule}.
+
+An object of class \code{nsg_rule} of length 2.
+
+An object of class \code{nsg_rule} of length 2.
+
+An object of class \code{nsg_rule} of length 2.
+
+An object of class \code{nsg_rule} of length 2.
+
+An object of class \code{nsg_rule} of length 2.
+
+An object of class \code{nsg_rule} of length 2.
+
+An object of class \code{nsg_rule} of length 2.
+}
 \usage{
 nsg_rule_allow_ssh
 
