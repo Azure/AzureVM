@@ -1,7 +1,7 @@
 #' Resource configuration functions for a virtual machine deployment
 #'
 #' @param username For `user_config`, the name for the admin user account.
-#' @param sshkey For `user_config`, The SSH public key. This can be supplied in a number of ways: as a string with the key itself; the name of the public key file; or an `AzureRMR::az_resource` object pointing to an SSH public key resource (of type "Microsoft.Compute/sshPublicKeys"). See the example below.
+#' @param sshkey For `user_config`, the SSH public key. This can be supplied in a number of ways: as a string with the key itself; the name of the public key file; or an `AzureRMR::az_resource` object pointing to an SSH public key resource (of type "Microsoft.Compute/sshPublicKeys"). See the examples below.
 #' @param password For `user_config`, the admin password. Supply either `sshkey` or `password`, but not both; also, note that Windows does not support SSH logins.
 #' @param size For `datadisk_config`, the size of the data disk in GB. St this to NULL for a disk that will be created from an image.
 #' @param name For `datadisk_config`, the disk name. Duplicate names will automatically be disambiguated prior to VM deployment.
@@ -14,7 +14,8 @@
 #' @examples
 #' \dontrun{
 #'
-#' # create an SSH public key resource in Azure
+#' ## user_config: SSH public key resource in Azure
+#' # create the resource
 #' keyres <- rg$create_resource(type="Microsoft.Compute/sshPublicKeys", name="mysshkey")
 #'
 #' # generate the public and private keys
@@ -26,7 +27,16 @@
 #'
 #' # create a new VM using the public key resource for authentication
 #' # you can then login to the VM with ssh -i mysshkey.pem <username@vmaddress>
-#' rg$create_vm("mynewvm", user_config("username", sshkey=keyres), config="ubuntu_18.04")
+#' rg$create_vm("myvm", user_config("username", sshkey=keyres), config="ubuntu_20.04")
+#'
+#'
+#' ## user_config: SSH public key as a file
+#' rg$create_vm("myvm", user_config("username", sshkey="mysshkey.pub"), config="ubuntu_20.04")
+#'
+#'
+#' ## user_config: SSH public key as a string (read from a file)
+#' pubkey <- readLines("mysshkey.pub")
+#' rg$create_vm("myvm", user_config("username", sshkey=pubkey), config="ubuntu_20.04")
 #'
 #' }
 #'
