@@ -1,7 +1,7 @@
 #' Resource configuration functions for a virtual machine deployment
 #'
 #' @param username For `user_config`, the name for the admin user account.
-#' @param sshkey For `user_config`, The SSH public key. This can be supplied in a number of ways: as a string with the key itself; the name of the public key file; or an `AzureRMR::az_resource` object pointing to an SSH public key resource (of type "Microsoft.Compute/sshPublicKey"). See the example below.
+#' @param sshkey For `user_config`, The SSH public key. This can be supplied in a number of ways: as a string with the key itself; the name of the public key file; or an `AzureRMR::az_resource` object pointing to an SSH public key resource (of type "Microsoft.Compute/sshPublicKeys"). See the example below.
 #' @param password For `user_config`, the admin password. Supply either `sshkey` or `password`, but not both; also, note that Windows does not support SSH logins.
 #' @param size For `datadisk_config`, the size of the data disk in GB. St this to NULL for a disk that will be created from an image.
 #' @param name For `datadisk_config`, the disk name. Duplicate names will automatically be disambiguated prior to VM deployment.
@@ -15,17 +15,18 @@
 #' \dontrun{
 #'
 #' # create an SSH public key resource in Azure
-#' keyres <- rg$create_resource(type="Microsoft.Compute/sshPublicKey", name="mysshkey")
+#' keyres <- rg$create_resource(type="Microsoft.Compute/sshPublicKeys", name="mysshkey")
 #'
 #' # generate the public and private keys
 #' keys <- keyres$do_operation("generateKeyPair", http_verb="POST")
+#' keyres$sync_fields()
 #'
 #' # save the private key (IMPORTANT)
 #' writeBin(keys$privateKey, "mysshkey.pem")
 #'
 #' # create a new VM using the public key resource for authentication
-#' # you can then login to the VM with ssh -i mysshkey.pem <vm address>
-#' rg$create_vm("mynewvm", user_config("myusername", sshkey=keyres), config="ubuntu_vm")
+#' # you can then login to the VM with ssh -i mysshkey.pem <username@vmaddress>
+#' rg$create_vm("mynewvm", user_config("username", sshkey=keyres), config="ubuntu_18.04")
 #'
 #' }
 #'
@@ -44,9 +45,9 @@ user_config <- function(username, sshkey=NULL, password=NULL)
 
     if(keyres)
     {
-        sshkey <- sshkey$properties$publicKey
+        sshkey <- gsub("\r\n", "", sshkey$properties$publicKey)
         if(is_empty(sshkey))
-            stop("Supplied public key resource is uninitialized, call the generateKeyPair() method first and save the returned keys",
+            stop("Supplied public key resource is uninitialized, run generateKeyPair first and save the returned keys",
                  call.=FALSE)
     }
     else if(key && file.exists(sshkey))
