@@ -1,4 +1,4 @@
-context("Custom deployments")
+context("Using SSH public key resource")
 
 tenant <- Sys.getenv("AZ_TEST_TENANT_ID")
 app <- Sys.getenv("AZ_TEST_APP_ID")
