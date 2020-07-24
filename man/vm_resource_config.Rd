@@ -18,7 +18,7 @@ image_config(publisher = NULL, offer = NULL, sku = NULL,
 \arguments{
 \item{username}{For \code{user_config}, the name for the admin user account.}
 
-\item{sshkey}{For \code{user_config}, string containing an SSH public key. Can be the key itself, or the name of the public key file.}
+\item{sshkey}{For \code{user_config}, The SSH public key. This can be supplied in a number of ways: as a string with the key itself; the name of the public key file; or an \code{AzureRMR::az_resource} object pointing to an SSH public key resource (of type "Microsoft.Compute/sshPublicKey"). See the example below.}
 
 \item{password}{For \code{user_config}, the admin password. Supply either \code{sshkey} or \code{password}, but not both; also, note that Windows does not support SSH logins.}
 
@@ -38,4 +38,23 @@ image_config(publisher = NULL, offer = NULL, sku = NULL,
 }
 \description{
 Resource configuration functions for a virtual machine deployment
+}
+\examples{
+\dontrun{
+
+# create an SSH public key resource in Azure
+keyres <- rg$create_resource(type="Microsoft.Compute/sshPublicKey", name="mysshkey")
+
+# generate the public and private keys
+keys <- keyres$do_operation("generateKeyPair", http_verb="POST")
+
+# save the private key (IMPORTANT)
+writeBin(keys$privateKey, "mysshkey.pem")
+
+# create a new VM using the public key resource for authentication
+# you can then login to the VM with ssh -i mysshkey.pem <vm address>
+rg$create_vm("mynewvm", user_config("myusername", sshkey=keyres), config="ubuntu_vm")
+
+}
+
 }
