@@ -1,9 +1,9 @@
 #' @rdname vm_config
 #' @export
-ubuntu_dsvm <- function(keylogin=TRUE, managed_identity=TRUE, datadisks=numeric(0),
-                        dsvm_disk_type=c("Premium_LRS", "StandardSSD_LRS", "Standard_LRS"),
-                        nsg=nsg_config(list(nsg_rule_allow_ssh, nsg_rule_allow_jupyter, nsg_rule_allow_rstudio)),
-                        ...)
+ubuntu_16.04_dsvm <- function(keylogin=TRUE, managed_identity=TRUE, datadisks=numeric(0),
+                              dsvm_disk_type=c("Premium_LRS", "StandardSSD_LRS", "Standard_LRS"),
+                              nsg=nsg_config(list(nsg_rule_allow_ssh, nsg_rule_allow_jupyter, nsg_rule_allow_rstudio)),
+                              ...)
 {
     if(is.numeric(datadisks))
         datadisks <- lapply(datadisks, datadisk_config)
@@ -15,9 +15,39 @@ ubuntu_dsvm <- function(keylogin=TRUE, managed_identity=TRUE, datadisks=numeric(
 
 #' @rdname vm_config
 #' @export
+ubuntu_dsvm <- function(keylogin=TRUE, managed_identity=TRUE, datadisks=numeric(0),
+                        nsg=nsg_config(list(nsg_rule_allow_ssh, nsg_rule_allow_jupyter, nsg_rule_allow_rstudio)),
+                        ...)
+{
+    vm_config(image_config("microsoft-dsvm", "ubuntu-1804", "1804"),
+              keylogin=keylogin, managed_identity=managed_identity, datadisks=datadisks, nsg=nsg, ...)
+}
+
+#' @rdname vm_config
+#' @export
+ubuntu_dsvm_gen2 <- function(keylogin=TRUE, managed_identity=TRUE, datadisks=numeric(0),
+                             dsvm_disk_type=c("Premium_LRS", "StandardSSD_LRS", "Standard_LRS"),
+                             nsg=nsg_config(list(nsg_rule_allow_ssh, nsg_rule_allow_jupyter, nsg_rule_allow_rstudio)),
+                             ...)
+{
+    vm_config(image_config("microsoft-dsvm", "ubuntu-1804", "1804-gen2"),
+              keylogin=keylogin, managed_identity=managed_identity, datadisks=datadisks, nsg=nsg, ...)
+}
+
+#' @rdname vm_config
+#' @export
+windows_2016_dsvm <- function(keylogin=FALSE, managed_identity=TRUE, datadisks=numeric(0),
+                              nsg=nsg_config(list(nsg_rule_allow_rdp)), ...)
+{
+    vm_config(image_config("microsoft-dsvm", "dsvm-windows", "server-2016"),
+              keylogin=FALSE, managed_identity=managed_identity, datadisks=datadisks, nsg=nsg, ...)
+}
+
+#' @rdname vm_config
+#' @export
 windows_dsvm <- function(keylogin=FALSE, managed_identity=TRUE, datadisks=numeric(0),
                          nsg=nsg_config(list(nsg_rule_allow_rdp)), ...)
 {
-    vm_config(image_config("microsoft-dsvm", "dsvm-windows", "server-2016"),
+    vm_config(image_config("microsoft-dsvm", "dsvm-win-2019", "server-2019"),
               keylogin=FALSE, managed_identity=managed_identity, datadisks=datadisks, nsg=nsg, ...)
 }
