@@ -20,6 +20,7 @@ Suggests:
     knitr,
     rmarkdown,
     testthat,
+    parallel,
     AzureKeyVault,
     AzureVMmetadata
 Roxygen: list(markdown=TRUE, r6=FALSE, old_usage=TRUE)

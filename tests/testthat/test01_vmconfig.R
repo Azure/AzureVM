@@ -1,10 +1,10 @@
 context("VM+scaleset config")
 
+key_user <- user_config("username", ssh="random key")
+pwd_user <- user_config("username", password="random password")
 
 test_that("VM config works",
 {
-    key_user <- user_config("username", ssh="random key")
-    pwd_user <- user_config("username", password="random password")
     img <- image_config(publisher="pubname", offer="offname", sku="skuname")
     vm <- vm_config(img, keylogin=TRUE)
     expect_is(vm, "vm_config")
@@ -111,8 +111,6 @@ test_that("VM config works",
 
 test_that("VM scaleset config works",
 {
-    key_user <- user_config("username", ssh="random key")
-    pwd_user <- user_config("username", password="random password")
     img <- image_config(publisher="pubname", offer="offname", sku="skuname")
     vm <- vmss_config(img, keylogin=TRUE)
     expect_is(vm, "vmss_config")

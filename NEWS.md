@@ -1,7 +1,8 @@
 # AzureVM 2.1.1.9000
 
 - Add ability to retrieve an SSH public key from an Azure resource object. See `?user_config` for more information.
-- Add Ubuntu 20.04 as a predefined configuration.
+- Fix a bug that prevented Windows scalesets from being created.
+- Update predefined configurations.
 
 # AzureVM 2.1.1
 
