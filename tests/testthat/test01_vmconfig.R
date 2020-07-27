@@ -94,16 +94,16 @@ test_that("VM config works",
     vm <- ubuntu_dsvm()
     expect_is(vm, "vm_config")
     expect_true(vm$image$publisher == "microsoft-dsvm" &&
-                vm$image$offer == "linux-data-science-vm-ubuntu" &&
-                vm$image$sku == "linuxdsvmubuntu")
+                vm$image$offer == "ubuntu-1804" &&
+                vm$image$sku == "1804")
     expect_silent(build_template_definition(vm))
     expect_silent(build_template_parameters(vm, "vmname", key_user, "size"))
 
     vm <- windows_dsvm()
     expect_is(vm, "vm_config")
     expect_true(vm$image$publisher == "microsoft-dsvm" &&
-                vm$image$offer == "dsvm-windows" &&
-                vm$image$sku == "server-2016")
+                vm$image$offer == "dsvm-win-2019" &&
+                vm$image$sku == "server-2019")
     expect_silent(build_template_definition(vm))
     expect_silent(build_template_parameters(vm, "vmname", pwd_user, "size"))
 })
