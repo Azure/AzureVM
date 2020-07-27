@@ -136,13 +136,15 @@ VM configuration functions
 These functions are for specifying the details of a new virtual machine deployment: the VM image and related options, along with the Azure resources that the VM may need. These include the datadisks, network security group, public IP address (if the VM is to be accessible from outside its subnet), virtual network, and network interface. \code{vm_config} is the base configuration function, and the others call it to create VMs with specific operating systems and other image details.
 \itemize{
 \item \code{ubuntu_dsvm}: Data Science Virtual Machine, based on Ubuntu 18.04
-\item \code{windows_dsvm}: Data Science Virtual Machine, based on Windows Server 2016
-\item \code{ubuntu_16.04}, \code{ubuntu_18.04}: Ubuntu LTS
+\item \code{windows_dsvm}: Data Science Virtual Machine, based on Windows Server 2019
+\item \code{ubuntu_16.04}, \code{ubuntu_18.04}, \code{ubuntu_20.04}, \code{ubuntu_20.04_gen2}: Ubuntu LTS
 \item \code{windows_2016}, \code{windows_2019}: Windows Server Datacenter edition
-\item \code{rhel_7.6}, \code{rhel_8}: Red Hat Enterprise Linux
-\item \code{centos_7.5}, \code{centos_7.6}: CentOS
-\item \code{debian_8_backports}, \code{debian_9_backports}: Debian with backports
+\item \code{rhel_7.6}, \code{rhel_8}, \code{rhel_8.1}, \code{rhel_8.1_gen2}, \code{rhel_8.2}, ``rhel_8.2_gen2: Red Hat Enterprise Linux
+\item \code{centos_7.5}, \code{centos_7.6}, \code{centos_8.1}: CentOS
+\item \code{debian_8_backports}, \code{debian_9_backports}, \code{debian_10_backports}, \code{debian_10_backports_gen2}: Debian with backports
 }
+
+The VM configurations with \code{gen2} in the name are \href{https://docs.microsoft.com/en-us/azure/virtual-machines/windows/generation-2}{generation 2 VMs}, which feature several technical improvements over the earlier generation 1. Consider using these for greater efficiency, however note that gen2 VMs are only available for select images and do not support all possible VM sizes.
 
 Each resource can be specified in a number of ways:
 \itemize{

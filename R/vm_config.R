@@ -16,12 +16,14 @@
 #' @details
 #' These functions are for specifying the details of a new virtual machine deployment: the VM image and related options, along with the Azure resources that the VM may need. These include the datadisks, network security group, public IP address (if the VM is to be accessible from outside its subnet), virtual network, and network interface. `vm_config` is the base configuration function, and the others call it to create VMs with specific operating systems and other image details.
 #' - `ubuntu_dsvm`: Data Science Virtual Machine, based on Ubuntu 18.04
-#' - `windows_dsvm`: Data Science Virtual Machine, based on Windows Server 2016
-#' - `ubuntu_16.04`, `ubuntu_18.04`: Ubuntu LTS
+#' - `windows_dsvm`: Data Science Virtual Machine, based on Windows Server 2019
+#' - `ubuntu_16.04`, `ubuntu_18.04`, `ubuntu_20.04`, `ubuntu_20.04_gen2`: Ubuntu LTS
 #' - `windows_2016`, `windows_2019`: Windows Server Datacenter edition
-#' - `rhel_7.6`, `rhel_8`: Red Hat Enterprise Linux
-#' - `centos_7.5`, `centos_7.6`: CentOS
-#' - `debian_8_backports`, `debian_9_backports`: Debian with backports
+#' - `rhel_7.6`, `rhel_8`, `rhel_8.1`, `rhel_8.1_gen2`, `rhel_8.2`, ``rhel_8.2_gen2: Red Hat Enterprise Linux
+#' - `centos_7.5`, `centos_7.6`, `centos_8.1`: CentOS
+#' - `debian_8_backports`, `debian_9_backports`, `debian_10_backports`, `debian_10_backports_gen2`: Debian with backports
+#'
+#' The VM configurations with `gen2` in the name are [generation 2 VMs](https://docs.microsoft.com/en-us/azure/virtual-machines/windows/generation-2), which feature several technical improvements over the earlier generation 1. Consider using these for greater efficiency, however note that gen2 VMs are only available for select images and do not support all possible VM sizes.
 #'
 #' Each resource can be specified in a number of ways:
 #' - To _create_ a new resource as part of the deployment, call the corresponding `*_config` function.

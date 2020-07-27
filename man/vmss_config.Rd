@@ -186,14 +186,16 @@ Each resource can be specified in a number of ways:
 
 The \code{vmss_config} function is the base configuration function, and the others call it to create VM scalesets with specific operating systems and other image details.
 \itemize{
-\item \code{ubuntu_dsvm_ss}: Data Science Virtual Machine, based on Ubuntu 16.04
-\item \code{windows_dsvm_ss}: Data Science Virtual Machine, based on Windows Server 2016
-\item \code{ubuntu_16.04_ss}, \code{ubuntu_18.04}: Ubuntu LTS
-\item \code{windows_2016_ss}, \code{windows_2019}: Windows Server Datacenter edition
-\item \code{rhel_7.6_ss}, \code{rhel_8_ss}: Red Hat Enterprise Linux
-\item \code{centos_7.5_ss}, \code{centos_7.6_ss}: CentOS
-\item \code{debian_8_backports_ss}, \code{debian_9_backports_ss}: Debian with backports
+\item \code{ubuntu_dsvm_ss}: Data Science Virtual Machine, based on Ubuntu 18.04
+\item \code{windows_dsvm_ss}: Data Science Virtual Machine, based on Windows Server 2019
+\item \code{ubuntu_16.04_ss}, \code{ubuntu_18.04_ss}, \code{ubuntu_20.04_ss}, \code{ubuntu_20.04_gen2_ss}: Ubuntu LTS
+\item \code{windows_2016_ss}, \code{windows_2019_ss}: Windows Server Datacenter edition
+\item \code{rhel_7.6_ss}, \code{rhel_8_ss}, \code{rhel_8.1_ss}, \code{rhel_8.1_gen2_ss}, \code{rhel_8.2_ss}, \code{rhel_8.2_gen2_ss}: Red Hat Enterprise Linux
+\item \code{centos_7.5_ss}, \code{centos_7.6_ss}, \code{centos_8.1_ss}: CentOS
+\item \code{debian_8_backports_ss}, \code{debian_9_backports_ss}, \code{debian_10_backports_ss}, \code{debian_10_backports_gen2_ss}: Debian with backports
 }
+
+The VM scaleset configurations with \code{gen2} in the name use \href{https://docs.microsoft.com/en-us/azure/virtual-machines/windows/generation-2}{generation 2 VMs}, which feature several technical improvements over the earlier generation 1. Consider using these for greater efficiency, however note that gen2 VMs are only available for select images and do not support all possible VM sizes.
 
 A VM scaleset configuration defines the following template variables by default, depending on its resources. If a particular resource is created, the corresponding \verb{*Name}, \verb{*Id} and \verb{*Ref} variables will be available. If a resource is referred to but not created, the \verb{*Name*} and \verb{*Id} variables will be available. Other variables can be defined via the \code{variables} argument.
 
