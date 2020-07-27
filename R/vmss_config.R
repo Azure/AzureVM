@@ -3,7 +3,6 @@
 #' @param image For `vmss_config`, the VM image to deploy. This should be an object of class `image_config`, created by the function of the same name.
 #' @param options Scaleset options, as obtained via a call to `scaleset_options`.
 #' @param datadisks The data disks to attach to the VM. Specify this as either a vector of numeric disk sizes in GB, or a list of `datadisk_config` objects for more control over the specification.
-#' @param dsvm_disk_type The Ubuntu DSVM image comes with one additional datadisk that holds some installed tools. This argument sets what type of disk is used. Change this to "StandardSSD_LRS" or "Standard_LRS" if the VM size doesn't support premium storage.
 #' @param nsg The network security group for the scaleset. Can be a call to `nsg_config` to create a new NSG; an AzureRMR resource object or resource ID to reuse an existing NSG; or NULL to not use an NSG (not recommended).
 #' @param vnet The virtual network for the scaleset. Can be a call to `vnet_config` to create a new virtual network, or an AzureRMR resource object or resource ID to reuse an existing virtual network. Note that by default, AzureVM will associate the NSG with the virtual network/subnet, not with the VM's network interface.
 #' @param load_balancer The load balancer for the scaleset. Can be a call to `lb_config` to create a new load balancer;  an AzureRMR resource object or resource ID to reuse an existing load balancer; or NULL if load balancing is not required.

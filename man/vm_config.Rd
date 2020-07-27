@@ -53,10 +53,8 @@ ubuntu_dsvm(keylogin = TRUE, managed_identity = TRUE,
   nsg_rule_allow_jupyter, nsg_rule_allow_rstudio)), ...)
 
 ubuntu_dsvm_gen2(keylogin = TRUE, managed_identity = TRUE,
-  datadisks = numeric(0), dsvm_disk_type = c("Premium_LRS",
-  "StandardSSD_LRS", "Standard_LRS"),
-  nsg = nsg_config(list(nsg_rule_allow_ssh, nsg_rule_allow_jupyter,
-  nsg_rule_allow_rstudio)), ...)
+  datadisks = numeric(0), nsg = nsg_config(list(nsg_rule_allow_ssh,
+  nsg_rule_allow_jupyter, nsg_rule_allow_rstudio)), ...)
 
 windows_dsvm(keylogin = FALSE, managed_identity = TRUE,
   datadisks = numeric(0), nsg = nsg_config(list(nsg_rule_allow_rdp)), ...)

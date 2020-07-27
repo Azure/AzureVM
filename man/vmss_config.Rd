@@ -166,8 +166,6 @@ vmss_config(image, options = scaleset_options(), datadisks = numeric(0),
 \item{other_resources}{An optional list of other resources to include in the deployment.}
 
 \item{variables}{An optional named list of variables to add to the template.}
-
-\item{dsvm_disk_type}{The Ubuntu DSVM image comes with one additional datadisk that holds some installed tools. This argument sets what type of disk is used. Change this to "StandardSSD_LRS" or "Standard_LRS" if the VM size doesn't support premium storage.}
 }
 \value{
 An object of S3 class \code{vmss_config}, that can be used by the \code{create_vm_scaleset} method.

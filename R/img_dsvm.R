@@ -13,7 +13,6 @@ ubuntu_dsvm <- function(keylogin=TRUE, managed_identity=TRUE, datadisks=numeric(
 #' @rdname vm_config
 #' @export
 ubuntu_dsvm_gen2 <- function(keylogin=TRUE, managed_identity=TRUE, datadisks=numeric(0),
-    dsvm_disk_type=c("Premium_LRS", "StandardSSD_LRS", "Standard_LRS"),
     nsg=nsg_config(list(nsg_rule_allow_ssh, nsg_rule_allow_jupyter, nsg_rule_allow_rstudio)),
     ...)
 {
