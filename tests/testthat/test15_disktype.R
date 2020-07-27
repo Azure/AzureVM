@@ -36,14 +36,13 @@ test_that("Data disk type works",
 {
     vmname <- paste0(sample(letters, 10, TRUE), collapse="")
     vm <- rg$create_vm(vmname, user, size, config="ubuntu_dsvm",
-        os_disk_type="StandardSSD_LRS", dsvm_disk_type="Standard_LRS",
+        os_disk_type="StandardSSD_LRS",
         datadisks=list(datadisk_config(400, type="Standard_LRS")))
     expect_is(vm, "az_vm_template")
 
     vmssname <- paste0(sample(letters, 10, TRUE), collapse="")
     vmss <- rg$create_vm_scaleset(vmssname, user, instances=2, size=size, config="ubuntu_dsvm_ss",
         options=scaleset_options(os_disk_type="StandardSSD_LRS"),
-        dsvm_disk_type="Standard_LRS",
         datadisks=list(datadisk_config(400, type="Standard_LRS")),
         nsg=NULL, autoscaler=NULL, load_balancer=NULL)
     expect_is(vmss, "az_vmss_template")

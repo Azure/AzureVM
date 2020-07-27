@@ -5,7 +5,6 @@
 #' @param managed_identity Whether to provide a managed system identity for the VM.
 #' @param datadisks The data disks to attach to the VM. Specify this as either a vector of numeric disk sizes in GB, or a list of `datadisk_config` objects for more control over the specification.
 #' @param os_disk_type The type of primary disk for the VM. Can be "Premium_LRS" (the default), "StandardSSD_LRS", or "Standard_LRS". Of these, "Standard_LRS" uses hard disks and the others use SSDs as the underlying hardware. Change this to "StandardSSD_LRS" or "Standard_LRS" if the VM size doesn't support premium storage.
-#' @param dsvm_disk_type The Ubuntu DSVM image comes with one additional datadisk that holds some installed tools. This argument sets what type of disk is used. Change this to "StandardSSD_LRS" or "Standard_LRS" if the VM size doesn't support premium storage.
 #' @param nsg The network security group for the VM. Can be a call to `nsg_config` to create a new NSG; an AzureRMR resource object or resource ID to reuse an existing NSG; or NULL to not use an NSG (not recommended).
 #' @param ip The public IP address for the VM. Can be a call to `ip_config` to create a new IP address; an AzureRMR resource object or resource ID to reuse an existing address resource; or NULL if the VM should not be accessible from outside its subnet.
 #' @param vnet The virtual network for the VM. Can be a call to `vnet_config` to create a new virtual network, or an AzureRMR resource object or resource ID to reuse an existing virtual network. Note that by default, AzureVM will associate the NSG with the virtual network/subnet, not with the VM's network interface.
@@ -17,12 +16,14 @@
 #' @details
 #' These functions are for specifying the details of a new virtual machine deployment: the VM image and related options, along with the Azure resources that the VM may need. These include the datadisks, network security group, public IP address (if the VM is to be accessible from outside its subnet), virtual network, and network interface. `vm_config` is the base configuration function, and the others call it to create VMs with specific operating systems and other image details.
 #' - `ubuntu_dsvm`: Data Science Virtual Machine, based on Ubuntu 18.04
-#' - `windows_dsvm`: Data Science Virtual Machine, based on Windows Server 2016
-#' - `ubuntu_16.04`, `ubuntu_18.04`: Ubuntu LTS
+#' - `windows_dsvm`: Data Science Virtual Machine, based on Windows Server 2019
+#' - `ubuntu_16.04`, `ubuntu_18.04`, `ubuntu_20.04`, `ubuntu_20.04_gen2`: Ubuntu LTS
 #' - `windows_2016`, `windows_2019`: Windows Server Datacenter edition
-#' - `rhel_7.6`, `rhel_8`: Red Hat Enterprise Linux
-#' - `centos_7.5`, `centos_7.6`: CentOS
-#' - `debian_8_backports`, `debian_9_backports`: Debian with backports
+#' - `rhel_7.6`, `rhel_8`, `rhel_8.1`, `rhel_8.1_gen2`, `rhel_8.2`, ``rhel_8.2_gen2: Red Hat Enterprise Linux
+#' - `centos_7.5`, `centos_7.6`, `centos_8.1`: CentOS
+#' - `debian_8_backports`, `debian_9_backports`, `debian_10_backports`, `debian_10_backports_gen2`: Debian with backports
+#'
+#' The VM configurations with `gen2` in the name are [generation 2 VMs](https://docs.microsoft.com/en-us/azure/virtual-machines/windows/generation-2), which feature several technical improvements over the earlier generation 1. Consider using these for greater efficiency, however note that gen2 VMs are only available for select images and do not support all possible VM sizes.
 #'
 #' Each resource can be specified in a number of ways:
 #' - To _create_ a new resource as part of the deployment, call the corresponding `*_config` function.
@@ -196,126 +197,3 @@ vm_fixup_ip <- function(ip)
     ip
 }
 
-
-#' @rdname vm_config
-#' @export
-ubuntu_dsvm <- function(keylogin=TRUE, managed_identity=TRUE, datadisks=numeric(0),
-                        dsvm_disk_type=c("Premium_LRS", "StandardSSD_LRS", "Standard_LRS"),
-                        nsg=nsg_config(list(nsg_rule_allow_ssh, nsg_rule_allow_jupyter, nsg_rule_allow_rstudio)),
-                        ...)
-{
-    if(is.numeric(datadisks))
-        datadisks <- lapply(datadisks, datadisk_config)
-    dsvm_disk_type <- match.arg(dsvm_disk_type)
-    disk0 <- datadisk_config(NULL, NULL, "fromImage", dsvm_disk_type)
-    vm_config(image_config("microsoft-dsvm", "linux-data-science-vm-ubuntu", "linuxdsvmubuntu"),
-              keylogin=keylogin, managed_identity=managed_identity, datadisks=c(list(disk0), datadisks), nsg=nsg, ...)
-}
-
-#' @rdname vm_config
-#' @export
-windows_dsvm <- function(keylogin=FALSE, managed_identity=TRUE, datadisks=numeric(0),
-                         nsg=nsg_config(list(nsg_rule_allow_rdp)), ...)
-{
-    vm_config(image_config("microsoft-dsvm", "dsvm-windows", "server-2016"),
-              keylogin=FALSE, managed_identity=managed_identity, datadisks=datadisks, nsg=nsg, ...)
-}
-
-#' @rdname vm_config
-#' @export
-ubuntu_16.04 <- function(keylogin=TRUE, managed_identity=TRUE, datadisks=numeric(0),
-                        nsg=nsg_config(list(nsg_rule_allow_ssh)), ...)
-{
-    vm_config(image_config("Canonical", "UbuntuServer", "16.04-LTS"),
-              keylogin=keylogin, managed_identity=managed_identity, datadisks=datadisks, nsg=nsg, ...)
-}
-
-#' @rdname vm_config
-#' @export
-ubuntu_18.04 <- function(keylogin=TRUE, managed_identity=TRUE, datadisks=numeric(0),
-                        nsg=nsg_config(list(nsg_rule_allow_ssh)), ...)
-{
-    vm_config(image_config("Canonical", "UbuntuServer", "18.04-LTS"),
-              keylogin=keylogin, managed_identity=managed_identity, datadisks=datadisks, nsg=nsg, ...)
-}
-
-#' @rdname vm_config
-#' @export
-windows_2016 <- function(keylogin=FALSE, managed_identity=TRUE, datadisks=numeric(0),
-                         nsg=nsg_config(list(nsg_rule_allow_rdp)), ...)
-{
-    vm_config(image_config("MicrosoftWindowsServer", "WindowsServer", "2016-Datacenter"),
-              keylogin=FALSE, managed_identity=managed_identity, datadisks=datadisks, nsg=nsg, ...)
-}
-
-#' @rdname vm_config
-#' @export
-windows_2019 <- function(keylogin=FALSE, managed_identity=TRUE, datadisks=numeric(0),
-                         nsg=nsg_config(list(nsg_rule_allow_rdp)), ...)
-{
-    vm_config(image_config("MicrosoftWindowsServer", "WindowsServer", "2019-Datacenter"),
-              keylogin=FALSE, managed_identity=managed_identity, datadisks=datadisks, nsg=nsg, ...)
-}
-
-#' @rdname vm_config
-#' @export
-rhel_7.6 <- function(keylogin=TRUE, managed_identity=TRUE, datadisks=numeric(0),
-                     nsg=nsg_config(list(nsg_rule_allow_ssh)), ...)
-{
-    vm_config(image_config("RedHat", "RHEL", "7-RAW"),
-              keylogin=keylogin, managed_identity=managed_identity, datadisks=datadisks, nsg=nsg, ...)
-}
-
-#' @rdname vm_config
-#' @export
-rhel_8 <- function(keylogin=TRUE, managed_identity=TRUE, datadisks=numeric(0),
-                   nsg=nsg_config(list(nsg_rule_allow_ssh)), ...)
-{
-    vm_config(image_config("RedHat", "RHEL", "8"),
-              keylogin=keylogin, managed_identity=managed_identity, datadisks=datadisks, nsg=nsg, ...)
-}
-
-#' @rdname vm_config
-#' @export
-centos_7.5 <- function(keylogin=TRUE, managed_identity=TRUE, datadisks=numeric(0),
-                       nsg=nsg_config(list(nsg_rule_allow_ssh)), ...)
-{
-    vm_config(image_config("OpenLogic", "CentOS", "7.5"),
-              keylogin=keylogin, managed_identity=managed_identity, datadisks=datadisks, nsg=nsg, ...)
-}
-
-#' @rdname vm_config
-#' @export
-centos_7.6 <- function(keylogin=TRUE, managed_identity=TRUE, datadisks=numeric(0),
-                       nsg=nsg_config(list(nsg_rule_allow_ssh)), ...)
-{
-    vm_config(image_config("OpenLogic", "CentOS", "7.6"),
-              keylogin=keylogin, managed_identity=managed_identity, datadisks=datadisks, nsg=nsg, ...)
-}
-
-#' @rdname vm_config
-#' @export
-debian_8_backports <- function(keylogin=TRUE, managed_identity=TRUE, datadisks=numeric(0),
-                               nsg=nsg_config(list(nsg_rule_allow_ssh)), ...)
-{
-    vm_config(image_config("Credativ", "Debian", "8-backports"),
-              keylogin=keylogin, managed_identity=managed_identity, datadisks=datadisks, nsg=nsg, ...)
-}
-
-#' @rdname vm_config
-#' @export
-debian_9_backports <- function(keylogin=TRUE, managed_identity=TRUE, datadisks=numeric(0),
-                               nsg=nsg_config(list(nsg_rule_allow_ssh)), ...)
-{
-    vm_config(image_config("Credativ", "Debian", "9-backports"),
-              keylogin=keylogin, managed_identity=managed_identity, datadisks=datadisks, nsg=nsg, ...)
-}
-
-#' @rdname vm_config
-#' @export
-ubuntu_20.04 <- function(keylogin=TRUE, managed_identity=TRUE, datadisks=numeric(0),
-                         nsg=nsg_config(list(nsg_rule_allow_ssh)), ...)
-{
-    vm_config(image_config("Canonical", "0001-com-ubuntu-server-focal", "20_04-LTS"),
-              keylogin=keylogin, managed_identity=managed_identity, datadisks=datadisks, nsg=nsg, ...)
-}

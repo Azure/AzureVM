@@ -29,7 +29,7 @@ add_template_variables.vmss_config <- function(config, ...)
         location="[resourceGroup().location]",
         vmId="[resourceId('Microsoft.Compute/virtualMachineScalesets', parameters('vmName'))]",
         vmRef="[concat('Microsoft.Compute/virtualMachineScalesets/', parameters('vmName'))]",
-        vmPrefix="[concat(parameters('vmName'), '-instance')]"
+        vmPrefix="[parameters('vmName')]"
     )
 
     for(res in c("nsg", "vnet", "lb", "ip", "as"))

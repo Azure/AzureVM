@@ -3,7 +3,6 @@
 #' @param image For `vmss_config`, the VM image to deploy. This should be an object of class `image_config`, created by the function of the same name.
 #' @param options Scaleset options, as obtained via a call to `scaleset_options`.
 #' @param datadisks The data disks to attach to the VM. Specify this as either a vector of numeric disk sizes in GB, or a list of `datadisk_config` objects for more control over the specification.
-#' @param dsvm_disk_type The Ubuntu DSVM image comes with one additional datadisk that holds some installed tools. This argument sets what type of disk is used. Change this to "StandardSSD_LRS" or "Standard_LRS" if the VM size doesn't support premium storage.
 #' @param nsg The network security group for the scaleset. Can be a call to `nsg_config` to create a new NSG; an AzureRMR resource object or resource ID to reuse an existing NSG; or NULL to not use an NSG (not recommended).
 #' @param vnet The virtual network for the scaleset. Can be a call to `vnet_config` to create a new virtual network, or an AzureRMR resource object or resource ID to reuse an existing virtual network. Note that by default, AzureVM will associate the NSG with the virtual network/subnet, not with the VM's network interface.
 #' @param load_balancer The load balancer for the scaleset. Can be a call to `lb_config` to create a new load balancer;  an AzureRMR resource object or resource ID to reuse an existing load balancer; or NULL if load balancing is not required.
@@ -23,13 +22,15 @@
 #' - For the `other_resources` argument, supply a list of resources, each of which should be a list of resource fields (name, type, properties, sku, etc).
 #'
 #' The `vmss_config` function is the base configuration function, and the others call it to create VM scalesets with specific operating systems and other image details.
-#' - `ubuntu_dsvm_ss`: Data Science Virtual Machine, based on Ubuntu 16.04
-#' - `windows_dsvm_ss`: Data Science Virtual Machine, based on Windows Server 2016
-#' - `ubuntu_16.04_ss`, `ubuntu_18.04`: Ubuntu LTS
-#' - `windows_2016_ss`, `windows_2019`: Windows Server Datacenter edition
-#' - `rhel_7.6_ss`, `rhel_8_ss`: Red Hat Enterprise Linux
-#' - `centos_7.5_ss`, `centos_7.6_ss`: CentOS
-#' - `debian_8_backports_ss`, `debian_9_backports_ss`: Debian with backports
+#' - `ubuntu_dsvm_ss`: Data Science Virtual Machine, based on Ubuntu 18.04
+#' - `windows_dsvm_ss`: Data Science Virtual Machine, based on Windows Server 2019
+#' - `ubuntu_16.04_ss`, `ubuntu_18.04_ss`, `ubuntu_20.04_ss`, `ubuntu_20.04_gen2_ss`: Ubuntu LTS
+#' - `windows_2016_ss`, `windows_2019_ss`: Windows Server Datacenter edition
+#' - `rhel_7.6_ss`, `rhel_8_ss`, `rhel_8.1_ss`, `rhel_8.1_gen2_ss`, `rhel_8.2_ss`, `rhel_8.2_gen2_ss`: Red Hat Enterprise Linux
+#' - `centos_7.5_ss`, `centos_7.6_ss`, `centos_8.1_ss`: CentOS
+#' - `debian_8_backports_ss`, `debian_9_backports_ss`, `debian_10_backports_ss`, `debian_10_backports_gen2_ss`: Debian with backports
+#'
+#' The VM scaleset configurations with `gen2` in the name use [generation 2 VMs](https://docs.microsoft.com/en-us/azure/virtual-machines/windows/generation-2), which feature several technical improvements over the earlier generation 1. Consider using these for greater efficiency, however note that gen2 VMs are only available for select images and do not support all possible VM sizes.
 #'
 #' A VM scaleset configuration defines the following template variables by default, depending on its resources. If a particular resource is created, the corresponding `*Name`, `*Id` and `*Ref` variables will be available. If a resource is referred to but not created, the `*Name*` and `*Id` variables will be available. Other variables can be defined via the `variables` argument.
 #'
@@ -220,174 +221,6 @@ vmss_fixup_ip <- function(options, lb, ip)
         stop("Standard IP address type does not support dynamic allocation", call.=FALSE)
 
     ip
-}
-
-
-#' @rdname vmss_config
-#' @export
-ubuntu_dsvm_ss <- function(datadisks=numeric(0),
-                           dsvm_disk_type=c("Premium_LRS", "StandardSSD_LRS", "Standard_LRS"),
-                           nsg=nsg_config(list(nsg_rule_allow_ssh, nsg_rule_allow_jupyter, nsg_rule_allow_rstudio)),
-                           load_balancer=lb_config(rules=list(lb_rule_ssh, lb_rule_jupyter, lb_rule_rstudio),
-                                                   probes=list(lb_probe_ssh, lb_probe_jupyter, lb_probe_rstudio)),
-                           ...)
-{
-    if(is.numeric(datadisks))
-        datadisks <- lapply(datadisks, datadisk_config)
-    dsvm_disk_type <- match.arg(dsvm_disk_type)
-    disk0 <- datadisk_config(NULL, NULL, "fromImage", dsvm_disk_type)
-    vmss_config(image_config("microsoft-dsvm", "linux-data-science-vm-ubuntu", "linuxdsvmubuntu"),
-                datadisks=c(list(disk0), datadisks), nsg=nsg, load_balancer=load_balancer, ...)
-}
-
-#' @rdname vmss_config
-#' @export
-windows_dsvm_ss <- function(datadisks=numeric(0),
-                            nsg=nsg_config(list(nsg_rule_allow_rdp)),
-                            load_balancer=lb_config(rules=list(lb_rule_rdp),
-                                                   probes=list(lb_probe_rdp)),
-                            options=scaleset_options(keylogin=FALSE),
-                            ...)
-{
-    options$keylogin <- FALSE
-    vmss_config(image_config("microsoft-dsvm", "dsvm-windows", "server-2016"),
-                options=options, datadisks=datadisks, nsg=nsg, load_balancer=load_balancer, ...)
-}
-
-#' @rdname vmss_config
-#' @export
-ubuntu_16.04_ss <- function(datadisks=numeric(0),
-                            nsg=nsg_config(list(nsg_rule_allow_ssh)),
-                            load_balancer=lb_config(rules=list(lb_rule_ssh),
-                                                    probes=list(lb_probe_ssh)),
-                            ...)
-{
-    vmss_config(image_config("Canonical", "UbuntuServer", "16.04-LTS"),
-                datadisks=datadisks, nsg=nsg, load_balancer=load_balancer, ...)
-}
-
-#' @rdname vmss_config
-#' @export
-ubuntu_18.04_ss <- function(datadisks=numeric(0),
-                            nsg=nsg_config(list(nsg_rule_allow_ssh)),
-                            load_balancer=lb_config(rules=list(lb_rule_ssh),
-                                                    probes=list(lb_probe_ssh)),
-                            ...)
-{
-    vmss_config(image_config("Canonical", "UbuntuServer", "18.04-LTS"),
-                datadisks=datadisks, nsg=nsg, load_balancer=load_balancer, ...)
-}
-
-#' @rdname vmss_config
-#' @export
-windows_2016_ss <- function(datadisks=numeric(0),
-                            nsg=nsg_config(list(nsg_rule_allow_rdp)),
-                            load_balancer=lb_config(rules=list(lb_rule_rdp),
-                                                    probes=list(lb_probe_rdp)),
-                            options=scaleset_options(keylogin=FALSE),
-                            ...)
-{
-    options$keylogin <- FALSE
-    vmss_config(image_config("MicrosoftWindowsServer", "WindowsServer", "2016-Datacenter"),
-                options=options, datadisks=datadisks, nsg=nsg, load_balancer=load_balancer, ...)
-}
-
-#' @rdname vmss_config
-#' @export
-windows_2019_ss <- function(datadisks=numeric(0),
-                            nsg=nsg_config(list(nsg_rule_allow_rdp)),
-                            load_balancer=lb_config(rules=list(lb_rule_rdp),
-                                                    probes=list(lb_probe_rdp)),
-                            options=scaleset_options(keylogin=FALSE),
-                            ...)
-{
-    options$keylogin <- FALSE
-    vmss_config(image_config("MicrosoftWindowsServer", "WindowsServer", "2019-Datacenter"),
-                options=options, datadisks=datadisks, nsg=nsg, load_balancer=load_balancer, ...)
-}
-
-#' @rdname vmss_config
-#' @export
-rhel_7.6_ss <- function(datadisks=numeric(0),
-                        nsg=nsg_config(list(nsg_rule_allow_ssh)),
-                        load_balancer=lb_config(rules=list(lb_rule_ssh),
-                                                probes=list(lb_probe_ssh)),
-                        ...)
-{
-    vmss_config(image_config("RedHat", "RHEL", "7-RAW"),
-                datadisks=datadisks, nsg=nsg, load_balancer=load_balancer, ...)
-}
-
-#' @rdname vmss_config
-#' @export
-rhel_8_ss <- function(datadisks=numeric(0),
-                      nsg=nsg_config(list(nsg_rule_allow_ssh)),
-                      load_balancer=lb_config(rules=list(lb_rule_ssh),
-                                              probes=list(lb_probe_ssh)),
-                      ...)
-{
-    vmss_config(image_config("RedHat", "RHEL", "8"),
-                datadisks=datadisks, nsg=nsg, load_balancer=load_balancer, ...)
-}
-
-#' @rdname vmss_config
-#' @export
-centos_7.5_ss <- function(datadisks=numeric(0),
-                          nsg=nsg_config(list(nsg_rule_allow_ssh)),
-                          load_balancer=lb_config(rules=list(lb_rule_ssh),
-                                                  probes=list(lb_probe_ssh)),
-                          ...)
-{
-    vmss_config(image_config("OpenLogic", "CentOS", "7.5"),
-                datadisks=datadisks, nsg=nsg, load_balancer=load_balancer, ...)
-}
-
-#' @rdname vmss_config
-#' @export
-centos_7.6_ss <- function(datadisks=numeric(0),
-                          nsg=nsg_config(list(nsg_rule_allow_ssh)),
-                          load_balancer=lb_config(rules=list(lb_rule_ssh),
-                                                  probes=list(lb_probe_ssh)),
-                          ...)
-{
-    vmss_config(image_config("OpenLogic", "CentOS", "7.6"),
-                datadisks=datadisks, nsg=nsg, load_balancer=load_balancer, ...)
-}
-
-#' @rdname vmss_config
-#' @export
-debian_8_backports_ss <- function(datadisks=numeric(0),
-                                  nsg=nsg_config(list(nsg_rule_allow_ssh)),
-                                  load_balancer=lb_config(rules=list(lb_rule_ssh),
-                                                          probes=list(lb_probe_ssh)),
-                                  ...)
-{
-    vmss_config(image_config("Credativ", "Debian", "8-backports"),
-                datadisks=datadisks, nsg=nsg, load_balancer=load_balancer, ...)
-}
-
-#' @rdname vmss_config
-#' @export
-debian_9_backports_ss <- function(datadisks=numeric(0),
-                                  nsg=nsg_config(list(nsg_rule_allow_ssh)),
-                                  load_balancer=lb_config(rules=list(lb_rule_ssh),
-                                                          probes=list(lb_probe_ssh)),
-                                  ...)
-{
-    vmss_config(image_config("Credativ", "Debian", "9-backports"),
-                datadisks=datadisks, nsg=nsg, load_balancer=load_balancer, ...)
-}
-
-#' @rdname vmss_config
-#' @export
-ubuntu_20.04_ss <- function(datadisks=numeric(0),
-                            nsg=nsg_config(list(nsg_rule_allow_ssh)),
-                            load_balancer=lb_config(rules=list(lb_rule_ssh),
-                                                    probes=list(lb_probe_ssh)),
-                            ...)
-{
-    vmss_config(image_config("Canonical", "0001-com-ubuntu-server-focal", "20_04-LTS"),
-                datadisks=datadisks, nsg=nsg, load_balancer=load_balancer, ...)
 }
 
 
