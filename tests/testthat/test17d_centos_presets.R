@@ -1,10 +1,9 @@
-context("Ubuntu preset configs")
+context("Centos preset configs")
 
 img_list <- list(
-    ubuntu_16.04=list("Canonical", "UbuntuServer", "16.04-LTS"),
-    ubuntu_18.04=list("Canonical", "UbuntuServer", "18.04-LTS"),
-    ubuntu_20.04=list("Canonical", "0001-com-ubuntu-server-focal", "20_04-LTS"),
-    ubuntu_20.04_gen2=list("Canonical", "0001-com-ubuntu-server-focal", "20_04-LTS-gen2")
+    centos_7.5=list("OpenLogic", "CentOS", "7.5"),
+    centos_7.6=list("OpenLogic", "CentOS", "7.6"),
+    centos_8.1=list("OpenLogic", "CentOS", "8_1")
 )
 
 test_that("VM/SS config works",

@@ -3,7 +3,31 @@ make_name <- function(n=10)
     paste(sample(letters, n, TRUE), collapse="")
 }
 
-config_tester <- function(img_list, cluster, user, size)
+config_unit_tester <- function(img_list, user)
+{
+    Map(function(config, arglist)
+    {
+        vmconf <- get(config)
+        vm <- vmconf()
+        expect_is(vm, "vm_config")
+        expect_identical(vm$image$publisher, arglist[[1]])
+        expect_identical(vm$image$offer, arglist[[2]])
+        expect_identical(vm$image$sku, arglist[[3]])
+        expect_silent(build_template_definition(vm))
+        expect_silent(build_template_parameters(vm, "vmname", user, "size"))
+
+        vmssconf <- get(paste0(config, "_ss"))
+        vmss <- vmssconf()
+        expect_is(vmss, "vmss_config")
+        expect_identical(vmss$image$publisher, arglist[[1]])
+        expect_identical(vmss$image$offer, arglist[[2]])
+        expect_identical(vmss$image$sku, arglist[[3]])
+        expect_silent(build_template_definition(vmss))
+        expect_silent(build_template_parameters(vmss, "vmname", user, "size", 5))
+    }, names(img_list), img_list)
+}
+
+config_integration_tester <- function(img_list, cluster, user, size)
 {
     vmconfigs <- Map(function(config, arglist) get(config)(),
                      names(img_list), img_list)

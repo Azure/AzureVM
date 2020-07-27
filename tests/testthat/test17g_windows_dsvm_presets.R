@@ -1,15 +1,12 @@
-context("Ubuntu preset configs")
+context("Windows DSVM preset configs")
 
 img_list <- list(
-    ubuntu_16.04=list("Canonical", "UbuntuServer", "16.04-LTS"),
-    ubuntu_18.04=list("Canonical", "UbuntuServer", "18.04-LTS"),
-    ubuntu_20.04=list("Canonical", "0001-com-ubuntu-server-focal", "20_04-LTS"),
-    ubuntu_20.04_gen2=list("Canonical", "0001-com-ubuntu-server-focal", "20_04-LTS-gen2")
+    windows_dsvm=list("microsoft-dsvm", "dsvm-win-2019", "server-2019")
 )
 
 test_that("VM/SS config works",
 {
-    user <- user_config("username", ssh="random key")
+    user <- user_config("username", password="random password")
     config_unit_tester(img_list, user)
 })
 
@@ -38,7 +35,8 @@ parallel::clusterExport(cl, "rg", envir=environment())
 
 test_that("VM/SS deployment works",
 {
-    user <- user_config("username", "../resources/testkey.pub")
+    user <- user_config("username",
+                        password=paste0(c(sample(letters, 5, TRUE), sample(LETTERS, 5, TRUE), "!@#"), collapse=""))
     size <- "Standard_DS1_v2"
     config_integration_tester(img_list, cl, user, size)
 })

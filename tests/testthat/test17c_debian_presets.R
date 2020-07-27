@@ -1,10 +1,10 @@
-context("Ubuntu preset configs")
+context("Debian preset configs")
 
 img_list <- list(
-    ubuntu_16.04=list("Canonical", "UbuntuServer", "16.04-LTS"),
-    ubuntu_18.04=list("Canonical", "UbuntuServer", "18.04-LTS"),
-    ubuntu_20.04=list("Canonical", "0001-com-ubuntu-server-focal", "20_04-LTS"),
-    ubuntu_20.04_gen2=list("Canonical", "0001-com-ubuntu-server-focal", "20_04-LTS-gen2")
+    debian_8_backports=list("Credativ", "Debian", "8-backports"),
+    debian_9_backports=list("Credativ", "Debian", "9-backports"),
+    debian_10_backports=list("Debian", "Debian-10", "10-backports"),
+    debian_10_backports_gen2=list("Debian", "Debian-10", "10-backports-gen2")
 )
 
 test_that("VM/SS config works",

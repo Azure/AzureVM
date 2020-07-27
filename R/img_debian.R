@@ -71,7 +71,7 @@ debian_10_backports_ss <- function(datadisks=numeric(0),
                                                            probes=list(lb_probe_ssh)),
                                    ...)
 {
-    vmss_config(image_config("Debian", "Debian", "10-backports"),
+    vmss_config(image_config("Debian", "Debian-10", "10-backports"),
                 datadisks=datadisks, nsg=nsg, load_balancer=load_balancer, ...)
 }
 
@@ -83,7 +83,7 @@ debian_10_backports_gen2_ss <- function(datadisks=numeric(0),
                                                                 probes=list(lb_probe_ssh)),
                                         ...)
 {
-    vmss_config(image_config("Debian", "Debian", "10-backports-gen2"),
+    vmss_config(image_config("Debian", "Debian-10", "10-backports-gen2"),
                 datadisks=datadisks, nsg=nsg, load_balancer=load_balancer, ...)
 }
 

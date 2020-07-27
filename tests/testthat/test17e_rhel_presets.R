@@ -1,10 +1,12 @@
-context("Ubuntu preset configs")
+context("RHEL preset configs")
 
 img_list <- list(
-    ubuntu_16.04=list("Canonical", "UbuntuServer", "16.04-LTS"),
-    ubuntu_18.04=list("Canonical", "UbuntuServer", "18.04-LTS"),
-    ubuntu_20.04=list("Canonical", "0001-com-ubuntu-server-focal", "20_04-LTS"),
-    ubuntu_20.04_gen2=list("Canonical", "0001-com-ubuntu-server-focal", "20_04-LTS-gen2")
+    rhel_7.6=list("RedHat", "RHEL", "7-RAW"),
+    rhel_8=list("RedHat", "RHEL", "8"),
+    rhel_8.1=list("RedHat", "RHEL", "8.1"),
+    rhel_8.1_gen2=list("RedHat", "RHEL", "81gen2"),
+    rhel_8.2=list("RedHat", "RHEL", "8.2"),
+    rhel_8.2_gen2=list("RedHat", "RHEL", "82gen2")
 )
 
 test_that("VM/SS config works",

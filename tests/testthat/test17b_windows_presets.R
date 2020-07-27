@@ -7,27 +7,8 @@ img_list <- list(
 
 test_that("VM/SS config works",
 {
-    key_user <- user_config("username", ssh="random key")
-    Map(function(config, arglist)
-    {
-        vmconf <- get(config)
-        vm <- vmconf()
-        expect_is(vm, "vm_config")
-        expect_identical(vm$image$publisher, arglist[[1]])
-        expect_identical(vm$image$offer, arglist[[2]])
-        expect_identical(vm$image$sku, arglist[[3]])
-        expect_silent(build_template_definition(vm))
-        expect_silent(build_template_parameters(vm, "vmname", key_user, "size"))
-
-        vmssconf <- get(paste0(config, "_ss"))
-        vmss <- vmssconf()
-        expect_is(vmss, "vmss_config")
-        expect_identical(vmss$image$publisher, arglist[[1]])
-        expect_identical(vmss$image$offer, arglist[[2]])
-        expect_identical(vmss$image$sku, arglist[[3]])
-        expect_silent(build_template_definition(vmss))
-        expect_silent(build_template_parameters(vmss, "vmname", key_user, "size", 5))
-    }, names(img_list), img_list)
+    user <- user_config("username", password="random password")
+    config_unit_tester(img_list, user)
 })
 
 
@@ -43,9 +24,6 @@ if(tenant == "" || app == "" || password == "" || subscription == "")
 
 rgname <- paste0("vm", make_name(20))
 location <- "australiaeast"
-user <- user_config("username",
-    password=paste0(c(sample(letters, 5, TRUE), sample(LETTERS, 5, TRUE), "!@#"), collapse=""))
-size <- "Standard_DS1_v2"
 
 rg <- AzureRMR::az_rm$
     new(tenant=tenant, app=app, password=password)$
@@ -56,9 +34,12 @@ nworkers <- if(Sys.getenv("NOT_CRAN") == "") 2 else 10
 cl <- parallel::makeCluster(nworkers)
 parallel::clusterExport(cl, "rg", envir=environment())
 
-test_that("VM deployment works",
+test_that("VM/SS deployment works",
 {
-    config_tester(img_list, cl, user, size)
+    user <- user_config("username",
+                        password=paste0(c(sample(letters, 5, TRUE), sample(LETTERS, 5, TRUE), "!@#"), collapse=""))
+    size <- "Standard_DS1_v2"
+    config_integration_tester(img_list, cl, user, size)
 })
 
 teardown({

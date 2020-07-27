@@ -1,10 +1,8 @@
-context("Ubuntu preset configs")
+context("Linux DSVM preset configs")
 
 img_list <- list(
-    ubuntu_16.04=list("Canonical", "UbuntuServer", "16.04-LTS"),
-    ubuntu_18.04=list("Canonical", "UbuntuServer", "18.04-LTS"),
-    ubuntu_20.04=list("Canonical", "0001-com-ubuntu-server-focal", "20_04-LTS"),
-    ubuntu_20.04_gen2=list("Canonical", "0001-com-ubuntu-server-focal", "20_04-LTS-gen2")
+    ubuntu_dsvm=list("microsoft-dsvm", "ubuntu-1804", "1804"),
+    ubuntu_dsvm_gen2=list("microsoft-dsvm", "ubuntu-1804", "1804-gen2")
 )
 
 test_that("VM/SS config works",
