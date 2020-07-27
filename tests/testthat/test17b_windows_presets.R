@@ -2,7 +2,8 @@ context("Windows preset configs")
 
 img_list <- list(
     windows_2016=list("MicrosoftWindowsServer", "WindowsServer", "2016-Datacenter"),
-    windows_2019=list("MicrosoftWindowsServer", "WindowsServer", "2019-Datacenter")
+    windows_2019=list("MicrosoftWindowsServer", "WindowsServer", "2019-Datacenter"),
+    windows_2019_gen2=list("MicrosoftWindowsServer", "WindowsServer", "2019-Datacenter-gensecond")
 )
 
 test_that("VM/SS config works",
