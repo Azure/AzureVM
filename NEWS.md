@@ -1,3 +1,7 @@
+# AzureVM 2.2.1
+
+- Hotfix to previous version, to export `windows_2019_gen2` and `windows_2019_gen2_ss` configuration functions.
+
 # AzureVM 2.2.0
 
 - Add ability to retrieve an SSH public key from an Azure resource object. See `?user_config` for more information.

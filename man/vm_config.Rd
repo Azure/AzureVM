@@ -24,6 +24,7 @@
 \alias{ubuntu_20.04_gen2}
 \alias{windows_2016}
 \alias{windows_2019}
+\alias{windows_2019_gen2}
 \alias{vm_config}
 \title{VM configuration functions}
 \usage{
@@ -93,6 +94,9 @@ windows_2016(keylogin = FALSE, managed_identity = TRUE,
   datadisks = numeric(0), nsg = nsg_config(list(nsg_rule_allow_rdp)), ...)
 
 windows_2019(keylogin = FALSE, managed_identity = TRUE,
+  datadisks = numeric(0), nsg = nsg_config(list(nsg_rule_allow_rdp)), ...)
+
+windows_2019_gen2(keylogin = FALSE, managed_identity = TRUE,
   datadisks = numeric(0), nsg = nsg_config(list(nsg_rule_allow_rdp)), ...)
 
 vm_config(image, keylogin, managed_identity = TRUE,

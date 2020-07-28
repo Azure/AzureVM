@@ -24,6 +24,7 @@
 \alias{ubuntu_20.04_gen2_ss}
 \alias{windows_2016_ss}
 \alias{windows_2019_ss}
+\alias{windows_2019_gen2_ss}
 \alias{vmss_config}
 \title{Virtual machine scaleset configuration functions}
 \usage{
@@ -135,6 +136,11 @@ windows_2016_ss(datadisks = numeric(0),
   list(lb_probe_rdp)), options = scaleset_options(keylogin = FALSE), ...)
 
 windows_2019_ss(datadisks = numeric(0),
+  nsg = nsg_config(list(nsg_rule_allow_rdp)),
+  load_balancer = lb_config(rules = list(lb_rule_rdp), probes =
+  list(lb_probe_rdp)), options = scaleset_options(keylogin = FALSE), ...)
+
+windows_2019_gen2_ss(datadisks = numeric(0),
   nsg = nsg_config(list(nsg_rule_allow_rdp)),
   load_balancer = lb_config(rules = list(lb_rule_rdp), probes =
   list(lb_probe_rdp)), options = scaleset_options(keylogin = FALSE), ...)
