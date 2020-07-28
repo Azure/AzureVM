@@ -2,9 +2,12 @@
 
 - Add ability to retrieve an SSH public key from an Azure resource object. See `?user_config` for more information.
 - New predefined configurations for VMs and VM scalesets: Ubuntu 20.04; Debian 10 (w/backports); Centos 8.1; RHEL 8.1 and 8.2; Windows Server 2019. All new configurations except Centos are available as both generation 1 and generation 2 VMs. See `?vm_config` and `?vmss_config` for more information.
+  - The default configuration for `create_vm` and `create_vm_scaleset` now uses Ubuntu 20.04.
 - Update the DSVM configuration functions `ubuntu_dsvm` and `windows_dsvm` to use the latest images. The Ubuntu DSVM no longer has a built-in data disk, so the `dsvm_disk_type` argument has been removed.
   - New `ubuntu_dsvm_gen2` configuration to create a gen2 Ubuntu DSVM.
 - Fix a bug that prevented Windows scalesets from being created.
+- Logic to detect a running VM now correctly handles VMs that are updating.
+- Assorted other minor fixes.
 
 # AzureVM 2.1.1
 

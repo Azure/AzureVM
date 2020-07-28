@@ -426,7 +426,8 @@ add_sub_methods <- function()
 add_rg_methods <- function()
 {
     az_resource_group$set("public", "create_vm", overwrite=TRUE,
-    function(name, login_user, size="Standard_DS3_v2", config="ubuntu_18.04", managed_identity=TRUE, datadisks=numeric(0),
+    function(name, login_user, size="Standard_DS3_v2", config="ubuntu_20.04",
+             managed_identity=TRUE, datadisks=numeric(0),
              ..., template, parameters, mode="Incremental", wait=TRUE)
     {
         stopifnot(inherits(login_user, "user_config"))
@@ -449,7 +450,7 @@ add_rg_methods <- function()
     })
 
     az_resource_group$set("public", "create_vm_scaleset", overwrite=TRUE,
-    function(name, login_user, instances, size="Standard_DS1_v2", config="ubuntu_18.04_ss",
+    function(name, login_user, instances, size="Standard_DS1_v2", config="ubuntu_20.04_ss",
              ..., template, parameters, mode="Incremental", wait=TRUE)
     {
         stopifnot(inherits(login_user, "user_config"))

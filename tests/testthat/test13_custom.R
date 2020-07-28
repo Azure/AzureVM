@@ -13,6 +13,9 @@ location <- "australiaeast"
 user <- user_config("username", "../resources/testkey.pub")
 size <- "Standard_DS1_v2"
 
+# turn off parallelisation
+maxpoolsize <- options(azure_vm_maxpoolsize=0)
+
 rg <- AzureRMR::az_rm$
     new(tenant=tenant, app=app, password=password)$
     get_subscription(subscription)$
@@ -61,4 +64,4 @@ test_that("Scaleset options work",
 })
 
 rg$delete(confirm=FALSE)
-
+options(maxpoolsize)

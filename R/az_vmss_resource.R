@@ -281,8 +281,9 @@ private=list(
     {
         params$instanceId <- NULL
         obj <- az_vm_resource$new(self$token, self$subscription, deployed_properties=params)
-        obj$nic_api_version <- "2018-10-01"
-        obj$ip_api_version <- "2018-10-01"
+        # some subresource API versions don't match between VMs and VM scalesets
+        obj$nic_api_version <- "2020-06-01"
+        obj$ip_api_version <- "2020-06-01"
 
         # make type and name useful
         obj$type <- self$type

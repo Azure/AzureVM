@@ -36,8 +36,8 @@ public=list(
     status=NULL,
 
     # need to record these since AzureRMR can't currently get API versions for subresources
-    nic_api_version="2019-04-01",
-    ip_api_version="2019-04-01",
+    nic_api_version="2020-05-01",
+    ip_api_version="2020-05-01",
 
     sync_vm_status=function()
     {
@@ -289,12 +289,12 @@ private=list(
             Sys.sleep(5)
             self$sync_vm_status()
             if(length(self$status) == 2 &&
-                self$status[1] == "succeeded" &&
+                # self$status[1] == "succeeded" &&
                 self$status[2] == "running")
                 break
         }
         if(length(self$status) < 2 ||
-            self$status[1] != "succeeded" ||
+            # self$status[1] != "succeeded" ||
             self$status[2] != "running")
             stop("Unable to ", op, " VM", call.=FALSE)
     }
