@@ -8,5 +8,5 @@ CONTRIBUTING.md
 drat.sh
 .travis.yml
 ^LICENSE\.md$
-azure-pipelines.yml
+^\.github$
 ^tpl$

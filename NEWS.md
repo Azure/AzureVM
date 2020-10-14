@@ -1,3 +1,7 @@
+# AzureVM 2.2.2
+
+- Change maintainer email address.
+
 # AzureVM 2.2.1
 
 - Hotfix to previous version, to export `windows_2019_gen2` and `windows_2019_gen2_ss` configuration functions.
