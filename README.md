@@ -2,7 +2,7 @@
 
 [![CRAN](https://www.r-pkg.org/badges/version/AzureVM)](https://cran.r-project.org/package=AzureVM)
 ![Downloads](https://cranlogs.r-pkg.org/badges/AzureVM)
-<a href="https://asiadatascience.visualstudio.com/AzureR/_build/latest?definitionId=7&branchName=master"><img src="https://asiadatascience.visualstudio.com/AzureR/_apis/build/status/Azure.AzureVM?branchName=master" alt="Build Status"></a>
+![R-CMD-check](https://github.com/Azure/AzureVM/workflows/R-CMD-check/badge.svg)
 
 AzureVM is a package for interacting with [virtual machines](https://azure.microsoft.com/services/virtual-machines/) and [virtual machine scalesets](https://azure.microsoft.com/services/virtual-machine-scale-sets/) in Azure. You can deploy, start up, shut down, run scripts, deallocate and delete VMs and scalesets from the R command line. It uses the tools provided by the [AzureRMR package](https://github.com/Azure/AzureRMR) to manage VM resources and templates.
 
